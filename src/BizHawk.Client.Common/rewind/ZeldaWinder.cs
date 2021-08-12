@@ -67,6 +67,11 @@ namespace BizHawk.Client.Common
 			private set { Sync(); _active = value; }
 		}
 
+		/// <summary>
+		/// Whether the last frame we captured is stale and should be avoided when rewinding
+		/// </summary>
+		public bool HasStaleFrame { get; private set; }
+
 		public void Suspend()
 		{
 			Active = false;
@@ -96,6 +101,7 @@ namespace BizHawk.Client.Common
 			Sync();
 			if (!_active)
 				return;
+			HasStaleFrame = false;
 			if (_masterFrame == -1)
 			{
 				var sss = new SaveStateStream(this);
@@ -104,11 +110,13 @@ namespace BizHawk.Client.Common
 				_masterLength = (int)sss.Position;
 				_masterFrame = frame;
 				_count++;
+				HasStaleFrame = true;
 				return;
 			}
 			if (!_buffer.WouldCapture(frame - _masterFrame))
 				return;
 
+			HasStaleFrame = true;
 			{
 				var sss = new SaveStateStream(this);
 				_stateSource.SaveStateBinary(new BinaryWriter(sss));
@@ -225,13 +233,13 @@ namespace BizHawk.Client.Common
 			_masterFrame = state.Frame;
 		}
 
-		public bool Rewind(int frameToAvoid)
+		public bool Rewind()
 		{
 			Sync();
 			if (!_active || _count == 0)
 				return false;
 
-			if (_masterFrame == frameToAvoid)
+			if (HasStaleFrame)
 			{
 				if (_count > 1)
 				{
@@ -250,7 +258,9 @@ namespace BizHawk.Client.Common
 			else
 			{
 				// The emulator will frame advance without giving us a chance to
-				// re-capture this frame, so we shouldn't invalidate this state just yet.
+				// re-capture this frame, so we shouldn't invalidate this state just yet,
+				// but we should mark the state as stale
+				HasStaleFrame = true;
 				_stateSource.LoadStateBinary(new BinaryReader(new MemoryStream(_master, 0, _masterLength, false)));
 			}
 			return true;
