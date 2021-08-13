@@ -66,28 +66,31 @@ namespace BizHawk.Client.Common
 			_buffer.Capture(frame, s => {HasStaleFrame = true; _stateSource.SaveStateBinary(new BinaryWriter(s)); });
 		}
 
-		public bool Rewind()
+		public bool Rewind(bool fastForward)
 		{
 			if (!Active || Count == 0)
 				return false;
-			var index = Count - 1;
-			var state = _buffer.GetState(index);
-			if (HasStaleFrame)
+
+			if (Count == 1 && HasStaleFrame)
 			{
-				if (Count > 1)
-				{
-					state = _buffer.GetState(index - 1);
-				}
+				// the only option is to load the stale frame
+				// the emulatur will handle this by not frame advancing
+				var state = _buffer.GetState(0);
 				_stateSource.LoadStateBinary(new BinaryReader(state.GetReadStream()));
-				_buffer.InvalidateEnd(index);
+				// the emulator won't frame advance, so we should invalidate the state we loaded
+				_buffer.InvalidateEnd(0);
 			}
 			else
 			{
-				// The emulator will frame advance without giving us a chance to
-				// re-capture this frame, so we shouldn't invalidate this state just yet,
-				// but we should mark the state as stale
-				HasStaleFrame = true;
+				int rewindSteps = fastForward ? 5 : 1;
+				if (HasStaleFrame) ++rewindSteps;
+				var index = rewindSteps > Count ? 0 : Count - rewindSteps;
+				var state = _buffer.GetState(index);
 				_stateSource.LoadStateBinary(new BinaryReader(state.GetReadStream()));
+				// the emulator will frame advance without giving us a chance to re-capture
+				// the state we just loaded -> keep the state but mark it as stale
+				_buffer.InvalidateEnd(index + 1);
+				HasStaleFrame = true;
 			}
 			return true;
 		}

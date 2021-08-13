@@ -15,7 +15,7 @@ namespace BizHawk.Client.Common
 		/// <summary>
 		/// Rewind 1 or 2 saved frames, depending on whether the last frame is stale.
 		/// </summary>
-		bool Rewind();
+		bool Rewind(bool fastForward);
 
 		void Suspend();
 		void Resume();
