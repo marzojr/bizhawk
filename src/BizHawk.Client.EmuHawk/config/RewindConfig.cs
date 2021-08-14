@@ -147,7 +147,7 @@ namespace BizHawk.Client.EmuHawk
 			var bufferSize = 1L << (int) BufferSizeUpDown.Value;
 			labelEx1.Text = bufferSize.ToString();
 			bufferSize *= 1024 * 1024;
-			var estFrames = bufferSize / _avgStateSize;
+			var estFrames = Math.Min(bufferSize / _avgStateSize, 262143.0);
 
 			double estTotalFrames = estFrames;
 			double minutes = estTotalFrames / 60 / 60;

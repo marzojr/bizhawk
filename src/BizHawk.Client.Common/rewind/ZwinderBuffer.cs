@@ -81,7 +81,7 @@ namespace BizHawk.Client.Common
 		/// <summary>
 		/// Number of states that could be in the state ringbuffer, Mask for the state ringbuffer
 		/// </summary>
-		private const int STATEMASK = 16383;
+		private const int STATEMASK = 262143;
 
 		/// <summary>
 		/// How many states are actually in the state ringbuffer
