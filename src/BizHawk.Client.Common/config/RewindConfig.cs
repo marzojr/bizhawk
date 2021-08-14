@@ -34,6 +34,12 @@
 		/// </summary>
 		int TargetRewindInterval { get; }
 
+		/// <summary>
+		/// Number of rewind states to go back per press of the rewind button, without and with fast forwarding.
+		/// </summary>
+		int speedMultiplier { get; }
+		int fastSpeedMultiplier { get; }
+
 		public enum BackingStoreType
 		{
 			Memory,
@@ -52,6 +58,8 @@
 		public bool UseFixedRewindInterval { get; set; } = false;
 		public int TargetFrameLength { get; set; } = 600;
 		public int TargetRewindInterval { get; set; } = 5;
+		public int speedMultiplier { get; set; } = 1;
+		public int fastSpeedMultiplier { get; set; } = 5;
 		public IRewindSettings.BackingStoreType BackingStore { get; set; } = IRewindSettings.BackingStoreType.Memory;
 	}
 }

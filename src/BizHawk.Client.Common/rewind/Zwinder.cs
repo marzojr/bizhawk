@@ -20,11 +20,16 @@ namespace BizHawk.Client.Common
 		private readonly ZwinderBuffer _buffer;
 		private readonly IStatable _stateSource;
 
+		private readonly int speedMultipler;
+		private readonly int fastSpeedMultipler;
+
 		public Zwinder(IStatable stateSource, IRewindSettings settings)
 		{
 			_buffer = new ZwinderBuffer(settings);
 			_stateSource = stateSource;
 			Active = true;
+			speedMultipler = settings.speedMultiplier;
+			fastSpeedMultipler = settings.fastSpeedMultiplier;
 		}
 
 		/// <summary>
@@ -82,7 +87,7 @@ namespace BizHawk.Client.Common
 			}
 			else
 			{
-				int rewindSteps = fastForward ? 5 : 1;
+				int rewindSteps = fastForward ? fastSpeedMultipler : speedMultipler;
 				if (HasStaleFrame) ++rewindSteps;
 				var index = rewindSteps > Count ? 0 : Count - rewindSteps;
 				var state = _buffer.GetState(index);

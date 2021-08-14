@@ -17,6 +17,9 @@ namespace BizHawk.Client.Common
 		private readonly ZwinderBuffer _buffer;
 		private readonly IStatable _stateSource;
 
+		private readonly int speedMultipler;
+		private readonly int fastSpeedMultipler;
+
 		private byte[] _master = new byte[0];
 		private int _masterFrame = -1;
 		private int _masterLength = 0;
@@ -41,6 +44,8 @@ namespace BizHawk.Client.Common
 			_buffer = new ZwinderBuffer(settings);
 			_stateSource = stateSource;
 			_active = true;
+			speedMultipler = settings.speedMultiplier;
+			fastSpeedMultipler = settings.fastSpeedMultiplier;
 		}
 
 		/// <summary>
@@ -239,24 +244,36 @@ namespace BizHawk.Client.Common
 			if (!_active || _count == 0)
 				return false;
 
-			if(_count == 1 && HasStaleFrame)
+			if(_count == 1)
 			{
-				// load stale frame anyways. See Zwinder::Rewind(...) for details.
+				// only option is to load the one frame we have
 				_stateSource.LoadStateBinary(new BinaryReader(new MemoryStream(_master, 0, _masterLength, false)));
-				_masterFrame = -1;
+				if (HasStaleFrame)
+				{
+					// emulator won't frame advance. See Zwinder::Rewind(...) for details.
+					_masterFrame = -1;
+					_count--;
+				}
+				else
+				{
+					HasStaleFrame = true;
+				}
 			}
 			else
 			{
-				int rewindSteps = (fastForward ? 5 : 1);
+				int rewindSteps = fastForward ? fastSpeedMultipler : speedMultipler;
 				if (HasStaleFrame) ++rewindSteps;
-				// last frame is in _master, so we only need to load (rewindSteps - 1) zeldas.
-				var index = rewindSteps - 1 >= _count ? 0 : _count - (rewindSteps - 1);
+				// last state is in _master, so we only need to load (rewindSteps - 1) zeldas.
+				int zeldaSteps = Math.Min(rewindSteps - 1, _buffer.Count);
+				var index = _buffer.Count - zeldaSteps;
 				for(int i=_buffer.Count - 1; i >= index; --i)
 				{
 					RefillMaster(_buffer.GetState(i));
 				}
+				_stateSource.LoadStateBinary(new BinaryReader(new MemoryStream(_master, 0, _masterLength, false)));
 				HasStaleFrame = true;
 				_buffer.InvalidateEnd(index);
+				_count -= zeldaSteps;
 			}
 			return true;
 		}
