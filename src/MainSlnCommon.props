@@ -5,7 +5,6 @@
 	</PropertyGroup>
 	<Import Project="../Common.props" />
 	<PropertyGroup>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<DebugType>embedded</DebugType>
 		<DefineConstants>$(DefineConstants);AVI_SUPPORT</DefineConstants>
 		<NeutralLanguage>en-US</NeutralLanguage>
