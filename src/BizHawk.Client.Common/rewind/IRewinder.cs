@@ -13,9 +13,9 @@ namespace BizHawk.Client.Common
 
 		void Capture(int frame);
 		/// <summary>
-		/// Rewind 1 or 2 saved frames, avoiding frameToAvoid if possible.
+		/// Rewind a configurable number of frames while skipping stale frames.
 		/// </summary>
-		bool Rewind(int frameToAvoid);
+		bool Rewind(bool fastForward);
 
 		void Suspend();
 		void Resume();

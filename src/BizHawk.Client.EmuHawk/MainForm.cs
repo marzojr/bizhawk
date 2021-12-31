@@ -2198,7 +2198,8 @@ namespace BizHawk.Client.EmuHawk
 
 			if (rewind)
 			{
-				speedPercent = Math.Max(speedPercent / Rewinder.RewindFrequency, 5);
+				// fast-forwarding while rewinding is handled in the rewinder
+				speedPercent = Math.Max(Config.SpeedPercent / Rewinder.RewindFrequency, 5);
 			}
 
 			DisableSecondaryThrottling = _unthrottled || turbo || fastForward || rewind;
@@ -3026,14 +3027,14 @@ namespace BizHawk.Client.EmuHawk
 				runFrame = true;
 			}
 
-			bool isRewinding = Rewind(ref runFrame, currentTimestamp, out var returnToRecording);
+			var isFastForwarding = InputManager.ClientControls["Fast Forward"] || IsTurboing || InvisibleEmulation;
+			bool isRewinding = Rewind(ref runFrame, currentTimestamp, isFastForwarding, out var returnToRecording);
 
 			float atten = 0;
 
 			// BlockFrameAdvance (true when input it being editted in TAStudio) supercedes all other frame advance conditions
 			if ((runFrame || force) && !BlockFrameAdvance)
 			{
-				var isFastForwarding = InputManager.ClientControls["Fast Forward"] || IsTurboing || InvisibleEmulation;
 				var isFastForwardingOrRewinding = isFastForwarding || isRewinding || _unthrottled;
 
 				if (isFastForwardingOrRewinding != _lastFastForwardingOrRewinding)
@@ -4527,7 +4528,7 @@ namespace BizHawk.Client.EmuHawk
 			}
 		}
 
-		private bool Rewind(ref bool runFrame, long currentTimestamp, out bool returnToRecording)
+		private bool Rewind(ref bool runFrame, long currentTimestamp, bool isFastForwarding, out bool returnToRecording)
 		{
 			var isRewinding = false;
 
@@ -4608,7 +4609,7 @@ namespace BizHawk.Client.EmuHawk
 					// Try to avoid the previous frame:  We want to frame advance right after rewinding so we can give a useful
 					// framebuffer.
 					var frameToAvoid = Emulator.Frame - 1;
-					runFrame = Rewinder.Rewind(frameToAvoid);
+					runFrame = Rewinder.Rewind(isFastForwarding);
 					if (Emulator.Frame == frameToAvoid)
 					{
 						// The rewinder was unable to satisfy our request.  Prefer showing a stale framebuffer to

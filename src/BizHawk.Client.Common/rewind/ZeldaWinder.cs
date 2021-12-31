@@ -17,6 +17,9 @@ namespace BizHawk.Client.Common
 		private readonly ZwinderBuffer _buffer;
 		private readonly IStatable _stateSource;
 
+		private readonly int speedMultipler;
+		private readonly int fastSpeedMultipler;
+
 		private byte[] _master = new byte[0];
 		private int _masterFrame = -1;
 		private int _masterLength = 0;
@@ -41,6 +44,8 @@ namespace BizHawk.Client.Common
 			_buffer = new ZwinderBuffer(settings);
 			_stateSource = stateSource;
 			_active = true;
+			speedMultipler = settings.speedMultiplier;
+			fastSpeedMultipler = settings.fastSpeedMultiplier;
 		}
 
 		/// <summary>
@@ -66,6 +71,11 @@ namespace BizHawk.Client.Common
 			get { Sync(); return _active; }
 			private set { Sync(); _active = value; }
 		}
+
+		/// <summary>
+		/// Whether the last frame we captured is stale and should be avoided when rewinding
+		/// </summary>
+		public bool HasStaleFrame { get; private set; }
 
 		public void Suspend()
 		{
@@ -96,6 +106,7 @@ namespace BizHawk.Client.Common
 			Sync();
 			if (!_active)
 				return;
+			HasStaleFrame = false;
 			if (_masterFrame == -1)
 			{
 				var sss = new SaveStateStream(this);
@@ -104,11 +115,13 @@ namespace BizHawk.Client.Common
 				_masterLength = (int)sss.Position;
 				_masterFrame = frame;
 				_count++;
+				HasStaleFrame = true;
 				return;
 			}
 			if (!_buffer.WouldCapture(frame - _masterFrame))
 				return;
 
+			HasStaleFrame = true;
 			{
 				var sss = new SaveStateStream(this);
 				_stateSource.SaveStateBinary(new BinaryWriter(sss));
@@ -225,33 +238,42 @@ namespace BizHawk.Client.Common
 			_masterFrame = state.Frame;
 		}
 
-		public bool Rewind(int frameToAvoid)
+		public bool Rewind(bool fastForward)
 		{
 			Sync();
 			if (!_active || _count == 0)
 				return false;
 
-			if (_masterFrame == frameToAvoid)
+			if(_count == 1)
 			{
-				if (_count > 1)
+				// only option is to load the one frame we have
+				_stateSource.LoadStateBinary(new BinaryReader(new MemoryStream(_master, 0, _masterLength, false)));
+				if (HasStaleFrame)
 				{
-					var index = _buffer.Count - 1;
-					RefillMaster(_buffer.GetState(index));
-					_buffer.InvalidateEnd(index);
-					_stateSource.LoadStateBinary(new BinaryReader(new MemoryStream(_master, 0, _masterLength, false)));
+					// emulator won't frame advance. See Zwinder::Rewind(...) for details.
+					_masterFrame = -1;
+					_count--;
 				}
 				else
 				{
-					_stateSource.LoadStateBinary(new BinaryReader(new MemoryStream(_master, 0, _masterLength, false)));
-					_masterFrame = -1;
+					HasStaleFrame = true;
 				}
-				_count--;
 			}
 			else
 			{
-				// The emulator will frame advance without giving us a chance to
-				// re-capture this frame, so we shouldn't invalidate this state just yet.
+				int rewindSteps = fastForward ? fastSpeedMultipler : speedMultipler;
+				if (HasStaleFrame) ++rewindSteps;
+				// last state is in _master, so we only need to load (rewindSteps - 1) zeldas.
+				int zeldaSteps = Math.Min(rewindSteps - 1, _buffer.Count);
+				var index = _buffer.Count - zeldaSteps;
+				for(int i=_buffer.Count - 1; i >= index; --i)
+				{
+					RefillMaster(_buffer.GetState(i));
+				}
 				_stateSource.LoadStateBinary(new BinaryReader(new MemoryStream(_master, 0, _masterLength, false)));
+				HasStaleFrame = true;
+				_buffer.InvalidateEnd(index);
+				_count -= zeldaSteps;
 			}
 			return true;
 		}

@@ -20,11 +20,16 @@ namespace BizHawk.Client.Common
 		private readonly ZwinderBuffer _buffer;
 		private readonly IStatable _stateSource;
 
+		private readonly int speedMultipler;
+		private readonly int fastSpeedMultipler;
+
 		public Zwinder(IStatable stateSource, IRewindSettings settings)
 		{
 			_buffer = new ZwinderBuffer(settings);
 			_stateSource = stateSource;
 			Active = true;
+			speedMultipler = settings.speedMultiplier;
+			fastSpeedMultipler = settings.fastSpeedMultiplier;
 		}
 
 		/// <summary>
@@ -53,33 +58,44 @@ namespace BizHawk.Client.Common
 
 		public bool Active { get; private set; }
 
+		/// <summary>
+		/// Whether the last frame we captured is stale and should be avoided when rewinding
+		/// </summary>
+		public bool HasStaleFrame { get; private set; }
+
 		public void Capture(int frame)
 		{
 			if (!Active)
 				return;
-			_buffer.Capture(frame, s => _stateSource.SaveStateBinary(new BinaryWriter(s)));
+			HasStaleFrame = false;
+			_buffer.Capture(frame, s => {HasStaleFrame = true; _stateSource.SaveStateBinary(new BinaryWriter(s)); });
 		}
 
-		public bool Rewind(int frameToAvoid)
+		public bool Rewind(bool fastForward)
 		{
 			if (!Active || Count == 0)
 				return false;
-			var index = Count - 1;
-			var state = _buffer.GetState(index);
-			if (state.Frame == frameToAvoid)
+
+			if (Count == 1 && HasStaleFrame)
 			{
-				if (Count > 1)
-				{
-					state = _buffer.GetState(index - 1);
-				}
+				// the only option is to load the stale frame
+				// the emulatur will handle this by not frame advancing
+				var state = _buffer.GetState(0);
 				_stateSource.LoadStateBinary(new BinaryReader(state.GetReadStream()));
-				_buffer.InvalidateEnd(index);
+				// the emulator won't frame advance, so we should invalidate the state we loaded
+				_buffer.InvalidateEnd(0);
 			}
 			else
 			{
-				// The emulator will frame advance without giving us a chance to
-				// re-capture this frame, so we shouldn't invalidate this state just yet.
+				int rewindSteps = fastForward ? fastSpeedMultipler : speedMultipler;
+				if (HasStaleFrame) ++rewindSteps;
+				var index = rewindSteps > Count ? 0 : Count - rewindSteps;
+				var state = _buffer.GetState(index);
 				_stateSource.LoadStateBinary(new BinaryReader(state.GetReadStream()));
+				// the emulator will frame advance without giving us a chance to re-capture
+				// the state we just loaded -> keep the state but mark it as stale
+				_buffer.InvalidateEnd(index + 1);
+				HasStaleFrame = true;
 			}
 			return true;
 		}
