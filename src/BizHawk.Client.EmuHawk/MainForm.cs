@@ -2198,7 +2198,8 @@ namespace BizHawk.Client.EmuHawk
 
 			if (rewind)
 			{
-				speedPercent = Math.Max(speedPercent / Rewinder.RewindFrequency, 5);
+				// fast-forwarding while rewinding is handled in the rewinder
+				speedPercent = Math.Max(Config.SpeedPercent / Rewinder.RewindFrequency, 5);
 			}
 
 			DisableSecondaryThrottling = _unthrottled || turbo || fastForward || rewind;
