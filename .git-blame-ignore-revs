@@ -1,0 +1,5 @@
+# This file can be used for git blame using --ignore-revs-file
+# or by setting blame.ignoreRevsFile in the git config.
+
+# Move projects to /src
+3a3b22c03b422eda8fcd62c8cbbff3e838ba4f18
