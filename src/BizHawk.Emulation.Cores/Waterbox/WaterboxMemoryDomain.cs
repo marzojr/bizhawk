@@ -100,6 +100,26 @@ namespace BizHawk.Emulation.Cores.Waterbox
 			}
 		}
 
+		public override void BulkPeekByte(ulong srcStartOffset, Span<byte> dstBuffer)
+		{
+			if (_addressMangler != 0)
+			{
+				base.BulkPeekByte(srcStartOffset, dstBuffer);
+				return;
+			}
+			if ((ulong) Size <= srcStartOffset) throw new ArgumentOutOfRangeException(paramName: nameof(srcStartOffset));
+			if ((ulong) Size < srcStartOffset + (ulong) dstBuffer.Length) throw new ArgumentException(paramName: nameof(dstBuffer), message: ERR_MSG_TOO_MANY_BYTES_REQ);
+			try
+			{
+				_monitor.Enter();
+				new Span<byte>((void*) Z.US((ulong) _data + srcStartOffset), dstBuffer.Length).CopyTo(dstBuffer);
+			}
+			finally
+			{
+				_monitor.Exit();
+			}
+		}
+
 		public override void BulkPeekByte(Range<long> addresses, byte[] values)
 		{
 			if (_addressMangler != 0)
@@ -187,6 +207,21 @@ namespace BizHawk.Emulation.Cores.Waterbox
 				{
 					throw new ArgumentOutOfRangeException(nameof(addr));
 				}
+			}
+		}
+
+		public override void BulkPeekByte(ulong srcStartOffset, Span<byte> dstBuffer)
+		{
+			if (_addressMangler is not 0)
+			{
+				base.BulkPeekByte(srcStartOffset, dstBuffer);
+				return;
+			}
+			if ((ulong) Size <= srcStartOffset) throw new ArgumentOutOfRangeException(paramName: nameof(srcStartOffset));
+			if ((ulong) Size < srcStartOffset + (ulong) dstBuffer.Length) throw new ArgumentException(paramName: nameof(dstBuffer), message: ERR_MSG_TOO_MANY_BYTES_REQ);
+			fixed (byte* p = dstBuffer)
+			{
+				_access.Access((IntPtr) p, /*offset*/address: (long) srcStartOffset, count: dstBuffer.Length, write: false);
 			}
 		}
 

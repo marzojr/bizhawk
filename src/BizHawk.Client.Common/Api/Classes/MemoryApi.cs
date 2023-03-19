@@ -250,12 +250,32 @@ namespace BizHawk.Client.Common
 			var iSrc = Math.Min(Math.Max(0L, addr), d.Size);
 			var iDst = iSrc - addr;
 			var bytes = new byte[length];
-			using (d.EnterExit())
+			if (iSrc < indexAfterLast)
 			{
-				while (iSrc < indexAfterLast) bytes[iDst++] = d.PeekByte(iSrc++);
+				d.BulkPeekByte((ulong) iSrc, bytes.AsSpan().Slice(start: (int) iDst, length: (int) iSrc.RangeToExclusive(indexAfterLast).Count()));
 			}
 			if (lastReqAddr >= d.Size) LogCallback($"Warning: Attempted reads on addresses {d.Size}..{lastReqAddr} outside range of domain {d.Name} in {nameof(ReadByteRange)}()");
 			return bytes;
+		}
+
+		public bool ReadByteRange(ulong srcStartOffset, Span<byte> dstBuffer, string domain = null)
+		{
+			var d = NamedDomainOrCurrent(domain);
+			if (srcStartOffset >= (ulong) d.Size)
+			{
+				LogCallback($"Warning: attempted read of {srcStartOffset} outside the memory size of {d.Size}");
+				return false;
+			}
+			try
+			{
+				d.BulkPeekByte(srcStartOffset, dstBuffer);
+				return true;
+			}
+			catch (Exception e)
+			{
+				LogCallback($"bulk-peek threw {e.GetType().Name}: {e.Message}");
+				return false;
+			}
 		}
 
 		public void WriteByteRange(long addr, IReadOnlyList<byte> memoryblock, string domain = null)

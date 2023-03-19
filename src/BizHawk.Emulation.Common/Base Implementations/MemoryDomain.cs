@@ -12,6 +12,12 @@ namespace BizHawk.Emulation.Common
 	/// <seealso cref="IMemoryDomains" />
 	public abstract class MemoryDomain : IMonitor
 	{
+		private const string ERR_MSG_DEST_WRONG_LEN = "Invalid length of values array";
+
+		private const string ERR_MSG_NOT_ALIGNED = "The API contract doesn't define what to do for unaligned reads and writes!";
+
+		protected const string ERR_MSG_TOO_MANY_BYTES_REQ = "too many bytes requested, would read beyond bounds of domain";
+
 		public enum Endian
 		{
 			Big, Little, Unknown
@@ -103,14 +109,30 @@ namespace BizHawk.Emulation.Common
 			}
 		}
 
+		public virtual byte[] BulkPeekByte(Range<long> addresses)
+		{
+			var buf = new byte[addresses.Count()];
+			BulkPeekByte((ulong) addresses.Start, buf.AsSpan());
+			return buf;
+		}
+
+		public virtual void BulkPeekByte(ulong srcStartOffset, Span<byte> dstBuffer)
+		{
+			using var handle = this.EnterExit();
+			var iSrc = (long) srcStartOffset;
+			var endExcl = (long) srcStartOffset + dstBuffer.Length;
+			var iDst = 0;
+			while (iSrc != endExcl) dstBuffer[iDst++] = PeekByte(iSrc++);
+		}
+
 		public virtual void BulkPeekByte(Range<long> addresses, byte[] values)
 		{
 			if (addresses is null) throw new ArgumentNullException(paramName: nameof(addresses));
 			if (values is null) throw new ArgumentNullException(paramName: nameof(values));
 
-			if ((long) addresses.Count() != values.Length)
+			if ((ulong) values.LongLength != addresses.Count())
 			{
-				throw new InvalidOperationException("Invalid length of values array");
+				throw new InvalidOperationException(ERR_MSG_DEST_WRONG_LEN);
 			}
 
 			using (this.EnterExit())
@@ -130,13 +152,12 @@ namespace BizHawk.Emulation.Common
 			var start = addresses.Start;
 			var end  = addresses.EndInclusive + 1;
 
-			if ((start & 1) != 0 || (end & 1) != 0)
-				throw new InvalidOperationException("The API contract doesn't define what to do for unaligned reads and writes!");
+			if (start % 2 is not 0 || end % 2 is not 0) throw new InvalidOperationException(ERR_MSG_NOT_ALIGNED);
 			
-			if (values.LongLength * 2 != end - start)
+			if (checked((ulong) values.LongLength * 2UL) != addresses.Count())
 			{
 				// a longer array could be valid, but nothing needs that so don't support it for now
-				throw new InvalidOperationException("Invalid length of values array");
+				throw new InvalidOperationException(ERR_MSG_DEST_WRONG_LEN);
 			}
 
 			using (this.EnterExit())
@@ -154,13 +175,12 @@ namespace BizHawk.Emulation.Common
 			var start = addresses.Start;
 			var end  = addresses.EndInclusive + 1;
 
-			if ((start & 3) != 0 || (end & 3) != 0)
-				throw new InvalidOperationException("The API contract doesn't define what to do for unaligned reads and writes!");
+			if (start % 4 is not 0 || end % 4 is not 0) throw new InvalidOperationException(ERR_MSG_NOT_ALIGNED);
 			
-			if (values.LongLength * 4 != end - start)
+			if (checked((ulong) values.LongLength * 4UL) != addresses.Count())
 			{
 				// a longer array could be valid, but nothing needs that so don't support it for now
-				throw new InvalidOperationException("Invalid length of values array");
+				throw new InvalidOperationException(ERR_MSG_DEST_WRONG_LEN);
 			}
 
 			using (this.EnterExit())

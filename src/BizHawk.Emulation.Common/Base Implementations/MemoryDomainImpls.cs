@@ -81,6 +81,7 @@ namespace BizHawk.Emulation.Common
 			Func<long, byte> peek,
 			Action<long, byte> poke,
 			int wordSize,
+			//TODO bulkPeekByteSpan, though none of the cores using this actually pass any of the bulk peek callbacks at the moment
 			Action<Range<long>, byte[]> bulkPeekByte = null,
 			Action<Range<long>, bool, ushort[]> bulkPeekUshort = null,
 			Action<Range<long>, bool, uint[]> bulkPeekUint = null)
@@ -209,6 +210,13 @@ namespace BizHawk.Emulation.Common
 					throw new ArgumentOutOfRangeException(nameof(addr));
 				}
 			}
+		}
+
+		public override void BulkPeekByte(ulong srcStartOffset, Span<byte> dstBuffer)
+		{
+			if ((ulong) Size <= srcStartOffset) throw new ArgumentOutOfRangeException(paramName: nameof(srcStartOffset));
+			if ((ulong) Size < srcStartOffset + (ulong) dstBuffer.Length) throw new ArgumentException(paramName: nameof(dstBuffer), message: ERR_MSG_TOO_MANY_BYTES_REQ);
+			new Span<byte>((void*) ((ulong) Data + srcStartOffset), dstBuffer.Length).CopyTo(dstBuffer);
 		}
 
 		public override void BulkPeekByte(Range<long> addresses, byte[] values)

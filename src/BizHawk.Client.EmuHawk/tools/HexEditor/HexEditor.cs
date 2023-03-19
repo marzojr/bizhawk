@@ -606,8 +606,7 @@ namespace BizHawk.Client.EmuHawk
 				default:
 				case 1:
 				{
-					var vals = new byte[end - start];
-					_domain.BulkPeekByte(range, vals);
+					var vals = _domain.BulkPeekByte(range);
 					int i = 0;
 					for (var addr = start; addr < end; addr += dataSize)
 						dict.Add(addr, vals[i++]);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BizHawk.Client.Common
 {
@@ -17,6 +18,15 @@ namespace BizHawk.Client.Common
 
 		uint ReadByte(long addr, string domain = null);
 		IReadOnlyList<byte> ReadByteRange(long addr, int length, string domain = null);
+
+		/// <summary>copies a region of memory into <paramref name="dstBuffer"/>, starting at <paramref name="srcStartOffset"/> and taking as many bytes as will fit in the buffer</summary>
+		/// <returns>
+		/// <see langword="false"/> iff the internal API call threw an exception (for example, if you request bytes beyond the end of the domain).<br/>
+		/// If this happens, the state of <paramref name="dstBuffer"/> is undefined. Anywhere from <c>0</c> bytes to all of them could have been copied.
+		/// The exception is when <paramref name="srcStartOffset"/> falls outside the domain, as that is checked first and results in a no-op.
+		/// </returns>
+		bool ReadByteRange(ulong srcStartOffset, Span<byte> dstBuffer, string domain = null);
+
 		float ReadFloat(long addr, string domain = null);
 
 		int ReadS8(long addr, string domain = null);
