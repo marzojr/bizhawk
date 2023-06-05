@@ -202,7 +202,7 @@ namespace BizHawk.Common.CollectionExtensions
 		/// I suppose it's not that important because it's called on cache miss --yoshi
 		/// </remarks>
 		public static TValue GetValueOrPutNew1<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
-			=> dictionary.GetValueOrPut(key, static k => (TValue) Activator.CreateInstance(typeof(TValue), k));
+			=> dictionary.GetValueOrPut(key, static k => (TValue) Activator.CreateInstance(typeof(TValue), k)!);
 
 		/// <inheritdoc cref="IList{T}.IndexOf"/>
 		/// <remarks>
