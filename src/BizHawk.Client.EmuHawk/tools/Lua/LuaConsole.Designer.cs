@@ -77,6 +77,7 @@ namespace BizHawk.Client.EmuHawk
 			this.RegisterToTextEditorsSubMenu = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.RegisterSublimeText2MenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.RegisterNotePadMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
+			this.GenerateLuaCatsDefinitionMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.HelpSubMenu = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.FunctionsListMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.OnlineDocsMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
@@ -373,7 +374,8 @@ namespace BizHawk.Client.EmuHawk
 			// 
 			this.RegisterToTextEditorsSubMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.RegisterSublimeText2MenuItem,
-            this.RegisterNotePadMenuItem});
+            this.RegisterNotePadMenuItem,
+            this.GenerateLuaCatsDefinitionMenuItem});
 			this.RegisterToTextEditorsSubMenu.Text = "Register To Text Editors";
 			this.RegisterToTextEditorsSubMenu.DropDownOpened += new System.EventHandler(this.RegisterToTextEditorsSubMenu_DropDownOpened);
 			// 
@@ -386,6 +388,11 @@ namespace BizHawk.Client.EmuHawk
 			// 
 			this.RegisterNotePadMenuItem.Text = "Notepad++";
 			this.RegisterNotePadMenuItem.Click += new System.EventHandler(this.RegisterNotePadMenuItem_Click);
+			// 
+			// GenerateLuaCatsDefinitionMenuItem
+			// 
+			this.GenerateLuaCatsDefinitionMenuItem.Text = "LuaCATS (Lua Language Server)";
+			this.GenerateLuaCatsDefinitionMenuItem.Click += new System.EventHandler(this.GenerateLuaCatsDefinitionMenuItem_Click);
 			// 
 			// HelpSubMenu
 			// 
@@ -794,6 +801,7 @@ namespace BizHawk.Client.EmuHawk
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx RegisterToTextEditorsSubMenu;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx RegisterSublimeText2MenuItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx RegisterNotePadMenuItem;
+		private BizHawk.WinForms.Controls.ToolStripMenuItemEx GenerateLuaCatsDefinitionMenuItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx SelectAllContextItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx CopyContextItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx ClearRegisteredFunctionsContextItem;

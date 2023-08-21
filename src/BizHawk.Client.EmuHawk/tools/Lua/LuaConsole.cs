@@ -1186,6 +1186,18 @@ namespace BizHawk.Client.EmuHawk
 			_luaAutoInstaller.InstallBizLua(LuaAutocompleteInstaller.TextEditors.NotePad, LuaImp.Docs);
 		}
 
+		private void GenerateLuaCatsDefinitionMenuItem_Click(object sender, EventArgs e)
+		{
+			string initDir = !string.IsNullOrWhiteSpace(LuaImp.ScriptList.Filename)
+				? Path.GetDirectoryName(LuaImp.ScriptList.Filename)
+				: Config!.PathEntries.LuaAbsolutePath();
+
+			if (this.ShowFileSaveDialog(initDir, initFileName: "BizHawk.lua", fileExt: ".lua", filter: JustScriptsFSFilterSet) is string path)
+			{
+				File.WriteAllText(path, LuaImp.Docs.ToLuaLanguageServerDefinitions()); 
+			}
+		}
+
 		private void FunctionsListMenuItem_Click(object sender, EventArgs e)
 		{
 			new LuaFunctionsForm(LuaImp.Docs).Show();
