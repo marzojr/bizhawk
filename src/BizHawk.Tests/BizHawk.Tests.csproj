@@ -29,4 +29,14 @@
 	<ItemGroup>
 		<Content Include="$(ProjectDir)/Client.Common/lua/LuaScripts/**" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Client.Common\lua\LuaScripts\ShareGlobalsTest1.lua" />
+	  <None Remove="Client.Common\lua\LuaScripts\ShareGlobalsTest2.lua" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="Client.Common\lua\LuaScripts\ShareGlobalsTest1.lua" />
+	  <Content Include="Client.Common\lua\LuaScripts\ShareGlobalsTest2.lua">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
 </Project>

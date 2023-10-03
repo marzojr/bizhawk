@@ -14,6 +14,8 @@ namespace BizHawk.Client.Common
 	{
 		private readonly Action<string> _logCallback;
 
+		private readonly ILuaLibraries _luaLibraries;
+
 		private readonly Lua _lua;
 
 		public NLuaTableHelper(Lua lua, Action<string> logCallback)
@@ -22,7 +24,15 @@ namespace BizHawk.Client.Common
 			_lua = lua;
 		}
 
-		public LuaTable CreateTable() => _lua.NewTable();
+		public NLuaTableHelper(ILuaLibraries luaLibraries, Action<string> logCallback)
+		{
+			_logCallback = logCallback;
+			_luaLibraries = luaLibraries;
+		}
+
+		private Lua GetLua() => _luaLibraries?.GetCurrentLua() ?? _lua;
+
+		public LuaTable CreateTable() => GetLua().NewTable();
 
 		public LuaTable DictToTable<T>(IReadOnlyDictionary<string, T> dictionary)
 		{
@@ -60,7 +70,7 @@ namespace BizHawk.Client.Common
 			{
 				if (!method.IsPublic) continue;
 				var foundAttrs = method.GetCustomAttributes(typeof(LuaMethodAttribute), false);
-				table[method.Name] = _lua.RegisterFunction(
+				table[method.Name] = GetLua().RegisterFunction(
 					foundAttrs.Length == 0 ? string.Empty : ((LuaMethodAttribute) foundAttrs[0]).Name, // empty string will default to the actual method name
 					obj,
 					method

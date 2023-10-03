@@ -72,7 +72,7 @@ namespace BizHawk.Client.Common
 					FrameWaiting = false;
 					break;
 				default:
-					State = RunState.Disabled;
+					Stop();
 					break;
 			}
 		}

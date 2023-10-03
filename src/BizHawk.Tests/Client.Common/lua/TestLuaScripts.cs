@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace BizHawk.Tests.Client.Common.Lua
 {
 	[TestClass]
-	public class TestLuaDrawing
+	public class TestLuaScripts
 	{
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 		// null values are initialized in the setup method
@@ -42,12 +42,39 @@ namespace BizHawk.Tests.Client.Common.Lua
 		{
 			LuaFile luaFile = new LuaFile("", path);
 			luaLibraries.ScriptList.Add(luaFile);
-			luaLibraries.EnableLuaFile(luaFile);
+			luaLibraries.EnableLuaFile(luaFile, false);
 
 			if (autoStart)
 				luaLibraries.ResumeScript(luaFile);
 
 			return luaFile;
+		}
+
+		/// <summary>
+		/// console.log is actually going through a test implementation. This test is only meant to support TestScriptsDoNotShareGlobals, and not to test BizHawk.
+		/// (TestScriptsDoNotShareGlobals cannot pass if this test does not pass.)
+		/// </summary>
+		[TestMethod]
+		public void TestConsoleLog()
+		{
+			LuaFile lf = AddScript(Path.Combine(pathToTestLuaScripts, "ShareGlobalsTest1.lua"));
+
+			// The script should at this point be waiting on frameadvance. Make it continue.
+			luaLibraries.ResumeScript(lf);
+
+			Assert.AreEqual("hi", ConsoleLuaLibrary.messageLog.Dequeue());
+		}
+
+		[TestMethod]
+		public void TestScriptsDoNotShareGlobals()
+		{
+			LuaFile lf = AddScript(Path.Combine(pathToTestLuaScripts, "ShareGlobalsTest1.lua"));
+			AddScript(Path.Combine(pathToTestLuaScripts, "ShareGlobalsTest2.lua")); // declares global function of same name as the one in ShareGlobalsTest1
+
+			// The script should at this point be waiting on frameadvance. Make it continue.
+			luaLibraries.ResumeScript(lf);
+
+			Assert.AreEqual("hi", ConsoleLuaLibrary.messageLog.Dequeue());
 		}
 
 		[TestMethod]

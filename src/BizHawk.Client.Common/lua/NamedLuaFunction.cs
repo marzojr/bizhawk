@@ -73,12 +73,8 @@ namespace BizHawk.Client.Common
 		public void DetachFromScript()
 		{
 			var thread = CreateThreadCallback();
-
-			// Current dir will have to do for now, but this will inevitably not be desired
-			// Users will expect it to be the same directly as the thread that spawned this callback
-			// But how do we know what that directory was?
-			LuaSandbox.CreateSandbox(thread, ".");
-			LuaFile = new LuaFile(".") { Thread = thread };
+			LuaSandbox.CreateSandbox(thread, LuaFile.CurrentDirectory);
+			LuaFile.Thread = thread;
 		}
 
 		public Guid Guid { get; }

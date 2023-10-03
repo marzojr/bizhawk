@@ -72,6 +72,8 @@ namespace BizHawk.Client.EmuHawk
 			public bool DisableLuaScriptsOnLoad { get; set; }
 
 			public bool WarnedOnceOnOverwrite { get; set; }
+
+			public bool ScriptsShareGlobals { get; set; } = true;
 		}
 
 		[ConfigPersist]
@@ -228,7 +230,7 @@ namespace BizHawk.Client.EmuHawk
 				{
 					LuaSandbox.Sandbox(file.Thread, () =>
 					{
-						LuaImp.SpawnAndSetFileThread(file.Path, file);
+						LuaImp.SpawnAndSetFileThread(file, Settings.ScriptsShareGlobals);
 						LuaSandbox.CreateSandbox(file.Thread, Path.GetDirectoryName(file.Path));
 						file.State = LuaFile.RunState.Running;
 					}, () =>
@@ -899,7 +901,7 @@ namespace BizHawk.Client.EmuHawk
 		{
 			try
 			{
-				LuaImp.EnableLuaFile(item);
+				LuaImp.EnableLuaFile(item, Settings.ScriptsShareGlobals);
 			}
 			catch (IOException)
 			{
@@ -1089,6 +1091,7 @@ namespace BizHawk.Client.EmuHawk
 			DisableScriptsOnLoadMenuItem.Checked = Settings.DisableLuaScriptsOnLoad;
 			ReturnAllIfNoneSelectedMenuItem.Checked = Settings.ToggleAllIfNoneSelected;
 			ReloadWhenScriptFileChangesMenuItem.Checked = Settings.ReloadOnScriptFileChange;
+			ShareGlobalsMenuItem.Checked = Settings.ScriptsShareGlobals;
 		}
 
 		private void DisableScriptsOnLoadMenuItem_Click(object sender, EventArgs e)
@@ -1112,6 +1115,16 @@ namespace BizHawk.Client.EmuHawk
 			else
 			{
 				ClearFileWatches();
+			}
+		}
+
+		private void ShareGlobalsMenuItem_Click(object sender, EventArgs e)
+		{
+			Settings.ScriptsShareGlobals ^= true;
+			if (LuaImp.RegisteredFunctions.Any() || LuaImp.ScriptList.Any((lf) => lf.Enabled))
+			{
+				MessageBox.Show("All currently running scripts and registered functions will keep their current global scope.\n"
+					+ "To make them respect the changed setting, restart them.");
 			}
 		}
 
@@ -1374,14 +1387,17 @@ namespace BizHawk.Client.EmuHawk
 						return;
 					}
 
+					LuaFile selectedFile = null;
+					if (SelectedFiles.Take(2).Count() == 1)
+						selectedFile = SelectedFiles.First();
 					LuaSandbox.Sandbox(null, () =>
 					{
-						LuaImp.ExecuteString($"console.log({InputBox.Text})");
+						LuaImp.ExecuteString($"console.log({InputBox.Text})", selectedFile);
 					}, () =>
 					{
 						LuaSandbox.Sandbox(null, () =>
 						{
-							LuaImp.ExecuteString(InputBox.Text);
+							LuaImp.ExecuteString(InputBox.Text, selectedFile);
 
 							if (OutputBox.Text == consoleBeforeCall)
 							{
@@ -1479,14 +1495,19 @@ namespace BizHawk.Client.EmuHawk
 				return;
 			}
 
-			file.Toggle();
+			if (file.Paused)
+			{
+				file.State = LuaFile.RunState.Running;
+				return;
+			}
 
-			if (file.Enabled && file.Thread is null)
+			file.Toggle();
+			if (file.Enabled)
 			{
 				LuaImp.RegisteredFunctions.RemoveForFile(file, Emulator); // First remove any existing registered functions for this file
 				EnableLuaFile(file);
 			}
-			else if (!file.Enabled && file.Thread is not null)
+			else if (!file.Enabled)
 			{
 				LuaImp.DisableLuaScript(file);
 				// there used to be a call here which did a redraw of the Gui/OSD, which included a call to `Tools.UpdateToolsAfter` --yoshi

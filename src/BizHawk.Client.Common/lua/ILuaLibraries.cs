@@ -48,14 +48,16 @@ namespace BizHawk.Client.Common
 
 		bool RemoveNamedFunctionMatching(Func<INamedLuaFunction, bool> predicate);
 
-		void SpawnAndSetFileThread(string pathToLoad, LuaFile lf);
+		void SpawnAndSetFileThread(LuaFile lf, bool shareGlobals);
 
-		void ExecuteString(string command);
+		void ExecuteString(string command, LuaFile lf = null);
 
 		(bool WaitForFrame, bool Terminated) ResumeScript(LuaFile lf);
 
-		void EnableLuaFile(LuaFile item);
+		void EnableLuaFile(LuaFile item, bool shareGlobals);
 
 		void DisableLuaScript(LuaFile file);
+
+		Lua GetCurrentLua();
 	}
 }

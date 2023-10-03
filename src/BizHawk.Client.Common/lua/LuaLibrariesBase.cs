@@ -25,7 +25,7 @@ namespace BizHawk.Client.Common
 			Config config,
 			IGameInfo game)
 		{
-			_th = new NLuaTableHelper(_lua, LogToLuaConsole);
+			_th = new NLuaTableHelper(this, LogToLuaConsole);
 			_displayManager = displayManager;
 			_inputManager = inputManager;
 			_mainFormApi = mainFormApi;
@@ -36,38 +36,31 @@ namespace BizHawk.Client.Common
 			Docs.Clear();
 			_apiContainer = ApiManager.RestartLua(_mainFormApi.Emulator.ServiceProvider, LogToLuaConsole, _mainFormApi, _displayManager, _inputManager, _mainFormApi.MovieSession, _mainFormApi.Tools, config, _mainFormApi.Emulator, game);
 
-			var packageTable = (LuaTable) _lua["package"];
-			var luaPath = PathEntries.LuaAbsolutePath();
-			if (OSTailoredCode.IsUnixHost)
-			{
-				// add %exe%/Lua to library resolution pathset (LUA_PATH)
-				// this is done already on windows, but not on linux it seems?
-				packageTable["path"] = $"{luaPath}/?.lua;{luaPath}?/init.lua;{packageTable["path"]}";
-				// we need to modifiy the cpath so it looks at our lua dir too, and remove the relative pathing
-				// we do this on Windows too, but keep in mind Linux uses .so and Windows use .dll
-				// TODO: Does the relative pathing issue Windows has also affect Linux? I'd assume so...
-				packageTable["cpath"] = $"{luaPath}/?.so;{luaPath}/loadall.so;{packageTable["cpath"]}";
-				packageTable["cpath"] = ((string)packageTable["cpath"]).Replace(";./?.so", "");
-			}
-			else
-			{
-				packageTable["cpath"] = $"{luaPath}\\?.dll;{luaPath}\\loadall.dll;{packageTable["cpath"]}";
-				packageTable["cpath"] = ((string)packageTable["cpath"]).Replace(";.\\?.dll", "");
-			}
+			UpdatePackageTable(_luaWithoutFile);
 
-			_lua.RegisterFunction("print", this, typeof(LuaLibrariesBase).GetMethod(nameof(Print)));
+			_luaWithoutFile.RegisterFunction("print", this, typeof(LuaLibrariesBase).GetMethod(nameof(Print)));
 
-			RegisterLuaLibraries(Common.ReflectionCache.Types);
+			RegisterLuaLibraries(ReflectionCache.Types);
 		}
 
 		protected void EnumerateLuaFunctions(string name, Type type, LuaLibraryBase instance)
 		{
-			if (instance != null) _lua.NewTable(name);
+			if (instance != null)
+			{
+				_luaWithoutFile.NewTable(name);
+				_tablesForFunctions.Add(name);
+			}
 			foreach (var method in type.GetMethods())
 			{
 				var foundAttrs = method.GetCustomAttributes(typeof(LuaMethodAttribute), false);
 				if (foundAttrs.Length == 0) continue;
-				if (instance != null) _lua.RegisterFunction($"{name}.{((LuaMethodAttribute)foundAttrs[0]).Name}", instance, method);
+				if (instance != null)
+				{
+					string path = $"{name}.{((LuaMethodAttribute)foundAttrs[0]).Name}";
+					_luaWithoutFile.RegisterFunction(path, instance, method);
+					_functionsToRegister[path] = (instance, method);
+
+				}
 				LibraryFunction libFunc = new(
 					name,
 					type.GetCustomAttributes(typeof(DescriptionAttribute), false).Cast<DescriptionAttribute>()
@@ -109,6 +102,35 @@ namespace BizHawk.Client.Common
 			}
 		}
 
+		private void UpdatePackageTable(Lua lua)
+		{
+			var packageTable = (LuaTable)lua["package"];
+			var luaPath = PathEntries.LuaAbsolutePath();
+			if (OSTailoredCode.IsUnixHost)
+			{
+				// add %exe%/Lua to library resolution pathset (LUA_PATH)
+				// this is done already on windows, but not on linux it seems?
+				packageTable["path"] = $"{luaPath}/?.lua;{luaPath}?/init.lua;{packageTable["path"]}";
+				// we need to modifiy the cpath so it looks at our lua dir too, and remove the relative pathing
+				// we do this on Windows too, but keep in mind Linux uses .so and Windows use .dll
+				// TODO: Does the relative pathing issue Windows has also affect Linux? I'd assume so...
+				packageTable["cpath"] = $"{luaPath}/?.so;{luaPath}/loadall.so;{packageTable["cpath"]}";
+				packageTable["cpath"] = ((string)packageTable["cpath"]).Replace(";./?.so", "");
+			}
+			else
+			{
+				packageTable["cpath"] = $"{luaPath}\\?.dll;{luaPath}\\loadall.dll;{packageTable["cpath"]}";
+				packageTable["cpath"] = ((string)packageTable["cpath"]).Replace(";.\\?.dll", "");
+			}
+		}
+
+		private Dictionary<LuaFile, Lua> _activeLuas = new();
+
+		private Lua _luaWithoutFile = new();
+
+		private List<string> _tablesForFunctions = new();
+		private Dictionary<string, (LuaLibraryBase Lib, MethodInfo Func)> _functionsToRegister = new();
+
 		private ApiContainer _apiContainer;
 
 		private readonly DisplayManagerBase _displayManager;
@@ -119,8 +141,9 @@ namespace BizHawk.Client.Common
 
 		private readonly IMainFormForApi _mainFormApi;
 
-		private Lua _lua = new();
 		private LuaThread _currThread;
+
+		private Lua _currLua;
 
 		private readonly NLuaTableHelper _th;
 
@@ -167,13 +190,18 @@ namespace BizHawk.Client.Common
 
 		public LuaFunctionList RegisteredFunctions { get; }
 
+		public Lua GetCurrentLua()
+		{
+			return _currLua ?? _luaWithoutFile;
+		}
+
 		public void CallSaveStateEvent(string name)
 		{
 			try
 			{
 				foreach (var lf in RegisteredFunctions.Where(static l => l.Event == NamedLuaFunction.EVENT_TYPE_SAVESTATE).ToList())
 				{
-					lf.Call(name);
+					CallFunction(lf, name);
 				}
 			}
 			catch (Exception e)
@@ -190,7 +218,7 @@ namespace BizHawk.Client.Common
 			{
 				foreach (var lf in RegisteredFunctions.Where(static l => l.Event == NamedLuaFunction.EVENT_TYPE_LOADSTATE).ToList())
 				{
-					lf.Call(name);
+					CallFunction(lf, name);
 				}
 			}
 			catch (Exception e)
@@ -211,7 +239,7 @@ namespace BizHawk.Client.Common
 			{
 				foreach (var lf in RegisteredFunctions.Where(static l => l.Event == NamedLuaFunction.EVENT_TYPE_PREFRAME).ToList())
 				{
-					lf.Call();
+					CallFunction(lf);
 				}
 			}
 			catch (Exception e)
@@ -228,7 +256,7 @@ namespace BizHawk.Client.Common
 			{
 				foreach (var lf in RegisteredFunctions.Where(static l => l.Event == NamedLuaFunction.EVENT_TYPE_POSTFRAME).ToList())
 				{
-					lf.Call();
+					CallFunction(lf);
 				}
 			}
 			catch (Exception e)
@@ -246,7 +274,7 @@ namespace BizHawk.Client.Common
 					&& (l.LuaFile.Path == lf.Path || ReferenceEquals(l.LuaFile.Thread, lf.Thread)))
 				.ToList())
 			{
-				exitCallback.Call();
+				CallFunction(exitCallback);
 			}
 		}
 
@@ -256,7 +284,7 @@ namespace BizHawk.Client.Common
 				.Where(static l => l.Event == NamedLuaFunction.EVENT_TYPE_CONSOLECLOSE)
 				.ToList())
 			{
-				closeCallback.Call();
+				CallFunction(closeCallback);
 			}
 
 			RegisteredFunctions.Clear(_mainFormApi.Emulator);
@@ -268,8 +296,10 @@ namespace BizHawk.Client.Common
 					disposable.Dispose();
 			}
 
-			_lua.Dispose();
-			_lua = null;
+			_luaWithoutFile.Dispose();
+			_luaWithoutFile = null;
+			foreach (Lua lua in _activeLuas.Values)
+				lua.Dispose();
 		}
 
 		public INamedLuaFunction CreateAndRegisterNamedFunction(
@@ -280,7 +310,7 @@ namespace BizHawk.Client.Common
 			string name = null)
 		{
 			var nlf = new NamedLuaFunction(function, theEvent, logCallback, luaFile,
-				() => { _lua.NewThread(out var thread); return thread; }, name);
+				() => { _activeLuas[luaFile].NewThread(out var thread); return thread; }, name);
 			RegisteredFunctions.Add(nlf);
 			return nlf;
 		}
@@ -293,23 +323,61 @@ namespace BizHawk.Client.Common
 			return true;
 		}
 
-		public LuaThread SpawnCoroutine(string file)
+		public LuaThread SpawnCoroutine(LuaFile file)
 		{
-			var content = File.ReadAllText(file);
-			var main = _lua.LoadString(content, "main");
-			_lua.NewThread(main, out var ret);
+			var content = File.ReadAllText(file.Path);
+			var main = _activeLuas[file].LoadString(content, "main");
+			_activeLuas[file].NewThread(main, out var ret);
 			return ret;
 		}
 
-		public void SpawnAndSetFileThread(string pathToLoad, LuaFile lf)
-			=> lf.Thread = SpawnCoroutine(pathToLoad);
+		public void SpawnAndSetFileThread(LuaFile lf, bool shareGlobals)
+		{ 
+			if (_activeLuas.TryGetValue(lf, out Lua al) && al != _luaWithoutFile)
+				_activeLuas[lf].Dispose();
 
-		public void ExecuteString(string command)
-			=> _lua.DoString(command);
+			if (shareGlobals)
+				_activeLuas[lf] = _luaWithoutFile;
+			else
+			{
+				Lua lua = new();
+				UpdatePackageTable(lua);
+				lua.RegisterFunction("print", this, typeof(LuaLibrariesBase).GetMethod(nameof(Print)));
+				// We cannot copy tables from one Lua to another, unfortunately. Directly assigning them doesn't work at all.
+				// Transferring each individual value to new tables mostly works, but not always.
+				// For example event.onframeend would receive bad LuaFunction references.
+				foreach (string name in _tablesForFunctions)
+					lua.NewTable(name);
+				foreach (var item in _functionsToRegister)
+					lua.RegisterFunction(item.Key, item.Value.Lib, item.Value.Func);
+				_activeLuas[lf] = lua;
+			}
+
+			lf.Thread = SpawnCoroutine(lf);
+		}
+
+		public void ExecuteString(string command, LuaFile lf = null)
+		{
+			Lua lua = _luaWithoutFile;
+			if (lf != null)
+			{
+				if (_activeLuas.TryGetValue(lf, out Lua val))
+					lua = val;
+			}
+			lua.DoString(command);
+		}
+
+		private void CallFunction(NamedLuaFunction func, string name = null)
+		{
+			_currLua = _activeLuas[func.LuaFile];
+			func.Call(name);
+			_currLua = null;
+		}
 
 		public (bool WaitForFrame, bool Terminated) ResumeScript(LuaFile lf)
 		{
 			_currThread = lf.Thread;
+			_currLua = _activeLuas[lf];
 
 			try
 			{
@@ -317,7 +385,6 @@ namespace BizHawk.Client.Common
 
 				var execResult = _currThread.Resume();
 
-				_currThread = null;
 				var result = execResult switch
 				{
 					LuaStatus.OK => (WaitForFrame: false, Terminated: true),
@@ -331,6 +398,8 @@ namespace BizHawk.Client.Common
 			finally
 			{
 				LuaLibraryBase.ClearCurrentThread();
+				_currThread = null;
+				_currLua = null;
 			}
 		}
 
@@ -364,11 +433,11 @@ namespace BizHawk.Client.Common
 			}
 		}
 
-		public void EnableLuaFile(LuaFile item)
+		public void EnableLuaFile(LuaFile item, bool shareGlobals)
 		{
 			LuaSandbox.Sandbox(null, () =>
 			{
-				SpawnAndSetFileThread(item.Path, item);
+				SpawnAndSetFileThread(item, shareGlobals);
 				LuaSandbox.CreateSandbox(item.Thread, Path.GetDirectoryName(item.Path));
 			}, () =>
 			{
