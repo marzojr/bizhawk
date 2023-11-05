@@ -55,7 +55,7 @@ static uint8_t brm_format[0x40] =
 	0x52,0x41,0x4d,0x5f,0x43,0x41,0x52,0x54,0x52,0x49,0x44,0x47,0x45,0x5f,0x5f,0x5f
 };
 
-ECL_ENTRY void (*biz_execcb)(unsigned addr);
+ECL_ENTRY void (*biz_execcb)(unsigned addr, unsigned int value);
 ECL_ENTRY void (*biz_readcb)(unsigned addr, unsigned int value);
 ECL_ENTRY void (*biz_writecb)(unsigned addr, unsigned int value);
 CDCallback biz_cdcallback = NULL;
