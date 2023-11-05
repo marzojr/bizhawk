@@ -9,7 +9,7 @@ typedef void (*snes_controller_latch_t)(void);
 typedef void (*snes_no_lag_t)(bool sgb_poll);
 typedef char* (*snes_path_request_t)(int slot, const char* hint, bool required);
 typedef void (*snes_trace_t)(const char* disassembly, const char* register_info);
-typedef void (*snes_read_hook_t)(uint32_t address);
+typedef void (*snes_read_hook_t)(uint32_t address, uint8_t value);
 typedef void (*snes_write_hook_t)(uint32_t address, uint8_t value);
 typedef void (*snes_exec_hook_t)(uint32_t address);
 typedef int64_t (*snes_time_t)(void);

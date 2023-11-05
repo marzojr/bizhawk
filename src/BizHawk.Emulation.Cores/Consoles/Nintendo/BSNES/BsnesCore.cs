@@ -323,11 +323,11 @@ namespace BizHawk.Emulation.Cores.Nintendo.BSNES
 		private void snes_trace(string disassembly, string registerInfo)
 			=> _tracer.Put(new(disassembly: disassembly, registerInfo: registerInfo));
 
-		private void ReadHook(uint addr)
+		private void ReadHook(uint addr, byte value)
 		{
 			if (MemoryCallbacks.HasReads)
 			{
-				MemoryCallbacks.CallMemoryCallbacks(addr, 0, (uint) MemoryCallbackFlags.AccessRead, "System Bus");
+				MemoryCallbacks.CallMemoryCallbacks(addr, value, (uint) MemoryCallbackFlags.AccessRead, "System Bus");
 			}
 		}
 

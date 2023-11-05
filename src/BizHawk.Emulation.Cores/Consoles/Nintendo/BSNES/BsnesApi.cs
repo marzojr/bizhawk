@@ -196,7 +196,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.BSNES
 		public delegate void snes_no_lag_t(bool sgb_poll);
 		public delegate string snes_path_request_t(int slot, string hint, bool required);
 		public delegate void snes_trace_t(string disassembly, string register_info);
-		public delegate void snes_read_hook_t(uint address);
+		public delegate void snes_read_hook_t(uint address, byte value);
 		public delegate void snes_write_hook_t(uint address, byte value);
 		public delegate void snes_exec_hook_t(uint address);
 		public delegate long snes_time_t();
