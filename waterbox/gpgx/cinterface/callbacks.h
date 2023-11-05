@@ -9,7 +9,7 @@ typedef ECL_ENTRY void (*CDCallback)(int32 addr, int32 addrtype, int32 flags);
 
 extern ECL_ENTRY void (*biz_execcb)(unsigned addr);
 extern ECL_ENTRY void (*biz_readcb)(unsigned addr, unsigned int value);
-extern ECL_ENTRY void (*biz_writecb)(unsigned addr);
+extern ECL_ENTRY void (*biz_writecb)(unsigned addr, unsigned int value);
 extern CDCallback biz_cdcallback;
 extern unsigned biz_lastpc;
 

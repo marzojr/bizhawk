@@ -938,7 +938,7 @@ INLINE void m68ki_write_8_fc(uint address, uint fc, uint value)
 {
   cpu_memory_map *temp;
 	if (biz_writecb)
-		biz_writecb(address);
+		biz_writecb(address, value);
 
   m68ki_set_fc(fc) /* auto-disable (see m68kcpu.h) */
 
@@ -951,7 +951,7 @@ INLINE void m68ki_write_16_fc(uint address, uint fc, uint value)
 {
   cpu_memory_map *temp;
 	if (biz_writecb)
-		biz_writecb(address);
+		biz_writecb(address, value);
 
   m68ki_set_fc(fc) /* auto-disable (see m68kcpu.h) */
   m68ki_check_address_error(address, MODE_WRITE, fc); /* auto-disable (see m68kcpu.h) */
@@ -965,7 +965,7 @@ INLINE void m68ki_write_32_fc(uint address, uint fc, uint value)
 {
   cpu_memory_map *temp;
 	if (biz_writecb)
-		biz_writecb(address);
+		biz_writecb(address, value);
 
   m68ki_set_fc(fc) /* auto-disable (see m68kcpu.h) */
   m68ki_check_address_error(address, MODE_WRITE, fc) /* auto-disable (see m68kcpu.h) */
