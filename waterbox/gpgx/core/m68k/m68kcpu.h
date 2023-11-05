@@ -870,24 +870,25 @@ INLINE uint m68ki_read_imm_32(void)
 INLINE uint m68ki_read_8_fc(uint address, uint fc)
 {
   cpu_memory_map *temp = &m68ki_cpu.memory_map[((address)>>16)&0xff];;
-	if (biz_readcb)
-		biz_readcb(address);
 
 	if(biz_cdcallback)
 		CDLog68k(address,eCDLog_Flags_Data68k);
 
   m68ki_set_fc(fc) /* auto-disable (see m68kcpu.h) */
 
-  if (temp->read8) return (*temp->read8)(ADDRESS_68K(address));
-  else return READ_BYTE(temp->base, (address) & 0xffff);
+  uint value;	  
+  if (temp->read8)
+    value = (*temp->read8)(ADDRESS_68K(address));
+  else
+    value = READ_BYTE(temp->base, (address) & 0xffff);  
+  if (biz_readcb)
+    biz_readcb(address, value);
+  return value;
 }
 
 INLINE uint m68ki_read_16_fc(uint address, uint fc)
 {
   cpu_memory_map *temp;
-	if (biz_readcb)
-		biz_readcb(address);
-
 	if(biz_cdcallback)
 	{
 		CDLog68k(address,eCDLog_Flags_Data68k);
@@ -898,16 +899,19 @@ INLINE uint m68ki_read_16_fc(uint address, uint fc)
   m68ki_check_address_error(address, MODE_READ, fc) /* auto-disable (see m68kcpu.h) */
   
   temp = &m68ki_cpu.memory_map[((address)>>16)&0xff];
-  if (temp->read16) return (*temp->read16)(ADDRESS_68K(address));
-  else return *(uint16 *)(temp->base + ((address) & 0xffff));
+  uint value;
+  if (temp->read16)
+	  value = (*temp->read16)(ADDRESS_68K(address));
+  else
+	  value = *(uint16 *)(temp->base + ((address) & 0xffff));
+  if (biz_readcb)
+	  biz_readcb(address, value);
+  return value;
 }
 
 INLINE uint m68ki_read_32_fc(uint address, uint fc)
 {
   cpu_memory_map *temp;
-	if (biz_readcb)
-		biz_readcb(address);
-
 	if(biz_cdcallback)
 	{
 		CDLog68k(address,eCDLog_Flags_Data68k);
@@ -920,8 +924,14 @@ INLINE uint m68ki_read_32_fc(uint address, uint fc)
   m68ki_check_address_error(address, MODE_READ, fc) /* auto-disable (see m68kcpu.h) */
 
   temp = &m68ki_cpu.memory_map[((address)>>16)&0xff];
-  if (temp->read16) return ((*temp->read16)(ADDRESS_68K(address)) << 16) | ((*temp->read16)(ADDRESS_68K(address + 2)));
-  else return m68k_read_immediate_32(address);
+  uint value;
+  if (temp->read16)
+	  value = ((*temp->read16)(ADDRESS_68K(address)) << 16) | ((*temp->read16)(ADDRESS_68K(address + 2)));
+  else
+	  value = m68k_read_immediate_32(address);
+  if (biz_readcb)
+	  biz_readcb(address, value);
+  return value;
 }
 
 INLINE void m68ki_write_8_fc(uint address, uint fc, uint value)
