@@ -148,7 +148,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Sega.gpgx
 		public abstract void gpgx_set_input_callback(input_cb cb);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void mem_cb(uint addr);
+		public delegate void mem_cb(uint addr, uint value); //value MUST be uint, since the value will be trimmed if the type is byte (8-bit) or ushort (16-bit) and the value read/written/executed is bigger than that (i.e 32 bits).
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void CDCallback(int addr, CDLog_AddrType addrtype, CDLog_Flags flags);

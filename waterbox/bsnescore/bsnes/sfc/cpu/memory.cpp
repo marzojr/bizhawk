@@ -7,9 +7,6 @@ auto CPU::idle() -> void {
 }
 
 auto CPU::read(uint address) -> uint8 {
-  if (__builtin_expect(platform->readHookEnabled, 0))
-    platform->readHook(address);
-
   if(address & 0x408000) {
     if(address & 0x800000 && io.fastROM) {
       status.clockCount = 6;
@@ -41,6 +38,8 @@ auto CPU::read(uint address) -> uint8 {
 
   status.irqLock = 0;
   auto data = bus.read(address, r.mdr);
+  if (__builtin_expect(platform->readHookEnabled, 0))
+	  platform->readHook(address, data);
   step<4,0>();
   aluEdge();
   //$00-3f,80-bf:4000-43ff reads are internal to CPU, and do not update the MDR

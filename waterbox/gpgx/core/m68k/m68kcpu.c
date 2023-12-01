@@ -340,7 +340,7 @@ void m68k_run(unsigned int cycles)
     m68ki_use_data_space() /* auto-disable (see m68kcpu.h) */
 
 	if (biz_execcb)
-		biz_execcb(REG_PC);
+		biz_execcb(REG_PC, 0); //All read/write/exec callbacks require address and value, but for exec the functionality is not fully implemented, so I am passing 0 as value.
 
 	if(biz_cdcallback)
 	{

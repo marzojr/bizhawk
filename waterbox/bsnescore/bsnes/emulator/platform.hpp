@@ -30,7 +30,7 @@ struct Platform {
   bool writeHookEnabled = false;
   bool executeHookEnabled = false;
   virtual auto cpuTrace(vector<string>) -> void {}
-  virtual auto readHook(uint address) -> void {}
+  virtual auto readHook(uint address, uint8 value) -> void {}
   virtual auto writeHook(uint address, uint8 value) -> void {}
   virtual auto execHook(uint address) -> void {}
   virtual auto time() -> int64 { return ::time(0); }
