@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
-
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
@@ -35,6 +34,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Vectrex
 		[CoreSettings]
 		public class VectrexSyncSettings
 		{
+			// TODO: should Port2 also be JsonIgnored here?
 			[JsonIgnore]
 			public string Port1 = VectrexHawkControllerDeck.DefaultControllerName;
 			public string Port2 = VectrexHawkControllerDeck.DefaultControllerName;
@@ -45,7 +45,6 @@ namespace BizHawk.Emulation.Cores.Consoles.Vectrex
 				Analog
 			}
 
-			[JsonIgnore]
 			private ControllerType _VectrexController1;
 			private ControllerType _VectrexController2;
 

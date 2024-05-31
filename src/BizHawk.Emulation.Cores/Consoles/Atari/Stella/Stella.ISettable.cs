@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Drawing;
 
-using Newtonsoft.Json;
-
 using BizHawk.Emulation.Common;
 using BizHawk.Common;
 using BizHawk.Emulation.Cores.Consoles.Atari.Stella;
@@ -40,16 +38,12 @@ namespace BizHawk.Emulation.Cores.Atari.Stella
 		[CoreSettings]
 		public class A2600Settings
 		{
-			[JsonIgnore]
 			private int _ntscTopLine;
 
-			[JsonIgnore]
 			private int _ntscBottomLine;
 
-			[JsonIgnore]
 			private int _palTopLine;
 
-			[JsonIgnore]
 			private int _palBottomLine;
 
 			[DisplayName("Show Background")]

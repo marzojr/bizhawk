@@ -1,5 +1,5 @@
 using System.IO;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 using BizHawk.Emulation.Common;
 
@@ -19,12 +19,12 @@ namespace BizHawk.Emulation.Cores.Atari.Lynx
 			s.ExtraData.LagCount = LagCount;
 			s.ExtraData.Frame = Frame;
 
-			_ser.Serialize(writer, s);
+			writer.Write(JsonSerializer.Serialize(s, _options));
 		}
 
 		public void LoadStateText(TextReader reader)
 		{
-			var s = (TextState<TextStateData>)_ser.Deserialize(reader, typeof(TextState<TextStateData>));
+			var s = JsonSerializer.Deserialize<TextState<TextStateData>>(reader.ReadToEnd(), _options);
 			s.Prepare();
 			var ff = s.GetFunctionPointersLoad();
 			LibLynx.TxtStateLoad(Core, ref ff);
@@ -69,7 +69,7 @@ namespace BizHawk.Emulation.Cores.Atari.Lynx
 			Frame = reader.ReadInt32();
 		}
 
-		private readonly JsonSerializer _ser = new JsonSerializer { Formatting = Formatting.Indented };
+		private readonly JsonSerializerOptions _options = new() { WriteIndented = true };
 		private readonly byte[] _saveBuff;
 
 		private class TextStateData

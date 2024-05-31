@@ -391,8 +391,8 @@ namespace BizHawk.Client.EmuHawk
 		private static void InstallCustomConfig(IToolForm tool, Dictionary<string, object> data)
 		{
 			Type type = tool.GetType();
-			var props = type.GetPropertiesWithAttrib(typeof(ConfigPersistAttribute)).ToList();
-			if (props.Count == 0)
+			var props = type.GetPropertiesWithAttrib(typeof(ConfigPersistAttribute)).ToArray();
+			if (props.Length == 0)
 			{
 				return;
 			}
@@ -425,7 +425,7 @@ namespace BizHawk.Client.EmuHawk
 			((Form)tool).FormClosing += (o, e) => SaveCustomConfig(tool, data, props);
 		}
 
-		private static void SaveCustomConfig(IToolForm tool, Dictionary<string, object> data, List<PropertyInfo> props)
+		private static void SaveCustomConfig(IToolForm tool, Dictionary<string, object> data, PropertyInfo[] props)
 		{
 			data.Clear();
 			foreach (var prop in props)

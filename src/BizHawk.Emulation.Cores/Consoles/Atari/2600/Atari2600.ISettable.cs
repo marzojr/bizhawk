@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using System.Drawing;
 
-using Newtonsoft.Json;
-
 using BizHawk.Emulation.Common;
 using BizHawk.Common;
 
@@ -44,16 +42,12 @@ namespace BizHawk.Emulation.Cores.Atari.Atari2600
 		[CoreSettings]
 		public class A2600Settings
 		{
-			[JsonIgnore]
 			private int _ntscTopLine;
 
-			[JsonIgnore]
 			private int _ntscBottomLine;
 
-			[JsonIgnore]
 			private int _palTopLine;
 
-			[JsonIgnore]
 			private int _palBottomLine;
 
 			[DisplayName("Show Background")]

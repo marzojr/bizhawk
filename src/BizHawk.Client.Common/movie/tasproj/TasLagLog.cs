@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 using BizHawk.Common.CollectionExtensions;
-
-using Newtonsoft.Json;
 
 namespace BizHawk.Client.Common
 {
@@ -63,14 +62,14 @@ namespace BizHawk.Client.Common
 
 		public void Save(TextWriter tw)
 		{
-			tw.WriteLine(JsonConvert.SerializeObject(_lagLog));
-			tw.WriteLine(JsonConvert.SerializeObject(_wasLag));
+			tw.WriteLine(JsonSerializer.Serialize(_lagLog));
+			tw.WriteLine(JsonSerializer.Serialize(_wasLag));
 		}
 
 		public void Load(TextReader tr)
 		{
-			_lagLog = JsonConvert.DeserializeObject<Dictionary<int, bool>>(tr.ReadLine());
-			_wasLag = JsonConvert.DeserializeObject<Dictionary<int, bool>>(tr.ReadLine());
+			_lagLog = JsonSerializer.Deserialize<Dictionary<int, bool>>(tr.ReadLine());
+			_wasLag = JsonSerializer.Deserialize<Dictionary<int, bool>>(tr.ReadLine());
 		}
 
 		public bool? History(int frame)

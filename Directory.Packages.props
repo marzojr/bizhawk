@@ -40,6 +40,7 @@
 		<PackageVersion Include="System.Reflection.Emit" Version="4.7.0" />
 		<PackageVersion Include="System.Resources.Extensions" Version="7.0.0" />
 		<PackageVersion Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+		<PackageVersion Include="System.Text.Json" Version="8.0.4" />
 		<PackageVersion Include="Vortice.Direct3D11" Version="2.4.2" /> <!-- last version with .NET Standard 2.0 support -->
 		<PackageVersion Include="Vortice.D3DCompiler" Version="2.4.2" /> <!-- last version with .NET Standard 2.0 support -->
 		<PackageVersion Include="Vortice.MediaFoundation" Version="2.4.2" /> <!-- last version with .NET Standard 2.0 support -->

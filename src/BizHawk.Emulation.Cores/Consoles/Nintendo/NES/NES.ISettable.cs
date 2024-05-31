@@ -1,10 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
-
-using Newtonsoft.Json;
 
 namespace BizHawk.Emulation.Cores.Nintendo.NES
 {
@@ -61,10 +60,9 @@ namespace BizHawk.Emulation.Cores.Nintendo.NES
 
 			public NESControlSettings Controls = new NESControlSettings();
 
-			[JsonIgnore]
 			private byte[]/*?*/ _initialWRamStatePattern;
 
-			[JsonConverter(typeof(U8ArrayAsNormalJSONListConverter))] // this preserves the old behaviour of e,g, 0x1234ABCD --> [18,52,171,205]; omitting it will use base64 e.g. "EjSrzQ=="
+			[JsonConverter(typeof(ByteArrayAsNormalArrayJsonConverter))] // this preserves the old behaviour of e,g, 0x1234ABCD --> [18,52,171,205]; omitting it will use base64 e.g. "EjSrzQ=="
 			public byte[] InitialWRamStatePattern
 			{
 				get => _initialWRamStatePattern ?? [ ];
@@ -150,6 +148,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.NES
 			public int PAL_TopLine = 0;
 			public int PAL_BottomLine = 239;
 
+			[JsonConverter(typeof(Array2DJsonConverter<byte>))]
 			public byte[,] Palette;
 
 			public int APU_vol = 1;
@@ -166,7 +165,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.NES
 				Palette = (byte[,])Palettes.QuickNESPalette.Clone();
 			}
 
-			[Newtonsoft.Json.JsonConstructor]
+			[JsonConstructor]
 			public NESSettings(byte[,] Palette)
 			{
 				if (Palette == null)

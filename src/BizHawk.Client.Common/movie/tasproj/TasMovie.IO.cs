@@ -1,9 +1,8 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 using BizHawk.Common.StringExtensions;
-
-using Newtonsoft.Json;
 
 namespace BizHawk.Client.Common
 {
@@ -22,7 +21,7 @@ namespace BizHawk.Client.Common
 		{
 			// at this point, TasStateManager may be null if we're currently importing a .bk2
 
-			var settings = JsonConvert.SerializeObject(TasStateManager?.Settings ?? Session.Settings.DefaultTasStateManagerSettings);
+			var settings = JsonSerializer.Serialize(TasStateManager?.Settings ?? Session.Settings.DefaultTasStateManagerSettings);
 			bs.PutLump(BinaryStateLump.StateHistorySettings, tw => tw.WriteLine(settings));
 			bs.PutLump(BinaryStateLump.LagLog, tw => LagLog.Save(tw));
 			bs.PutLump(BinaryStateLump.Markers, tw => tw.WriteLine(Markers.ToString()));
@@ -43,7 +42,7 @@ namespace BizHawk.Client.Common
 				Branches.Save(bs);
 			}
 
-			bs.PutLump(BinaryStateLump.Session, tw => tw.WriteLine(JsonConvert.SerializeObject(TasSession)));
+			bs.PutLump(BinaryStateLump.Session, tw => tw.WriteLine(JsonSerializer.Serialize(TasSession)));
 
 			if (!isBackup && TasStateManager is not null)
 			{
@@ -135,7 +134,7 @@ namespace BizHawk.Client.Common
 				var json = tr.ReadToEnd();
 				try
 				{
-					TasSession = JsonConvert.DeserializeObject<TasSession>(json);
+					TasSession = JsonSerializer.Deserialize<TasSession>(json);
 					Branches.Current = TasSession.CurrentBranch;
 				}
 				catch
@@ -150,7 +149,7 @@ namespace BizHawk.Client.Common
 				var json = tr.ReadToEnd();
 				try
 				{
-					settings = JsonConvert.DeserializeObject<ZwinderStateManagerSettings>(json);
+					settings = JsonSerializer.Deserialize<ZwinderStateManagerSettings>(json);
 				}
 				catch
 				{

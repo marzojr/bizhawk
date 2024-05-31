@@ -1,37 +1,45 @@
+﻿using System.Globalization;
 using System.IO;
-using System.Reflection;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 using BizHawk.Common;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-
-#pragma warning disable 618
+using BizHawk.Emulation.Common;
 
 namespace BizHawk.Client.Common
 {
+	internal class FloatConverter : JsonConverter<float>
+	{
+		public override float Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => reader.GetSingle();
+
+		public override void Write(Utf8JsonWriter writer, float value, JsonSerializerOptions options)
+		{
+#if NETCOREAPP
+			writer.WriteNumberValue(value);
+#else
+			// gotta love the fact .net framework can't even format floats correctly by default
+			// can't use G7 here because it may be too low accuracy, and can't use G8 because it may be too high, see 1.0000003f or 0.8f
+			writer.WriteRawValue(value.ToString("R", NumberFormatInfo.InvariantInfo));
+#endif
+		}
+	}
+
 	public static class ConfigService
 	{
-		internal static readonly JsonSerializer Serializer;
-
-		static ConfigService()
+		internal static readonly JsonSerializerOptions SerializerOptions = new()
 		{
-			Serializer = new JsonSerializer
+			IncludeFields = true,
+			AllowTrailingCommas = true,
+			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+			WriteIndented = true,
+			Converters =
 			{
-				MissingMemberHandling = MissingMemberHandling.Ignore,
-				TypeNameHandling = TypeNameHandling.Auto,
-				ConstructorHandling = ConstructorHandling.Default,
-
-				// because of the peculiar setup of Binding.cs and PathEntry.cs
-				ObjectCreationHandling = ObjectCreationHandling.Replace,
-				
-				ContractResolver = new DefaultContractResolver
-				{
-					DefaultMembersSearchFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic
-				},
-			};
-		}
+				new FloatConverter(), // this serializes floats with minimum required precision, e.g. 1.8000000012 -> 1.8
+				new ByteArrayAsNormalArrayJsonConverter() // this preserves the old behaviour of e,g, 0x1234ABCD --> [18,52,171,205]; omitting it will use base64 e.g. "EjSrzQ=="
+			}
+		};
 
 		public static bool IsFromSameVersion(string filepath, out string msg)
 		{
@@ -48,7 +56,7 @@ namespace BizHawk.Client.Common
 			string cfgVersionStr = null;
 			try
 			{
-				cfgVersionStr = JObject.Parse(File.ReadAllText(filepath))["LastWrittenFrom"]?.Value<string>();
+				cfgVersionStr = JsonNode.Parse(File.ReadAllText(filepath))["LastWrittenFrom"]?.GetValue<string>();
 			}
 			catch (Exception)
 			{
@@ -84,16 +92,15 @@ namespace BizHawk.Client.Common
 		/// <exception cref="InvalidOperationException">internal error</exception>
 		public static T Load<T>(string filepath) where T : new()
 		{
-			T config = default(T);
+			T config = default;
 
 			try
 			{
 				var file = new FileInfo(filepath);
 				if (file.Exists)
 				{
-					using var reader = file.OpenText();
-					var r = new JsonTextReader(reader);
-					config = (T)Serializer.Deserialize(r, typeof(T));
+					using var reader = file.OpenRead();
+					config = JsonSerializer.Deserialize<T>(reader, SerializerOptions);
 				}
 			}
 			catch (Exception ex)
@@ -106,12 +113,10 @@ namespace BizHawk.Client.Common
 
 		public static void Save(string filepath, object config)
 		{
-			var file = new FileInfo(filepath);
 			try
 			{
-				using var writer = file.CreateText();
-				var w = new JsonTextWriter(writer) { Formatting = Formatting.Indented };
-				Serializer.Serialize(w, config);
+				using var writer = File.Create(filepath);
+				JsonSerializer.Serialize(writer, config, SerializerOptions);
 			}
 			catch
 			{
@@ -127,9 +132,7 @@ namespace BizHawk.Client.Common
 
 		public static object LoadWithType(string serialized)
 		{
-			using var tr = new StringReader(serialized);
-			using var jr = new JsonTextReader(tr);
-			var tne = (TypeNameEncapsulator)Serializer.Deserialize(jr, typeof(TypeNameEncapsulator));
+			var tne = JsonSerializer.Deserialize<TypeNameEncapsulator>(serialized, SerializerOptions);
 
 			// in the case of trying to deserialize nothing, tne will be nothing
 			// we want to return nothing
@@ -138,12 +141,8 @@ namespace BizHawk.Client.Common
 
 		public static string SaveWithType(object o)
 		{
-			using var sw = new StringWriter();
-			using var jw = new JsonTextWriter(sw) { Formatting = Formatting.None };
 			var tne = new TypeNameEncapsulator { o = o };
-			Serializer.Serialize(jw, tne, typeof(TypeNameEncapsulator));
-			sw.Flush();
-			return sw.ToString();
+			return JsonSerializer.Serialize(tne, SerializerOptions);
 		}
 	}
 }

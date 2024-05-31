@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-using Newtonsoft.Json;
-
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
 
@@ -61,7 +59,6 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.QuickNES
 				set => _NumSprites = Math.Min(64, Math.Max(0, value));
 			}
 
-			[JsonIgnore]
 			private int _NumSprites;
 
 			[DefaultValue(false)]
@@ -87,7 +84,6 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.QuickNES
 				}
 			}
 
-			[JsonIgnore]
 			private byte[] _Palette;
 
 			public QuickNESSettings Clone()

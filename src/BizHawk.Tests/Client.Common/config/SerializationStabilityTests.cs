@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using BizHawk.Client.Common;
 using BizHawk.Common;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace BizHawk.Tests.Client.Common.config
 {
@@ -29,7 +28,7 @@ namespace BizHawk.Tests.Client.Common.config
 			typeof(DateTime),
 			typeof(Dictionary<,>),
 			typeof(int),
-			typeof(JToken),
+			typeof(JsonElement),
 			typeof(List<>),
 			typeof(Nullable<>),
 			typeof(object),
@@ -44,7 +43,7 @@ namespace BizHawk.Tests.Client.Common.config
 		{
 			[typeof(AnalogBind)] = @"{""Value"":""X1 LeftThumbX Axis"",""Mult"":0.8,""Deadzone"":0.1}",
 			[typeof(CheatConfig)] = $@"{{""DisableOnLoad"":false,""LoadFileByGame"":true,""AutoSaveOnClose"":true,""Recent"":{RECENT_SER}}}",
-			[typeof(FeedbackBind)] = @"{""Channels"":""Left+Right"",""GamepadPrefix"":""X1 "",""Prescale"":1.0}",
+			[typeof(FeedbackBind)] = @"{""Channels"":""Left+Right"",""GamepadPrefix"":""X1 "",""Prescale"":1}",
 			[typeof(MessagePosition)] = @"{""X"":0,""Y"":0,""Anchor"":0}",
 			[typeof(MovieConfig)] = $@"{{""MovieEndAction"":3,""EnableBackupMovies"":true,""MoviesOnDisk"":false,""MovieCompressionLevel"":2,""VBAStyleMovieLoadState"":false,""DefaultTasStateManagerSettings"":{ZWINDER_SER}}}",
 			[typeof(PathEntry)] = PATHENTRY_SER,
@@ -84,11 +83,17 @@ namespace BizHawk.Tests.Client.Common.config
 			CheckAll<Config>();
 		}
 
+		private static readonly JsonSerializerOptions SerializerOptions = new(ConfigService.SerializerOptions)
+		{
+			WriteIndented = false
+		};
+
 		[TestMethod]
 		public void TestRoundTripSerialization()
 		{
-			static object Deser(string s, Type type) => JToken.Parse(s).ToObject(type, ConfigService.Serializer)!;
-			static string Ser(object o) => JToken.FromObject(o, ConfigService.Serializer).ToString(Formatting.None);
+			static object? Deser(string s, Type type) => JsonSerializer.Deserialize(s, type, SerializerOptions);
+			static string Ser(object? o) => JsonSerializer.Serialize(o, SerializerOptions);
+
 			foreach (var (type, s) in KnownGoodFromBizHawk)
 			{
 				if (s == "TODO") continue;

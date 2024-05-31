@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using BizHawk.Bizware.Graphics;
 using BizHawk.Common;
@@ -8,9 +10,6 @@ using BizHawk.Common.CollectionExtensions;
 using BizHawk.Common.PathExtensions;
 using BizHawk.Emulation.Common;
 using BizHawk.Emulation.Cores;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace BizHawk.Client.Common
 {
@@ -368,8 +367,10 @@ namespace BizHawk.Client.Common
 		public bool VideoWriterAudioSyncEffective;
 
 		// Emulation core settings
-		internal Dictionary<string, JToken> CoreSettings { get; set; } = new Dictionary<string, JToken>();
-		internal Dictionary<string, JToken> CoreSyncSettings { get; set; } = new Dictionary<string, JToken>();
+		[JsonInclude]
+		internal Dictionary<string, JsonElement> CoreSettings { get; set; } = new();
+		[JsonInclude]
+		internal Dictionary<string, JsonElement> CoreSyncSettings { get; set; } = new();
 
 		public Dictionary<string, ToolDialogSettings> CommonToolSettings { get; set; } = new Dictionary<string, ToolDialogSettings>();
 		public Dictionary<string, Dictionary<string, object>> CustomToolSettings { get; set; } = new Dictionary<string, Dictionary<string, object>>();
@@ -405,6 +406,7 @@ namespace BizHawk.Client.Common
 		public bool GbAsSgb { get; set; }
 		public string LibretroCore { get; set; }
 
+		[JsonPropertyOrder(-1)]
 		public Dictionary<string, string> PreferredCores = GenDefaultCorePreferences();
 
 		public bool DontTryOtherCores { get; set; }

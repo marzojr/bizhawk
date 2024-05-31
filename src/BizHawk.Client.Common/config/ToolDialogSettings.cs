@@ -1,14 +1,18 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace BizHawk.Client.Common
 {
 	public class ToolDialogSettings
 	{
+		// one may wonder why the public property is getting JsonIgnored and the private one JsonIncluded
+		[JsonInclude]
+		[JsonPropertyOrder(-2)]
 		private int? _wndx;
+		[JsonInclude]
+		[JsonPropertyOrder(-1)]
 		private int? _wndy;
 
 		public ToolDialogSettings()
