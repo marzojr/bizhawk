@@ -659,16 +659,19 @@ namespace BizHawk.Client.EmuHawk
 
 		public void LoadSettingsSerialized(string settingsJson)
 		{
-			var settings = ConfigService.LoadWithType(settingsJson);
-
-			// TODO: don't silently fail, inform the user somehow
-			if (settings is InputRollSettings rollSettings)
+			try
 			{
-				_columns = rollSettings.Columns;
+				InputRollSettings settings = ConfigService.LoadWithType<InputRollSettings>(settingsJson);
+
+				_columns = settings.Columns;
 				_columns.ChangedCallback = ColumnChangedCallback;
-				HorizontalOrientation = rollSettings.HorizontalOrientation;
-				LagFramesToHide = rollSettings.LagFramesToHide;
-				HideWasLagFrames = rollSettings.HideWasLagFrames;
+				HorizontalOrientation = settings.HorizontalOrientation;
+				LagFramesToHide = settings.LagFramesToHide;
+				HideWasLagFrames = settings.HideWasLagFrames;
+			}
+			catch
+			{
+				// TODO: don't silently fail, inform the user somehow
 			}
 		}
 

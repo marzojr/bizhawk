@@ -83,16 +83,11 @@ namespace BizHawk.Tests.Client.Common.config
 			CheckAll<Config>();
 		}
 
-		private static readonly JsonSerializerOptions SerializerOptions = new(ConfigService.SerializerOptions)
-		{
-			WriteIndented = false
-		};
-
 		[TestMethod]
 		public void TestRoundTripSerialization()
 		{
-			static object? Deser(string s, Type type) => JsonSerializer.Deserialize(s, type, SerializerOptions);
-			static string Ser(object? o) => JsonSerializer.Serialize(o, SerializerOptions);
+			static object? Deser(string s, Type type) => JsonSerializer.Deserialize(s, type, ConfigService.SerializerOptions);
+			static string Ser(object? o) => JsonSerializer.Serialize(o, ConfigService.SerializerOptions);
 
 			foreach (var (type, s) in KnownGoodFromBizHawk)
 			{

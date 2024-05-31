@@ -28,18 +28,24 @@ namespace BizHawk.Client.Common
 
 	public static class ConfigService
 	{
-		internal static readonly JsonSerializerOptions SerializerOptions = new()
+		private static readonly JsonSerializerOptions NonIndentedSerializerOptions = new()
 		{
 			IncludeFields = true,
 			AllowTrailingCommas = true,
 			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-			WriteIndented = true,
 			Converters =
 			{
 				new FloatConverter(), // this serializes floats with minimum required precision, e.g. 1.8000000012 -> 1.8
 				new ByteArrayAsNormalArrayJsonConverter() // this preserves the old behaviour of e,g, 0x1234ABCD --> [18,52,171,205]; omitting it will use base64 e.g. "EjSrzQ=="
 			}
 		};
+
+		private static readonly JsonSerializerOptions IndentedSerializerOptions = new(NonIndentedSerializerOptions)
+		{
+			WriteIndented = true
+		};
+
+		internal static JsonSerializerOptions SerializerOptions => NonIndentedSerializerOptions;
 
 		public static bool IsFromSameVersion(string filepath, out string msg)
 		{
@@ -100,7 +106,7 @@ namespace BizHawk.Client.Common
 				if (file.Exists)
 				{
 					using var reader = file.OpenRead();
-					config = JsonSerializer.Deserialize<T>(reader, SerializerOptions);
+					config = JsonSerializer.Deserialize<T>(reader, IndentedSerializerOptions);
 				}
 			}
 			catch (Exception ex)
@@ -116,7 +122,7 @@ namespace BizHawk.Client.Common
 			try
 			{
 				using var writer = File.Create(filepath);
-				JsonSerializer.Serialize(writer, config, SerializerOptions);
+				JsonSerializer.Serialize(writer, config, IndentedSerializerOptions);
 			}
 			catch
 			{
@@ -130,13 +136,24 @@ namespace BizHawk.Client.Common
 			public object o;
 		}
 
-		public static object LoadWithType(string serialized)
+		public static T LoadWithType<T>(string serialized)
 		{
 			var tne = JsonSerializer.Deserialize<TypeNameEncapsulator>(serialized, SerializerOptions);
 
-			// in the case of trying to deserialize nothing, tne will be nothing
-			// we want to return nothing
-			return tne?.o;
+			if (tne?.o is JsonElement jsonElement)
+				return jsonElement.Deserialize<T>(SerializerOptions);
+
+			return default;
+		}
+
+		public static object LoadWithType(string serialized, Type deserializedType)
+		{
+			var tne = JsonSerializer.Deserialize<TypeNameEncapsulator>(serialized, SerializerOptions);
+
+			if (tne?.o is JsonElement jsonElement)
+				return jsonElement.Deserialize(deserializedType, SerializerOptions);
+
+			return null;
 		}
 
 		public static string SaveWithType(object o)
