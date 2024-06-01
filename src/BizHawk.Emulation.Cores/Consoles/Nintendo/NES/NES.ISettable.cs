@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
+using BizHawk.Emulation.Common.Json;
 
 namespace BizHawk.Emulation.Cores.Nintendo.NES
 {

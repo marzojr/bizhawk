@@ -1,31 +1,13 @@
-﻿using System.Globalization;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 
 using BizHawk.Common;
-using BizHawk.Emulation.Common;
+using BizHawk.Emulation.Common.Json;
 
 namespace BizHawk.Client.Common
 {
-	internal class FloatConverter : JsonConverter<float>
-	{
-		public override float Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => reader.GetSingle();
-
-		public override void Write(Utf8JsonWriter writer, float value, JsonSerializerOptions options)
-		{
-#if NETCOREAPP
-			writer.WriteNumberValue(value);
-#else
-			// gotta love the fact .net framework can't even format floats correctly by default
-			// can't use G7 here because it may be too low accuracy, and can't use G8 because it may be too high, see 1.0000003f or 0.8f
-			writer.WriteRawValue(value.ToString("R", NumberFormatInfo.InvariantInfo));
-#endif
-		}
-	}
-
 	public static class ConfigService
 	{
 		private static readonly JsonSerializerOptions NonIndentedSerializerOptions = new()
@@ -36,7 +18,8 @@ namespace BizHawk.Client.Common
 			Converters =
 			{
 				new FloatConverter(), // this serializes floats with minimum required precision, e.g. 1.8000000012 -> 1.8
-				new ByteArrayAsNormalArrayJsonConverter() // this preserves the old behaviour of e,g, 0x1234ABCD --> [18,52,171,205]; omitting it will use base64 e.g. "EjSrzQ=="
+				new ByteArrayAsNormalArrayJsonConverter(), // this preserves the old behaviour of e,g, 0x1234ABCD --> [18,52,171,205]; omitting it will use base64 e.g. "EjSrzQ=="
+				new TypeConverterJsonAdapterFactory(), // allows serialization using `[TypeConverter]` attributes
 			}
 		};
 
@@ -45,7 +28,7 @@ namespace BizHawk.Client.Common
 			WriteIndented = true
 		};
 
-		internal static JsonSerializerOptions SerializerOptions => NonIndentedSerializerOptions;
+		public static JsonSerializerOptions SerializerOptions => NonIndentedSerializerOptions;
 
 		public static bool IsFromSameVersion(string filepath, out string msg)
 		{

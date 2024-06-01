@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BizHawk.Emulation.Common
+namespace BizHawk.Emulation.Common.Json
 {
 	/// <remarks>based on <see href="https://stackoverflow.com/a/15228384">this SO answer</see></remarks>
 	public sealed class ByteArrayAsNormalArrayJsonConverter : JsonConverter<byte[]?>

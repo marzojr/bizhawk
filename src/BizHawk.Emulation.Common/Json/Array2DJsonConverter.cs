@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BizHawk.Emulation.Common
+namespace BizHawk.Emulation.Common.Json
 {
 	// heavily inspired by https://stackoverflow.com/questions/66280645/how-can-i-serialize-a-double-2d-array-to-json-using-system-text-json
 	public class Array2DJsonConverter<T> : JsonConverter<T[,]?>

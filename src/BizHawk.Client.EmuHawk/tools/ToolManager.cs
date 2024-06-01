@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.ComponentModel;
+using System.Text.Json;
 using System.Windows.Forms;
 
 using BizHawk.Client.Common;
@@ -401,21 +401,9 @@ namespace BizHawk.Client.EmuHawk
 			{
 				if (data.TryGetValue(prop.Name, out var val))
 				{
-					if (val is string str && prop.PropertyType != typeof(string))
+					if (val is JsonElement jsonElement)
 					{
-						// if a type has a TypeConverter, and that converter can convert to string,
-						// that will be used in place of object markup by JSON.NET
-
-						// but that doesn't work with $type metadata, and JSON.NET fails to fall
-						// back on regular object serialization when needed.  so try to undo a TypeConverter
-						// operation here
-						var converter = TypeDescriptor.GetConverter(prop.PropertyType);
-						val = converter.ConvertFromString(null, CultureInfo.InvariantCulture, str);
-					}
-					else if (val is not bool && prop.PropertyType.IsPrimitive)
-					{
-						// numeric constants are similarly hosed
-						val = Convert.ChangeType(val, prop.PropertyType, CultureInfo.InvariantCulture);
+						val = jsonElement.Deserialize(prop.PropertyType, ConfigService.SerializerOptions);
 					}
 
 					prop.SetValue(tool, val, null);
