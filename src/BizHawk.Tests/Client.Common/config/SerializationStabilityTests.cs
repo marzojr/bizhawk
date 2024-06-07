@@ -126,7 +126,7 @@ namespace BizHawk.Tests.Client.Common.config
 		{
 			var color = Color.FromArgb(200, 255, 13, 42);
 			string serialized = JsonSerializer.Serialize(color, ConfigService.SerializerOptions);
-			Assert.AreEqual("\"200; 255; 13; 42\"", serialized);
+			Assert.AreEqual("\"200, 255, 13, 42\"", serialized);
 
 			var newColor = JsonSerializer.Deserialize<Color>(serialized, ConfigService.SerializerOptions);
 			Assert.AreEqual(color, newColor);
