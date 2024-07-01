@@ -44,6 +44,8 @@ namespace BizHawk.Common
 			GC.SuppressFinalize(this);
 		}
 
+		public IntPtr GetHandle() => _p;
+
 		~DynamicLibraryImportResolver()
 		{
 			DisposeHelper();

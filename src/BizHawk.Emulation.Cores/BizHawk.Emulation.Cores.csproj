@@ -75,5 +75,11 @@
 		<Compile Update="Consoles/Sony/PSX/Octoshock.cs" SubType="Code" />
 		<Compile Update="Consoles/Sony/PSX/Octoshock.*.cs" DependentUpon="Octoshock.cs" />
 		<Compile Update="Consoles/WonderSwan/WonderSwan.*.cs" DependentUpon="WonderSwan.cs" />
+		<Compile Update="Consoles\Nintendo\Mupen64\Mupen64.IVideoProvider.cs">
+		  <DependentUpon>Mupen64.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Consoles\Nintendo\Mupen64\Mupen64.VideoExtensions.cs">
+		  <DependentUpon>Mupen64.cs</DependentUpon>
+		</Compile>
 	</ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-// #define DEBUG_OPENGL
+#define DEBUG_OPENGL
 
 #if DEBUG_OPENGL
 using System.Runtime.InteropServices;

@@ -49,7 +49,7 @@ static int l_PluginInit = 0;
 
 /* Callbacks for data flow out of mupen */
 static int (*l_inputCallback)(int i) = NULL;
-static int (*l_setrumbleCallback)(int i, int on) = NULL;
+static void (*l_setrumbleCallback)(int i, int on) = NULL;
 
 static int romopen = 0;         // is a rom opened
 
@@ -77,7 +77,7 @@ EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Con
                                    void (*DebugCallback)(void *, int, const char *))
 {
     ptr_CoreGetAPIVersions CoreAPIVersionFunc;
-    
+
     int ConfigAPIVersion, DebugAPIVersion, VidextAPIVersion;
 
     if (l_PluginInit)
@@ -186,7 +186,7 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
 
     if (APIVersion != NULL)
         *APIVersion = INPUT_PLUGIN_API_VERSION;
-    
+
     if (PluginNamePtr != NULL)
         *PluginNamePtr = PLUGIN_NAME;
 
@@ -194,7 +194,7 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
     {
         *Capabilities = 0;
     }
-                    
+
     return M64ERR_SUCCESS;
 }
 
@@ -336,7 +336,7 @@ EXPORT void CALL ReadController(int Control, unsigned char *Command)
 	int value;
 	if(Control == -1)
 		return;
-	
+
 	switch(Command[2])
 	{
 	case RD_RESETCONTROLLER:

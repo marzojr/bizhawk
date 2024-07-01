@@ -453,7 +453,7 @@ m64p_error main_core_state_query(m64p_core_param param, int *rval)
         case M64CORE_AUDIO_VOLUME:
         {
             if (!g_EmulatorRunning)
-                return M64ERR_INVALID_STATE;    
+                return M64ERR_INVALID_STATE;
             return main_volume_get_level(rval);
         }
         case M64CORE_AUDIO_MUTE:
@@ -481,7 +481,7 @@ m64p_error main_core_state_set(m64p_core_param param, int val)
             if (!g_EmulatorRunning)
                 return M64ERR_INVALID_STATE;
             if (val == M64EMU_STOPPED)
-            {        
+            {
                 /* this stop function is asynchronous.  The emulator may not terminate until later */
                 main_stop();
                 return M64ERR_SUCCESS;
@@ -493,7 +493,7 @@ m64p_error main_core_state_set(m64p_core_param param, int val)
                 return M64ERR_SUCCESS;
             }
             else if (val == M64EMU_PAUSED)
-            {    
+            {
                 if (!main_is_paused())
                     main_toggle_pause();
                 return M64ERR_SUCCESS;
@@ -687,7 +687,7 @@ void new_vi(void)
     double VILimitMilliseconds = 1000.0 / ROM_PARAMS.vilimit;
     double AdjustedLimit = VILimitMilliseconds * 100.0 / l_SpeedFactor;  // adjust for selected emulator speed
     int time;
-	
+
     start_section(IDLE_SECTION);
     VI_Counter++;
 
@@ -701,10 +701,10 @@ void new_vi(void)
         return;
     }
     CurrentFPSTime = SDL_GetTicks();
-    
+
     Dif = CurrentFPSTime - LastFPSTime;
-    
-    if (Dif < AdjustedLimit) 
+
+    if (Dif < AdjustedLimit)
     {
         CalculatedTime = (unsigned int) (CounterTime + AdjustedLimit * VI_Counter);
         time = (int)(CalculatedTime - CurrentFPSTime);
@@ -716,12 +716,12 @@ void new_vi(void)
         CurrentFPSTime = CurrentFPSTime + time;
     }
 
-    if (CurrentFPSTime - CounterTime >= 1000.0 ) 
+    if (CurrentFPSTime - CounterTime >= 1000.0 )
     {
         CounterTime = SDL_GetTicks();
         VI_Counter = 0 ;
     }
-    
+
     LastFPSTime = CurrentFPSTime ;
 	*/
     end_section(IDLE_SECTION);
@@ -840,7 +840,7 @@ void main_stop(void)
 {
     /* note: this operation is asynchronous.  It may be called from a thread other than the
        main emulator thread, and may return before the emulator is completely stopped */
-    if (!g_EmulatorRunning)	
+    if (!g_EmulatorRunning)
         return;
 
     //DebugMessage(M64MSG_STATUS, "Stopping emulation.");
@@ -859,19 +859,20 @@ void main_stop(void)
         osd_delete_message(l_msgVol);
         l_msgVol = NULL;
     }
+	DebugMessage(M64MSG_INFO, "stopping the emulator via main_stop...\n");
 	stop = 1;
     //if (rompause)
     //{
     //    rompause = 0;
 		ReleaseSemaphore(rompausesem, 1, NULL);
         StateChanged(M64CORE_EMU_STATE, M64EMU_RUNNING);
-    //}    
+    //}
 #ifdef DBG
     if(g_DebuggerActive)
     {
         debugger_step();
     }
-#endif        
+#endif
 }
 
 /*********************************************************************************************************
@@ -881,4 +882,3 @@ int main(int argc, char *argv[])
 {
     return 1;
 }
-
