@@ -81,5 +81,8 @@
 		<Compile Update="Consoles\Nintendo\Mupen64\Mupen64.VideoExtensions.cs">
 		  <DependentUpon>Mupen64.cs</DependentUpon>
 		</Compile>
+		<Compile Update="Consoles\Nintendo\Mupen64\Mupen64.ISoundProvider.cs">
+		  <DependentUpon>Mupen64.cs</DependentUpon>
+		</Compile>
 	</ItemGroup>
 </Project>

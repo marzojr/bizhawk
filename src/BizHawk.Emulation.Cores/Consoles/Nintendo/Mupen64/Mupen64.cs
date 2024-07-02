@@ -87,11 +87,11 @@ public partial class Mupen64 : IEmulator
 		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.M64PLUGIN_GFX, VideoPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
-		// (AudioPluginApi, AudioPluginApiHandle) = LoadLib<Mupen64AudioPluginApi>("mupen64plus-audio-sdl");
-		// error = AudioPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
-		// Console.WriteLine(error.ToString());
-		// error = Mupen64Api.CoreAttachPlugin(Mupen64Api.m64p_plugin_type.M64PLUGIN_AUDIO, AudioPluginApiHandle);
-		// Console.WriteLine(error.ToString());
+		(AudioPluginApi, AudioPluginApiHandle) = LoadLib<Mupen64AudioPluginApi>("mupen64plus-audio-bkm");
+		error = AudioPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
+		Console.WriteLine(error.ToString());
+		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.M64PLUGIN_AUDIO, AudioPluginApiHandle);
+		Console.WriteLine(error.ToString());
 
 		// (InputPluginApi, InputPluginApiHandle) = LoadLib<Mupen64PluginApi>("mupen64plus-input-bkm");
 		// error = InputPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
@@ -115,7 +115,10 @@ public partial class Mupen64 : IEmulator
 
 		ControllerDefinition = NullController.Instance.Definition;
 
+		InitSound(AudioPluginApi.GetAudioRate());
+
 		var serviceProvider = new BasicServiceProvider(this);
+		serviceProvider.Register<ISoundProvider>(_resampler);
 		ServiceProvider = serviceProvider;
 
 		_coreThread = new Thread(RunEmulator) {IsBackground = true};
@@ -135,6 +138,7 @@ public partial class Mupen64 : IEmulator
 		var error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ADVANCE_FRAME, 0, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
 		_frameFinished.WaitOne();
+		UpdateAudio(renderSound);
 		Frame++;
 
 		return true;
@@ -164,9 +168,9 @@ public partial class Mupen64 : IEmulator
 		VideoPluginApi.PluginShutdown();
 		OSTailoredCode.LinkedLibManager.FreeByPtr(VideoPluginApiHandle);
 
-		// Mupen64Api.CoreDetachPlugin(Mupen64Api.m64p_plugin_type.M64PLUGIN_AUDIO);
-		// AudioPluginApi.PluginShutdown();
-		// OSTailoredCode.LinkedLibManager.FreeByPtr(AudioPluginApiHandle);
+		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.M64PLUGIN_AUDIO);
+		AudioPluginApi.PluginShutdown();
+		OSTailoredCode.LinkedLibManager.FreeByPtr(AudioPluginApiHandle);
 		//
 		// Mupen64Api.CoreDetachPlugin(Mupen64Api.m64p_plugin_type.M64PLUGIN_INPUT);
 		// InputPluginApi.PluginShutdown();
