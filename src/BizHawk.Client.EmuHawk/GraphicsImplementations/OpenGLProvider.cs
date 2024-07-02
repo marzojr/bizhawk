@@ -12,8 +12,8 @@ namespace BizHawk.Client.EmuHawk
 		public bool SupportsGLVersion(int major, int minor)
 			=> OpenGLVersion.SupportsVersion(major, minor);
 
-		public object RequestGLContext(int major, int minor, bool coreProfile)
-			=> new SDL2OpenGLContext(major, minor, coreProfile);
+		public object RequestGLContext(int major, int minor, bool coreProfile, int width=1, int height=1)
+			=> new SDL2OpenGLContext(major, minor, coreProfile, width, height);
 
 		public void ReleaseGLContext(object context)
 			=> ((SDL2OpenGLContext)context).Dispose();

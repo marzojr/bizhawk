@@ -198,13 +198,13 @@ namespace BizHawk.Bizware.Graphics
 			}
 		}
 
-		public SDL2OpenGLContext(int majorVersion, int minorVersion, bool coreProfile)
+		public SDL2OpenGLContext(int majorVersion, int minorVersion, bool coreProfile, int width=1, int height=1)
 		{
 			// offscreen contexts are shared (as we want to send texture from it over to our control's context)
 			// make sure to set the current graphics control context before creating this context
 			SetAttributes(majorVersion, minorVersion, coreProfile, shareContext: true);
 
-			_sdlWindow = SDL_CreateWindow(null, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1, 1,
+			_sdlWindow = SDL_CreateWindow(null, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
 				SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_HIDDEN);
 			if (_sdlWindow == IntPtr.Zero)
 			{

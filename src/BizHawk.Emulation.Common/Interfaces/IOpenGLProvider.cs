@@ -19,7 +19,7 @@ namespace BizHawk.Emulation.Common
 		/// The requested OpenGL context will be shared with the current context
 		/// Note: creating a context implicitly makes that created context current
 		/// </summary>
-		public object RequestGLContext(int major, int minor, bool coreProfile);
+		public object RequestGLContext(int major, int minor, bool coreProfile, int width=1, int height=1);
 
 		/// <summary>
 		/// Frees this OpenGL context

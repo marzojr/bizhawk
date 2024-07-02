@@ -1,10 +1,33 @@
-﻿using SDL2;
+using System.Collections.Generic;
+using SDL2;
 using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64Api;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
 public partial class Mupen64
 {
+	private SDL.SDL_GLattr MupenToSDLAttribute(m64p_GLattr value)
+	{
+		return value switch
+		{
+			m64p_GLattr.M64P_GL_DOUBLEBUFFER => SDL.SDL_GLattr.SDL_GL_DOUBLEBUFFER,
+			m64p_GLattr.M64P_GL_BUFFER_SIZE => SDL.SDL_GLattr.SDL_GL_BUFFER_SIZE,
+			m64p_GLattr.M64P_GL_DEPTH_SIZE => SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE,
+			m64p_GLattr.M64P_GL_RED_SIZE => SDL.SDL_GLattr.SDL_GL_RED_SIZE,
+			m64p_GLattr.M64P_GL_GREEN_SIZE => SDL.SDL_GLattr.SDL_GL_GREEN_SIZE,
+			m64p_GLattr.M64P_GL_BLUE_SIZE => SDL.SDL_GLattr.SDL_GL_BLUE_SIZE,
+			m64p_GLattr.M64P_GL_ALPHA_SIZE => SDL.SDL_GLattr.SDL_GL_ALPHA_SIZE,
+			m64p_GLattr.M64P_GL_MULTISAMPLEBUFFERS => SDL.SDL_GLattr.SDL_GL_MULTISAMPLEBUFFERS,
+			m64p_GLattr.M64P_GL_MULTISAMPLESAMPLES => SDL.SDL_GLattr.SDL_GL_MULTISAMPLESAMPLES,
+			m64p_GLattr.M64P_GL_CONTEXT_MAJOR_VERSION => SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
+			m64p_GLattr.M64P_GL_CONTEXT_MINOR_VERSION => SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
+			m64p_GLattr.M64P_GL_CONTEXT_PROFILE_MASK => SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
+			_ => (SDL.SDL_GLattr)(-1)
+		};
+	}
+
+	private readonly Dictionary<SDL.SDL_GLattr, int> GLAttributes = new();
+
 	private m64p_error VidExt_Init()
 	{
 		return m64p_error.M64ERR_SUCCESS;
@@ -27,22 +50,20 @@ public partial class Mupen64
 
 	private m64p_error VidExt_SetVideoMode(int width, int height, int bitsPerPixel, m64p_video_mode screenMode, m64p_video_flags flags)
 	{
+		Console.WriteLine($"Attempted to SetVideoMode, width {width}, height {height}, bpp {bitsPerPixel}, screenMode {screenMode}, flags {flags}");
 		if (_glContext is not null)
 			_openGLProvider.ReleaseGLContext(_glContext);
-		_glContext = _openGLProvider.RequestGLContext(2, 1, false);
+		if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, out int major)) major = 2;
+		if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, out int minor)) minor = 1;
+		bool coreProfile = GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, out int profile) && (SDL.SDL_GLprofile)profile == SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE;
+		_glContext = _openGLProvider.RequestGLContext(major, minor, coreProfile, width, height);
 
-		Console.WriteLine($"Attempted to SetVideoMode, width {width}, height {height}, bpp {bitsPerPixel}, screenMode {screenMode}, flags {flags}");
 		return m64p_error.M64ERR_SUCCESS;
 	}
 
 	private m64p_error VidExt_SetVideoModeWithRate(int width, int height, int refreshRate, int bitsPerPixel, m64p_video_mode screenMode, m64p_video_flags flags)
 	{
-		if (_glContext is not null)
-			_openGLProvider.ReleaseGLContext(_glContext);
-		_glContext ??= _openGLProvider.RequestGLContext(2, 1, false);
-
-		Console.WriteLine($"Attempted to SetVideoModeWithRate, width {width}, height {height}, rate {refreshRate}, bpp {bitsPerPixel}, screenMode {screenMode}, flags {flags}");
-		return m64p_error.M64ERR_SUCCESS;
+		return VidExt_SetVideoMode(width, height, bitsPerPixel, screenMode, flags);
 	}
 
 	private IntPtr VidExt_GL_GetProcAddress(string proc)
@@ -52,34 +73,24 @@ public partial class Mupen64
 
 	private m64p_error VidExt_GL_SetAttribute(m64p_GLattr attr, int value)
 	{
-		// TODO: either set them and don't reset attributes in context creation, or store important attributes like version here and pass them on context creation
-		Console.WriteLine($"attempted to set {attr} to {value}");
+		// TODO: this only supports version and profile right now; are others important?
+		var attribute = MupenToSDLAttribute(attr);
+		if (attribute == (SDL.SDL_GLattr)(-1))
+			return m64p_error.M64ERR_INPUT_INVALID;
+
+		GLAttributes[attribute] = value;
 
 		return m64p_error.M64ERR_SUCCESS;
 	}
 
 	private m64p_error VidExt_GL_GetAttribute(m64p_GLattr attr, ref int pValue)
 	{
-		SDL.SDL_GLattr attribute = attr switch
-		{
-			m64p_GLattr.M64P_GL_DOUBLEBUFFER => SDL.SDL_GLattr.SDL_GL_DOUBLEBUFFER,
-			m64p_GLattr.M64P_GL_BUFFER_SIZE => SDL.SDL_GLattr.SDL_GL_BUFFER_SIZE,
-			m64p_GLattr.M64P_GL_DEPTH_SIZE => SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE,
-			m64p_GLattr.M64P_GL_RED_SIZE => SDL.SDL_GLattr.SDL_GL_RED_SIZE,
-			m64p_GLattr.M64P_GL_GREEN_SIZE => SDL.SDL_GLattr.SDL_GL_GREEN_SIZE,
-			m64p_GLattr.M64P_GL_BLUE_SIZE => SDL.SDL_GLattr.SDL_GL_BLUE_SIZE,
-			m64p_GLattr.M64P_GL_ALPHA_SIZE => SDL.SDL_GLattr.SDL_GL_ALPHA_SIZE,
-			m64p_GLattr.M64P_GL_MULTISAMPLEBUFFERS => SDL.SDL_GLattr.SDL_GL_MULTISAMPLEBUFFERS,
-			m64p_GLattr.M64P_GL_MULTISAMPLESAMPLES => SDL.SDL_GLattr.SDL_GL_MULTISAMPLESAMPLES,
-            m64p_GLattr.M64P_GL_CONTEXT_MAJOR_VERSION => SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
-            m64p_GLattr.M64P_GL_CONTEXT_MINOR_VERSION => SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
-            m64p_GLattr.M64P_GL_CONTEXT_PROFILE_MASK => SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
-			_ => (SDL.SDL_GLattr)(-1)
-		};
+		var attribute = MupenToSDLAttribute(attr);
 		if (attribute == (SDL.SDL_GLattr)(-1))
 			return m64p_error.M64ERR_INPUT_INVALID;
 
-		pValue = _openGLProvider.GLGetAttribute(attribute);
+		pValue = GLAttributes.TryGetValue(attribute, out int value) ? value : _openGLProvider.GLGetAttribute(attribute);
+
 		return m64p_error.M64ERR_SUCCESS;
 	}
 
@@ -87,7 +98,7 @@ public partial class Mupen64
 	{
 		_openGLProvider.SwapBuffers(_glContext);
 
-		Console.WriteLine($"SwapBuffers was called.");
+		Console.WriteLine("SwapBuffers was called.");
 
 		return m64p_error.M64ERR_SUCCESS;
 	}

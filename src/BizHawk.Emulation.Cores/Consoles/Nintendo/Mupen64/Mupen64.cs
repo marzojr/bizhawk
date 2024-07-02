@@ -49,7 +49,7 @@ public partial class Mupen64 : IEmulator
 
 		_stateCallback = StateChanged;
 		_debugCallback = DebugCallback;
-		var error = Mupen64Api.CoreStartup(FRONTEND_API_VERSION, ".", ".", IntPtr.Zero, _debugCallback, IntPtr.Zero, _stateCallback);
+		var error = Mupen64Api.CoreStartup(FRONTEND_API_VERSION, null, null, IntPtr.Zero, _debugCallback, IntPtr.Zero, _stateCallback);
 		Console.WriteLine(error.ToString());
 
 		_videoExtensionFunctionsManaged = new m64p_video_extension_functions_managed
