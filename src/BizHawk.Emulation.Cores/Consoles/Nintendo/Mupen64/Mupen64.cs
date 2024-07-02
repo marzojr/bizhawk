@@ -131,6 +131,7 @@ public partial class Mupen64 : IEmulator
 
 	public unsafe bool FrameAdvance(IController controller, bool render, bool renderSound = true)
 	{
+		// Array.Clear(_videoBuffer, 0, _videoBuffer.Length);
 		m64p_emu_state retState = 0;
 		var retStatePointer = &retState;
 		Mupen64Api.CoreDoCommand(m64p_command.M64CMD_CORE_STATE_QUERY, (int)m64p_core_param.M64CORE_EMU_STATE, (IntPtr)retStatePointer);
@@ -146,7 +147,7 @@ public partial class Mupen64 : IEmulator
 
 	public int Frame { get; private set; }
 	public string SystemId => VSystemID.Raw.N64;
-	public bool DeterministicEmulation => true;
+	public bool DeterministicEmulation => true; // XD
 
 	public void ResetCounters()
 	{
