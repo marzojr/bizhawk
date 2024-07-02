@@ -21,6 +21,7 @@ public partial class Mupen64 : IVideoProvider
 	private readonly Mupen64Api.m64p_frame_callback _frameCallback;
 
 	private int[] _videoBuffer = [ ];
+	private byte[] _retVideoBuffer = [ ];
 
 	private readonly EventWaitHandle _frameFinished = new AutoResetEvent(false);
 
@@ -33,12 +34,23 @@ public partial class Mupen64 : IVideoProvider
 		if (_videoBuffer.Length < width * height)
 		{
 			_videoBuffer = new int[width * height];
+			_retVideoBuffer = new byte[width * height * 3];
 		}
 
 		BufferWidth = width;
 		BufferHeight = height;
 
-		VideoPluginApi.ReadScreen2(_videoBuffer, ref width, ref height, 1);
+		VideoPluginApi.ReadScreen2(_retVideoBuffer, ref width, ref height, 1);
+		// the returned video buffer is in format RGB888 and also flipped vertically
+		for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
+		{
+			byte r = _retVideoBuffer[3*(height-y-1) * width + 3*x];
+			byte g = _retVideoBuffer[3*(height-y-1) * width + 3*x + 1];
+			byte b = _retVideoBuffer[3*(height-y-1) * width + 3*x + 2];
+			int argb = (r << 16) | (g << 8) | (b << 0);
+			_videoBuffer[y * width + x] = argb;
+		}
 
 		_frameFinished.Set();
 	}

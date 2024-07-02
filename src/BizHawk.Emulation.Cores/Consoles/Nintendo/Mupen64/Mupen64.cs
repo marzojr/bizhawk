@@ -81,7 +81,7 @@ public partial class Mupen64 : IEmulator
 		error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ROM_OPEN, rom.RomData.Length, rom.RomData);
 		Console.WriteLine(error.ToString());
 
-		(VideoPluginApi, VideoPluginApiHandle) = LoadLib<Mupen64VideoPluginApi>("mupen64plus-video-GLideN64-release");
+		(VideoPluginApi, VideoPluginApiHandle) = LoadLib<Mupen64VideoPluginApi>("mupen64plus-video-GLideN64-debug");
 		error = VideoPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
 		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.M64PLUGIN_GFX, VideoPluginApiHandle);

@@ -29,7 +29,7 @@ public partial class Mupen64
 	{
 		if (_glContext is not null)
 			_openGLProvider.ReleaseGLContext(_glContext);
-		_glContext = _openGLProvider.RequestGLContext(3, 3, true);
+		_glContext = _openGLProvider.RequestGLContext(2, 1, false);
 
 		Console.WriteLine($"Attempted to SetVideoMode, width {width}, height {height}, bpp {bitsPerPixel}, screenMode {screenMode}, flags {flags}");
 		return m64p_error.M64ERR_SUCCESS;
@@ -39,7 +39,7 @@ public partial class Mupen64
 	{
 		if (_glContext is not null)
 			_openGLProvider.ReleaseGLContext(_glContext);
-		_glContext ??= _openGLProvider.RequestGLContext(3, 3, true);
+		_glContext ??= _openGLProvider.RequestGLContext(2, 1, false);
 
 		Console.WriteLine($"Attempted to SetVideoModeWithRate, width {width}, height {height}, rate {refreshRate}, bpp {bitsPerPixel}, screenMode {screenMode}, flags {flags}");
 		return m64p_error.M64ERR_SUCCESS;
@@ -85,16 +85,9 @@ public partial class Mupen64
 
 	private m64p_error VidExt_GL_SwapBuffers()
 	{
-		// try
-		// {
-		// 	_openGLProvider.ActivateGLContext(_glContext);
-		// }
-		// catch
-		// {
-		// 	// ignored
-		// }
-		//
-		// _openGLProvider.SwapBuffers(_glContext);
+		_openGLProvider.SwapBuffers(_glContext);
+
+		Console.WriteLine($"SwapBuffers was called.");
 
 		return m64p_error.M64ERR_SUCCESS;
 	}
