@@ -14,13 +14,13 @@ public class DefaultSetterGenerator : ISourceGenerator
 {
 	public class SyntaxReceiver : ISyntaxContextReceiver
 	{
-		public readonly List<(ClassDeclarationSyntax, SemanticModel)> ClassDeclarations = new();
+		public readonly List<(TypeDeclarationSyntax, SemanticModel)> TypeDeclarations = new();
 
 		public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
 		{
-			if (context.Node is ClassDeclarationSyntax cds)
+			if (context.Node is TypeDeclarationSyntax cds)
 			{
-				ClassDeclarations.Add((cds, context.SemanticModel));
+				TypeDeclarations.Add((cds, context.SemanticModel));
 			}
 		}
 	}
@@ -94,12 +94,12 @@ namespace BizHawk.Common
 	public static partial class SettingsUtil
 	{");
 
-		foreach (var (cds, semanticModel) in syntaxReceiver.ClassDeclarations)
+		foreach (var (tds, semanticModel) in syntaxReceiver.TypeDeclarations)
 		{
-			if (cds.AttributeLists.SelectMany(e => e.Attributes)
+			if (tds.AttributeLists.SelectMany(e => e.Attributes)
 			    .Any(e => e.Name.NormalizeWhitespace().ToFullString() == "CoreSettings"))
 			{
-				var symbol = semanticModel.GetDeclaredSymbol(cds, context.CancellationToken);
+				var symbol = semanticModel.GetDeclaredSymbol(tds, context.CancellationToken);
 				if (symbol is not null) // probably never happens?
 				{
 					CreateDefaultSetter(source, symbol);
