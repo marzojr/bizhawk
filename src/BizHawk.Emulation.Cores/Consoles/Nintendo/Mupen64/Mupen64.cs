@@ -135,6 +135,7 @@ public partial class Mupen64 : IEmulator
 		serviceProvider.Register<ISoundProvider>(_resampler);
 		ServiceProvider = serviceProvider;
 
+		Mupen64Api.CoreStateSet(m64p_core_param.M64CORE_SPEED_LIMITER, 0);
 		_coreThread = new Thread(RunEmulator) {IsBackground = true};
 		_coreThread.Start();
 		_frameFinished.WaitOne();

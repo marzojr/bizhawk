@@ -229,6 +229,11 @@ public abstract class Mupen64Api
 		fixed (byte* bytePointer = bytes)
 			return CoreDoCommand(command, paramInt, (IntPtr)bytePointer);
 	}
+	public unsafe m64p_error CoreStateSet(m64p_core_param parameter, int value)
+	{
+		int* valuePointer = &value;
+		return CoreDoCommand(m64p_command.M64CMD_CORE_STATE_SET, (int)parameter, (IntPtr)valuePointer);
+	}
 
 	[BizImport(CallingConvention.Cdecl, Compatibility = true)]
 	public abstract m64p_error CoreOverrideVidExt(ref m64p_video_extension_functions videoFunctionStruct);
