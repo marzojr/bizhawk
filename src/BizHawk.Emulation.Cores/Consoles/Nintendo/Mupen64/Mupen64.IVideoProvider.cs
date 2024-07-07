@@ -15,7 +15,7 @@ public partial class Mupen64 : IVideoProvider
 	public int VirtualHeight => BufferHeight;
 	public int BufferWidth { get; private set; }
 	public int BufferHeight { get; private set; }
-	public int VsyncNumerator => 60;
+	public int VsyncNumerator { get; private set; }
 	public int VsyncDenominator => 1;
 	public int BackgroundColor => 0;
 

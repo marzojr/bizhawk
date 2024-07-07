@@ -49,6 +49,18 @@ public partial class Mupen64 : IEmulator
 		_openGLProvider = loadParameters.Comm.OpenGLProvider;
 		_syncSettings = loadParameters.SyncSettings ?? new SyncSettings();
 
+		var rom = loadParameters.Roms[0];
+
+		byte countryCode = rom.RomData[0x3E];
+		// taken from mupen64 source
+		Region = countryCode switch
+		{
+			// PAL codes
+			0x44 or 0x46 or 0x49 or 0x50 or 0x53 or 0x55 or 0x58 or 0x59 => DisplayType.PAL,
+			// NTSC codes
+			_ => DisplayType.NTSC,
+		};
+
 		(Mupen64Api, Mupen64ApiHandle) = LoadLib<Mupen64Api>("mupen64plus");
 
 		_stateCallback = StateChanged;
@@ -79,8 +91,6 @@ public partial class Mupen64 : IEmulator
 		var videoExtensions = new m64p_video_extension_functions(_videoExtensionFunctionsManaged);
 		error = Mupen64Api.CoreOverrideVidExt(ref videoExtensions);
 		Console.WriteLine(error.ToString());
-
-		var rom = loadParameters.Roms[0];
 
 		error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ROM_OPEN, rom.RomData.Length, rom.RomData);
 		Console.WriteLine(error.ToString());
