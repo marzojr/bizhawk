@@ -38,7 +38,7 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 	{
 		[DisplayName("Video Plugin name")]
 		[Description("Name of the video plugin to use, e.g. \"angrylion-plus\"")]
-		[DefaultValue("GLideN64-debug")]
+		[DefaultValue("GLideN64")]
 		public string VideoPlugin { get; set; }
 
 		[DisplayName("Rsp Plugin name")]
