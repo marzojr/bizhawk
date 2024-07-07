@@ -1,4 +1,5 @@
-﻿using System.Threading;
+using System.Diagnostics;
+using System.Threading;
 using BizHawk.Emulation.Common;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
@@ -30,15 +31,11 @@ public partial class Mupen64 : IVideoProvider
 		int width = 0;
 		int height = 0;
 		VideoPluginApi.ReadScreen2(IntPtr.Zero, ref width, ref height, 1);
+		Debug.Assert(width <= BufferWidth);
+		Debug.Assert(height <= BufferHeight);
 
-		if (_videoBuffer.Length < width * height)
-		{
-			_videoBuffer = new int[width * height];
-			_retVideoBuffer = new byte[width * height * 3];
-		}
-
-		BufferWidth = width;
-		BufferHeight = height;
+		// is this necessary at any point?
+		// Array.Clear(_videoBuffer, width * height, _videoBuffer.Length - width * height);
 
 		VideoPluginApi.ReadScreen2(_retVideoBuffer, ref width, ref height, 1);
 		// the returned video buffer is in format RGB888 and also flipped vertically

@@ -58,6 +58,14 @@ public partial class Mupen64
 		bool coreProfile = GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, out int profile) && (SDL.SDL_GLprofile)profile == SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE;
 		_glContext = _openGLProvider.RequestGLContext(major, minor, coreProfile, width, height);
 
+		BufferWidth = width;
+		BufferHeight = height;
+		if (_videoBuffer.Length < width * height)
+		{
+			_videoBuffer = new int[width * height];
+			_retVideoBuffer = new byte[width * height * 3];
+		}
+
 		return m64p_error.M64ERR_SUCCESS;
 	}
 

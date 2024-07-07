@@ -209,13 +209,13 @@ public partial class Mupen64 : IEmulator
 	private void StateChanged(IntPtr context2, m64p_core_param paramChanged, int newValue)
 	{
 		Console.WriteLine($"State changed! Param {paramChanged}, new value {newValue}");
-		if (_hasPaused) return;
 
 		if (paramChanged == m64p_core_param.M64CORE_EMU_STATE)
 		{
 			var newState = (m64p_emu_state)newValue;
 			if (newState == m64p_emu_state.M64EMU_RUNNING)
 			{
+				if (_hasPaused) return;
 				_hasPaused = true;
 				// can't actually send the pause command here because it'll immediately get overwritten again
 				// luckily the frame advance command is effectively the same; just pauses after the next frame
