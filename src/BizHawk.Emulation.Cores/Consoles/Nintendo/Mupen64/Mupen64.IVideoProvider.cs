@@ -34,8 +34,7 @@ public partial class Mupen64 : IVideoProvider
 		Debug.Assert(width <= BufferWidth);
 		Debug.Assert(height <= BufferHeight);
 
-		// is this necessary at any point?
-		// Array.Clear(_videoBuffer, width * height, _videoBuffer.Length - width * height);
+		Array.Clear(_videoBuffer, width * height, _videoBuffer.Length - width * height);
 
 		VideoPluginApi.ReadScreen2(_retVideoBuffer, ref width, ref height, 1);
 		// the returned video buffer is in format RGB888 and also flipped vertically
