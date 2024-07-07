@@ -161,6 +161,16 @@ public partial class Mupen64 : IEmulator
 		var retStatePointer = &retState;
 		Mupen64Api.CoreDoCommand(m64p_command.M64CMD_CORE_STATE_QUERY, (int)m64p_core_param.M64CORE_EMU_STATE, (IntPtr)retStatePointer);
 		Console.WriteLine($"Current state: {retState}");
+
+		if (controller.IsPressed("Reset"))
+		{
+			Mupen64Api.CoreDoCommand(m64p_command.M64CMD_RESET, 0, IntPtr.Zero);
+		}
+		else if (controller.IsPressed("Power"))
+		{
+			Mupen64Api.CoreDoCommand(m64p_command.M64CMD_RESET, 1, IntPtr.Zero);
+		}
+
 		var error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ADVANCE_FRAME, 0, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
 		_frameFinished.WaitOne();
