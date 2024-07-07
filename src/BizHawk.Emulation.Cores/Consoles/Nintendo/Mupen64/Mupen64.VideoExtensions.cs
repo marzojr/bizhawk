@@ -26,7 +26,7 @@ public partial class Mupen64
 		};
 	}
 
-	private readonly Dictionary<SDL.SDL_GLattr, int> GLAttributes = new();
+	private readonly Dictionary<SDL.SDL_GLattr, int> GLAttributes = [ ];
 
 	private m64p_error VidExt_Init()
 	{
