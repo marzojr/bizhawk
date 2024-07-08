@@ -237,4 +237,13 @@ public abstract class Mupen64Api
 
 	[BizImport(CallingConvention.Cdecl, Compatibility = true)]
 	public abstract m64p_error CoreOverrideVidExt(ref m64p_video_extension_functions videoFunctionStruct);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract m64p_error GetSaveRamSize(ref int size);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract m64p_error GetSaveRam(byte[] buffer);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract m64p_error PutSaveRam(byte[] buffer);
 }
