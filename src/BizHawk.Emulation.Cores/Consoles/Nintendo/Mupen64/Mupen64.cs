@@ -154,13 +154,13 @@ public partial class Mupen64 : IEmulator
 	public IEmulatorServiceProvider ServiceProvider { get; }
 	public ControllerDefinition ControllerDefinition { get; }
 
-	public unsafe bool FrameAdvance(IController controller, bool render, bool renderSound = true)
+	public bool FrameAdvance(IController controller, bool render, bool renderSound = true)
 	{
 		_controller = controller;
-		m64p_emu_state retState = 0;
-		var retStatePointer = &retState;
-		Mupen64Api.CoreDoCommand(m64p_command.M64CMD_CORE_STATE_QUERY, (int)m64p_core_param.M64CORE_EMU_STATE, (IntPtr)retStatePointer);
-		Console.WriteLine($"Current state: {retState}");
+		// m64p_emu_state retState = 0;
+		// var retStatePointer = &retState;
+		// Mupen64Api.CoreDoCommand(m64p_command.M64CMD_CORE_STATE_QUERY, (int)m64p_core_param.M64CORE_EMU_STATE, (IntPtr)retStatePointer);
+		// Console.WriteLine($"Current state: {retState}");
 
 		if (controller.IsPressed("Reset"))
 		{
@@ -171,11 +171,13 @@ public partial class Mupen64 : IEmulator
 			Mupen64Api.CoreDoCommand(m64p_command.M64CMD_RESET, 1, IntPtr.Zero);
 		}
 
+		IsLagFrame = true;
 		var error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ADVANCE_FRAME, 0, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
 		_frameFinished.WaitOne();
 		UpdateAudio(renderSound);
 		Frame++;
+		if (IsLagFrame) LagCount++;
 
 		return true;
 	}
@@ -187,6 +189,8 @@ public partial class Mupen64 : IEmulator
 	public void ResetCounters()
 	{
 		Frame = 0;
+		LagCount = 0;
+		IsLagFrame = false;
 	}
 
 	public void Dispose()
@@ -255,6 +259,9 @@ public partial class Mupen64 : IEmulator
 
 	private Mupen64InputPluginApi.InputState InputCallback(int controller)
 	{
+		IsLagFrame = false;
+		InputCallbacks.Call();
+
 		controller++;
 		var ret = new Mupen64InputPluginApi.InputState
 		{

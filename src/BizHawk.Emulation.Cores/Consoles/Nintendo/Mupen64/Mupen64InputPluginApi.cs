@@ -26,7 +26,7 @@ public abstract class Mupen64InputPluginApi : Mupen64PluginApi
 
 	}
 
-	[StructLayout(LayoutKind.Sequential)] // TODO check sizeof == 4
+	[StructLayout(LayoutKind.Sequential)]
 	public struct InputState
 	{
 		public BoolButtons boolButtons;

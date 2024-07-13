@@ -19,6 +19,8 @@ public partial class Mupen64 : IStatable
 	public void SaveStateBinary(BinaryWriter writer)
 	{
 		writer.Write(Frame);
+		writer.Write(LagCount);
+		writer.Write(IsLagFrame);
 
 		var tempFileName = TempFileManager.GetTempFilename("mupen64-savestate");
 		using var tempFile = new FileStream(tempFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Write);
@@ -30,6 +32,8 @@ public partial class Mupen64 : IStatable
 	public void LoadStateBinary(BinaryReader reader)
 	{
 		Frame = reader.ReadInt32();
+		LagCount = reader.ReadInt32();
+		IsLagFrame = reader.ReadBoolean();
 
 		var tempFileName = TempFileManager.GetTempFilename("mupen64-savestate");
 		using var tempFile = new FileStream(tempFileName, FileMode.Create, FileAccess.Write, FileShare.Read);
