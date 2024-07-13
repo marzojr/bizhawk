@@ -47,7 +47,7 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 		public string RspPlugin { get; set; }
 
 		[Description("The mode to run the cpu in")]
-		[DefaultValue(CoreType.CachedInterpreter)]
+		[DefaultValue(CoreType.Dynarec)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		public CoreType CoreType { get; set; }
 
