@@ -39,6 +39,6 @@ public partial class Mupen64 : IStatable
 		using var tempFile = new FileStream(tempFileName, FileMode.Create, FileAccess.Write, FileShare.Read);
 		reader.BaseStream.CopyTo(tempFile);
 
-		var error = Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.M64CMD_STATE_LOAD, (int)SavestatesType.M64P, tempFileName);
+		Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.M64CMD_STATE_LOAD, (int)SavestatesType.M64P, tempFileName);
 	}
 }

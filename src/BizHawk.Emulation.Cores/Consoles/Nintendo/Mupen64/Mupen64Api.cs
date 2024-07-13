@@ -123,9 +123,27 @@ public abstract class Mupen64Api
 		M64P_GL_CONTEXT_PROFILE_MASK
 	}
 
-	public enum m64p_render_mode {
+	public enum m64p_render_mode
+	{
 		M64P_RENDER_OPENGL = 0,
 		M64P_RENDER_VULKAN
+	}
+
+	public enum m64p_dbg_memptr_type
+	{
+		RDRAM = 1,
+		PI_REG,
+		SI_REG,
+		VI_REG,
+		RI_REG,
+		AI_REG
+	}
+
+	public enum m64p_type {
+		M64TYPE_INT = 1,
+		M64TYPE_FLOAT,
+		M64TYPE_BOOL,
+		M64TYPE_STRING
 	}
 
 	private const int VidExtFunctions = 17;
@@ -246,4 +264,22 @@ public abstract class Mupen64Api
 
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract m64p_error PutSaveRam(byte[] buffer);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract IntPtr DebugMemGetPointer(m64p_dbg_memptr_type memPtrType);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract ulong DebugMemGetSize(m64p_dbg_memptr_type memPtrType);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract byte DebugMemRead8(uint address);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract void DebugMemWrite8(uint address, byte value);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract m64p_error ConfigOpenSection(string sectionName, ref IntPtr configSectionHandle);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract m64p_error ConfigSetParameter(IntPtr configSectionHandle, string paramName, m64p_type paramType, IntPtr paramValue);
 }
