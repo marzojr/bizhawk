@@ -68,6 +68,18 @@ public partial class Mupen64 : IEmulator
 		var error = Mupen64Api.CoreStartup(FRONTEND_API_VERSION, null, null, IntPtr.Zero, _debugCallback, IntPtr.Zero, _stateCallback);
 		Console.WriteLine(error.ToString());
 
+		IntPtr coreConfigSection = IntPtr.Zero;
+		Mupen64Api.ConfigOpenSection("Core", ref coreConfigSection);
+		unsafe
+		{
+			var coreType = _syncSettings.CoreType;
+			Mupen64Api.ConfigSetParameter(coreConfigSection, "R4300Emulator", m64p_type.M64TYPE_INT, (IntPtr)(&coreType));
+			bool disableExtraMem = _syncSettings.DisableExpansionSlot;
+			Mupen64Api.ConfigSetParameter(coreConfigSection, "DisableExtraMem", m64p_type.M64TYPE_BOOL, (IntPtr)(&disableExtraMem));
+			bool randomizeInterrupt = false;
+			Mupen64Api.ConfigSetParameter(coreConfigSection, "RandomizeInterrupt", m64p_type.M64TYPE_BOOL, (IntPtr)(&randomizeInterrupt));
+		}
+
 		_videoExtensionFunctionsManaged = new m64p_video_extension_functions_managed
 		{
 			VidExt_Init = VidExt_Init,
