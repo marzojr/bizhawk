@@ -65,6 +65,10 @@ public partial class Mupen64 : IEmulator
 
 		_stateCallback = StateChanged;
 		_debugCallback = DebugCallback;
+		_traceCallback = TraceCallback;
+		_debuggerInitCallback = DebuggerInitCallback;
+		Mupen64Api.DebugSetCallbacks(_debuggerInitCallback, _traceCallback, null);
+
 		var error = Mupen64Api.CoreStartup(FRONTEND_API_VERSION, null, null, IntPtr.Zero, _debugCallback, IntPtr.Zero, _stateCallback);
 		Console.WriteLine(error.ToString());
 
@@ -73,11 +77,13 @@ public partial class Mupen64 : IEmulator
 		unsafe
 		{
 			var coreType = _syncSettings.CoreType;
-			Mupen64Api.ConfigSetParameter(coreConfigSection, "R4300Emulator", m64p_type.M64TYPE_INT, (IntPtr)(&coreType));
+			Mupen64Api.ConfigSetParameter(coreConfigSection, "R4300Emulator", m64p_type.INT, (IntPtr)(&coreType));
 			bool disableExtraMem = _syncSettings.DisableExpansionSlot;
-			Mupen64Api.ConfigSetParameter(coreConfigSection, "DisableExtraMem", m64p_type.M64TYPE_BOOL, (IntPtr)(&disableExtraMem));
+			Mupen64Api.ConfigSetParameter(coreConfigSection, "DisableExtraMem", m64p_type.BOOL, (IntPtr)(&disableExtraMem));
 			bool randomizeInterrupt = false;
-			Mupen64Api.ConfigSetParameter(coreConfigSection, "RandomizeInterrupt", m64p_type.M64TYPE_BOOL, (IntPtr)(&randomizeInterrupt));
+			Mupen64Api.ConfigSetParameter(coreConfigSection, "RandomizeInterrupt", m64p_type.BOOL, (IntPtr)(&randomizeInterrupt));
+			bool enableDebugger = true;
+			Mupen64Api.ConfigSetParameter(coreConfigSection, "EnableDebugger", m64p_type.BOOL, (IntPtr)(&enableDebugger));
 		}
 
 		_videoExtensionFunctionsManaged = new m64p_video_extension_functions_managed
@@ -104,37 +110,37 @@ public partial class Mupen64 : IEmulator
 		error = Mupen64Api.CoreOverrideVidExt(ref videoExtensions);
 		Console.WriteLine(error.ToString());
 
-		error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ROM_OPEN, rom.RomData.Length, rom.RomData);
+		error = Mupen64Api.CoreDoCommand(m64p_command.ROM_OPEN, rom.RomData.Length, rom.RomData);
 		Console.WriteLine(error.ToString());
 
 		var videoPluginName = $"mupen64plus-video-{_syncSettings.VideoPlugin}";
 		(VideoPluginApi, VideoPluginApiHandle) = LoadLib<Mupen64VideoPluginApi>(videoPluginName);
 		error = VideoPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.M64PLUGIN_GFX, VideoPluginApiHandle);
+		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.GFX, VideoPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
 		(AudioPluginApi, AudioPluginApiHandle) = LoadLib<Mupen64AudioPluginApi>("mupen64plus-audio-bkm");
 		error = AudioPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.M64PLUGIN_AUDIO, AudioPluginApiHandle);
+		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.AUDIO, AudioPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
 		(InputPluginApi, InputPluginApiHandle) = LoadLib<Mupen64InputPluginApi>("mupen64plus-input-bkm");
 		error = InputPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.M64PLUGIN_INPUT, InputPluginApiHandle);
+		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.INPUT, InputPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
 		var rspPluginName = $"mupen64plus-rsp-{_syncSettings.RspPlugin}";
 		(RspPluginApi, RspPluginApiHandle) = LoadLib<Mupen64PluginApi>(rspPluginName);
 		error = RspPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.M64PLUGIN_RSP, RspPluginApiHandle);
+		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.RSP, RspPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
 		_frameCallback = FrameCallback;
-		error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_SET_FRAME_CALLBACK, 0, Marshal.GetFunctionPointerForDelegate(_frameCallback));
+		error = Mupen64Api.CoreDoCommand(m64p_command.SET_FRAME_CALLBACK, 0, Marshal.GetFunctionPointerForDelegate(_frameCallback));
 		Console.WriteLine(error.ToString());
 
 		ControllerDefinition = Mupen64Controller.MakeControllerDefinition(_syncSettings);
@@ -156,7 +162,7 @@ public partial class Mupen64 : IEmulator
 		var serviceProvider = new BasicServiceProvider(this);
 		serviceProvider.Register<ISoundProvider>(_resampler);
 
-		Mupen64Api.CoreStateSet(m64p_core_param.M64CORE_SPEED_LIMITER, 0);
+		Mupen64Api.CoreStateSet(m64p_core_param.SPEED_LIMITER, 0);
 		_coreThread = new Thread(RunEmulator) {IsBackground = true};
 		_coreThread.Start();
 		_frameFinished.WaitOne();
@@ -179,15 +185,15 @@ public partial class Mupen64 : IEmulator
 
 		if (controller.IsPressed("Reset"))
 		{
-			Mupen64Api.CoreDoCommand(m64p_command.M64CMD_RESET, 0, IntPtr.Zero);
+			Mupen64Api.CoreDoCommand(m64p_command.RESET, 0, IntPtr.Zero);
 		}
 		else if (controller.IsPressed("Power"))
 		{
-			Mupen64Api.CoreDoCommand(m64p_command.M64CMD_RESET, 1, IntPtr.Zero);
+			Mupen64Api.CoreDoCommand(m64p_command.RESET, 1, IntPtr.Zero);
 		}
 
 		IsLagFrame = true;
-		var error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ADVANCE_FRAME, 0, IntPtr.Zero);
+		var error = Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
 		_frameFinished.WaitOne();
 		UpdateAudio(renderSound);
@@ -214,29 +220,29 @@ public partial class Mupen64 : IEmulator
 		_disposed = true;
 
 		Console.WriteLine("entering dispose...");
-		Mupen64Api.CoreDoCommand(m64p_command.M64CMD_STOP, 0, IntPtr.Zero);
+		Mupen64Api.CoreDoCommand(m64p_command.STOP, 0, IntPtr.Zero);
 		// the stop command requires trying to advance an additional frame before the core actually stops, as the core is currently paused
-		var error = Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ADVANCE_FRAME, 0, IntPtr.Zero);
+		var error = Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
 		_coreThread.Join();
 
-		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.M64PLUGIN_GFX);
+		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.GFX);
 		VideoPluginApi.PluginShutdown();
 		OSTailoredCode.LinkedLibManager.FreeByPtr(VideoPluginApiHandle);
 
-		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.M64PLUGIN_AUDIO);
+		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.AUDIO);
 		AudioPluginApi.PluginShutdown();
 		OSTailoredCode.LinkedLibManager.FreeByPtr(AudioPluginApiHandle);
 
-		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.M64PLUGIN_INPUT);
+		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.INPUT);
 		InputPluginApi.PluginShutdown();
 		OSTailoredCode.LinkedLibManager.FreeByPtr(InputPluginApiHandle);
 
-		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.M64PLUGIN_RSP);
+		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.RSP);
 		RspPluginApi.PluginShutdown();
 		OSTailoredCode.LinkedLibManager.FreeByPtr(RspPluginApiHandle);
 
-		Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ROM_CLOSE, 0, IntPtr.Zero);
+		Mupen64Api.CoreDoCommand(m64p_command.ROM_CLOSE, 0, IntPtr.Zero);
 		Mupen64Api.CoreShutdown();
 		OSTailoredCode.LinkedLibManager.FreeByPtr(Mupen64ApiHandle);
 
@@ -250,21 +256,21 @@ public partial class Mupen64 : IEmulator
 	{
 		Console.WriteLine($"State changed! Param {paramChanged}, new value {newValue}");
 
-		if (paramChanged == m64p_core_param.M64CORE_EMU_STATE)
+		if (paramChanged == m64p_core_param.EMU_STATE)
 		{
 			var newState = (m64p_emu_state)newValue;
-			if (newState == m64p_emu_state.M64EMU_RUNNING)
+			if (newState == m64p_emu_state.RUNNING)
 			{
 				if (_hasPaused) return;
 				_hasPaused = true;
 				// can't actually send the pause command here because it'll immediately get overwritten again
 				// luckily the frame advance command is effectively the same; just pauses after the next frame
-				Mupen64Api.CoreDoCommand(m64p_command.M64CMD_ADVANCE_FRAME, 0, IntPtr.Zero);
+				Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
 			}
 		}
 	}
 
-	private void RunEmulator() => Mupen64Api.CoreDoCommand(m64p_command.M64CMD_EXECUTE, 0, IntPtr.Zero);
+	private void RunEmulator() => Mupen64Api.CoreDoCommand(m64p_command.EXECUTE, 0, IntPtr.Zero);
 
 	private static (T Lib, IntPtr NativeHandle) LoadLib<T>(string name) where T : class
 	{

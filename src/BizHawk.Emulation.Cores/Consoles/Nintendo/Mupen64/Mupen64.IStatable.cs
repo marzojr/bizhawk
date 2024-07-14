@@ -25,7 +25,7 @@ public partial class Mupen64 : IStatable
 		var tempFileName = TempFileManager.GetTempFilename("mupen64-savestate");
 		using var tempFile = new FileStream(tempFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Write);
 
-		Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.M64CMD_STATE_SAVE, (int)SavestatesType.M64P, tempFileName);
+		Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.STATE_SAVE, (int)SavestatesType.M64P, tempFileName);
 		tempFile.CopyTo(writer.BaseStream);
 	}
 
@@ -39,6 +39,6 @@ public partial class Mupen64 : IStatable
 		using var tempFile = new FileStream(tempFileName, FileMode.Create, FileAccess.Write, FileShare.Read);
 		reader.BaseStream.CopyTo(tempFile);
 
-		Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.M64CMD_STATE_LOAD, (int)SavestatesType.M64P, tempFileName);
+		Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.STATE_LOAD, (int)SavestatesType.M64P, tempFileName);
 	}
 }
