@@ -68,19 +68,19 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 		[DefaultValue(false)]
 		public bool Port4Connected { get; set; }
 
-		[Description("The type of expansion pack inserted into the expansion port of the controller connected to port 1")]
+		[Description("The type of expansion pak inserted into the expansion port of the controller connected to port 1")]
 		[DefaultValue(N64ControllerPakType.NoPak)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		public N64ControllerPakType Port1PakType { get; set; }
-		[Description("The type of expansion pack inserted into the expansion port of the controller connected to port 2")]
+		[Description("The type of expansion pak inserted into the expansion port of the controller connected to port 2")]
 		[DefaultValue(N64ControllerPakType.NoPak)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		public N64ControllerPakType Port2PakType { get; set; }
-		[Description("The type of expansion pack inserted into the expansion port of the controller connected to port 3")]
+		[Description("The type of expansion pak inserted into the expansion port of the controller connected to port 3")]
 		[DefaultValue(N64ControllerPakType.NoPak)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		public N64ControllerPakType Port3PakType { get; set; }
-		[Description("The type of expansion pack inserted into the expansion port of the controller connected to port 4")]
+		[Description("The type of expansion pak inserted into the expansion port of the controller connected to port 4")]
 		[DefaultValue(N64ControllerPakType.NoPak)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		public N64ControllerPakType Port4PakType { get; set; }
