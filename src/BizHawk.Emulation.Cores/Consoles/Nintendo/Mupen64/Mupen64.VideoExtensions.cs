@@ -50,6 +50,7 @@ public partial class Mupen64
 
 	private m64p_error VidExt_SetVideoMode(int width, int height, int bitsPerPixel, m64p_video_mode screenMode, m64p_video_flags flags)
 	{
+		isRenderThread = true;
 		Console.WriteLine($"Attempted to SetVideoMode, width {width}, height {height}, bpp {bitsPerPixel}, screenMode {screenMode}, flags {flags}");
 		if (_glContext is not null)
 			_openGLProvider.ReleaseGLContext(_glContext);
@@ -102,9 +103,13 @@ public partial class Mupen64
 		return m64p_error.SUCCESS;
 	}
 
+	[ThreadStatic] 
+	private static bool isRenderThread;
+
 	private m64p_error VidExt_GL_SwapBuffers()
 	{
-		_openGLProvider.SwapBuffers(_glContext);
+		if (isRenderThread)
+			_openGLProvider.SwapBuffers(_glContext);
 
 		Console.WriteLine("SwapBuffers was called.");
 
