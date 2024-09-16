@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Newtonsoft.Json;
 
 namespace BizHawk.Emulation.Cores.Nintendo.N64
 {
@@ -25,7 +24,6 @@ namespace BizHawk.Emulation.Cores.Nintendo.N64
 				TRANSFER_PAK = 4
 			}
 
-			[JsonIgnore]
 			private N64ControllerPakType _type = N64ControllerPakType.NO_PAK;
 
 			/// <summary>
@@ -44,7 +42,6 @@ namespace BizHawk.Emulation.Cores.Nintendo.N64
 				set => _type = value;
 			}
 
-			[JsonIgnore]
 			private bool _isConnected = true;
 
 			/// <summary>

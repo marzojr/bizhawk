@@ -1,6 +1,5 @@
 using System.ComponentModel;
-
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
@@ -147,17 +146,11 @@ namespace BizHawk.Emulation.Cores.Nintendo.GBHawkLink3x
 			[DefaultValue(true)]
 			public bool Use_SRAM { get; set; }
 
-			[JsonIgnore]
 			private int _RTCInitialTime_L;
-			[JsonIgnore]
 			private int _RTCInitialTime_C;
-			[JsonIgnore]
 			private int _RTCInitialTime_R;
-			[JsonIgnore]
 			private int _RTCOffset_L;
-			[JsonIgnore]
 			private int _RTCOffset_C;
-			[JsonIgnore]
 			private int _RTCOffset_R;
 			[JsonIgnore]
 			public ushort _DivInitialTime_L = 8;

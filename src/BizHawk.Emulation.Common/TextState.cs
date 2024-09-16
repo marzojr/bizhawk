@@ -5,8 +5,6 @@ using System.Runtime.InteropServices;
 
 using BizHawk.Common.CollectionExtensions;
 
-using Newtonsoft.Json;
-
 namespace BizHawk.Emulation.Common
 {
 	// managed counterpart to unmanaged serialization code in GB and WSWAN cores
@@ -42,10 +40,8 @@ namespace BizHawk.Emulation.Common
 
 		public readonly Node Root = new Node();
 
-		[JsonIgnore]
 		private Stack<Node> Nodes;
 
-		[JsonIgnore]
 		private Node Current => Nodes.Peek();
 
 		public void Prepare()

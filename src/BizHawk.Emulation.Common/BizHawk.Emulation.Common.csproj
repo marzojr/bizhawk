@@ -8,8 +8,8 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Collections.Immutable" />
-		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="ppy.SDL2-CS" ExcludeAssets="native;contentFiles" />
+		<PackageReference Include="System.Text.Json" />
 		<ProjectReference Include="$(ProjectDir)../BizHawk.BizInvoke/BizHawk.BizInvoke.csproj" />
 		<ProjectReference Include="$(ProjectDir)../BizHawk.Common/BizHawk.Common.csproj" />
 	</ItemGroup>

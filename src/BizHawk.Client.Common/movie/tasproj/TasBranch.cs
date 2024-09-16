@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 using BizHawk.Bizware.Graphics;
 using BizHawk.Common.IOExtensions;
@@ -137,7 +137,7 @@ namespace BizHawk.Client.Common
 			var nusertext = new IndexedStateLump(BinaryStateLump.BranchUserText);
 			foreach (var b in this)
 			{
-				bs.PutLump(nheader, tw => tw.WriteLine(JsonConvert.SerializeObject(b.ForSerial)));
+				bs.PutLump(nheader, tw => tw.WriteLine(JsonSerializer.Serialize(b.ForSerial)));
 
 				bs.PutLump(ncore, (Stream s) => s.Write(b.CoreData, 0, b.CoreData.Length));
 
@@ -194,29 +194,15 @@ namespace BizHawk.Client.Common
 
 				if (!bl.GetLump(nheader, abort: false, tr =>
 				{
-					var header = (dynamic)JsonConvert.DeserializeObject(tr.ReadLine());
-					b.Frame = (int)header.Frame;
+					var header = JsonSerializer.Deserialize<JsonNode>(tr.ReadLine());
+					b.Frame = header["Frame"]!.GetValue<int>();
 
-					var timestamp = header.TimeStamp;
+					var timestamp = header["TimeStamp"];
 
-					if (timestamp != null)
-					{
-						b.TimeStamp = (DateTime)timestamp;
-					}
-					else
-					{
-						b.TimeStamp = DateTime.Now;
-					}
+					b.TimeStamp = timestamp?.GetValue<DateTime>() ?? DateTime.Now;
 
-					var identifier = header.UniqueIdentifier;
-					if (identifier != null)
-					{
-						b.Uuid = (Guid)identifier;
-					}
-					else
-					{
-						b.Uuid = Guid.NewGuid();
-					}
+					var identifier = header["UniqueIdentifier"];
+					b.Uuid = identifier?.GetValue<Guid>() ?? Guid.NewGuid();
 				}))
 				{
 					return;

@@ -1,8 +1,7 @@
 using System.IO;
+using System.Text.Json;
 
 using BizHawk.Common.StringExtensions;
-
-using Newtonsoft.Json;
 
 //this file contains some cumbersome self-"serialization" in order to gain a modicum of control over what the serialized output looks like
 //I don't want them to look like crufty json
@@ -94,12 +93,12 @@ namespace BizHawk.Client.Common
 
 		public void Deserialize(string str)
 		{
-			token = JsonConvert.DeserializeObject<Token>(str);
+			token = JsonSerializer.Deserialize<Token>(str);
 		}
 		
 		public void Serialize(TextWriter tw)
 		{
-			tw.Write(JsonConvert.SerializeObject(token));
+			tw.Write(JsonSerializer.Serialize(token));
 		}
 
 		public string CorePath

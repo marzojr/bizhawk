@@ -1,11 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace BizHawk.Client.Common
 {
 	public sealed class PathEntry
 	{
 		public string Type { get; set; }
-		[JsonIgnore]
 		private string _path;
 		public string Path
 		{

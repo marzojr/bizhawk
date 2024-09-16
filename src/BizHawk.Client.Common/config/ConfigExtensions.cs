@@ -1,33 +1,23 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 using BizHawk.Common.StringExtensions;
 using BizHawk.Emulation.Common;
-
-using Newtonsoft.Json.Linq;
 
 namespace BizHawk.Client.Common
 {
 	public static class ConfigExtensions
 	{
-		private class TypeNameEncapsulator
+		private static JsonElement Serialize(object o)
 		{
-			public object o;
+			return JsonSerializer.SerializeToElement(o, ConfigService.SerializerOptions);
 		}
-		private static JToken Serialize(object o)
-		{
-			var tne = new TypeNameEncapsulator { o = o };
-			return JToken.FromObject(tne, ConfigService.Serializer)["o"];
-
-			// Maybe todo:  This code is identical to the code above, except that it does not emit the legacy "$type"
-			// parameter that we no longer need here.  Leaving that in to make bisecting during this dev phase easier, and such.
-			// return JToken.FromObject(o, ConfigService.Serializer);
-		}
-		private static object Deserialize(JToken j, Type type)
+		private static object Deserialize(JsonElement json, Type type)
 		{
 			try
 			{
-				return j?.ToObject(type, ConfigService.Serializer);
+				return json.Deserialize(type, ConfigService.SerializerOptions);
 			}
 			catch
 			{

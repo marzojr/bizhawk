@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-using Newtonsoft.Json;
-
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
 
@@ -61,7 +59,6 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 			[TypeConverter(typeof(DescribableEnumConverter))]
 			public ScreenRotationKind ScreenRotation { get; set; }
 
-			[JsonIgnore]
 			private int _screengap;
 
 			[DisplayName("Screen Gap")]
@@ -185,7 +182,6 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 			[DefaultValue(true)]
 			public bool ThreadedRendering { get; set; }
 
-			[JsonIgnore]
 			private int _glScaleFactor;
 
 			[DisplayName("OpenGL Scale Factor")]
@@ -207,8 +203,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 			[DefaultValue(false)]
 			public bool GLHiResCoordinates { get; set; }
 
-			[JsonIgnore]
-			private DateTime _initaltime;
+			private DateTime _initialtime;
 
 			[DisplayName("Initial Time")]
 			[Description("Initial time of emulation. Not used if Use Real Time is true")]
@@ -216,8 +211,8 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 			[TypeConverter(typeof(BizDateTimeConverter))]
 			public DateTime InitialTime
 			{
-				get => _initaltime;
-				set => _initaltime = value < minDate ? minDate : (value > maxDate ? maxDate : value);
+				get => _initialtime;
+				set => _initialtime = value < minDate ? minDate : (value > maxDate ? maxDate : value);
 			}
 
 			[DisplayName("Use Real Time")]
@@ -264,7 +259,6 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 			[TypeConverter(typeof(DescribableEnumConverter))]
 			public StartUp FirmwareStartUp { get; set; }
 
-			[JsonIgnore]
 			private string _firmwareusername;
 
 			[DisplayName("Firmware Username")]
@@ -310,10 +304,8 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 				December,
 			}
 
-			[JsonIgnore]
 			private Month _firmwarebirthdaymonth;
 
-			[JsonIgnore]
 			private int _firmwarebirthdayday;
 
 			[DisplayName("Firmware Birthday Month")]
@@ -373,7 +365,6 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 			[TypeConverter(typeof(DescribableEnumConverter))]
 			public Color FirmwareFavouriteColour { get; set; }
 
-			[JsonIgnore]
 			private string _firmwaremessage;
 
 			[DisplayName("Firmware Message")]

@@ -2370,7 +2370,7 @@ namespace BizHawk.Client.EmuHawk
 			{
 				if (!string.IsNullOrWhiteSpace(MovieSession.QueuedSyncSettings))
 				{
-					e.Settings = ConfigService.LoadWithType(MovieSession.QueuedSyncSettings);
+					e.Settings = ConfigService.LoadWithType(MovieSession.QueuedSyncSettings, e.SettingsType);
 				}
 				else
 				{

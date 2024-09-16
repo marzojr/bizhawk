@@ -1,6 +1,5 @@
 using System.IO;
-
-using Newtonsoft.Json;
+using System.Text.Json;
 
 using BizHawk.Emulation.Common;
 
@@ -24,12 +23,12 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 
 		public void SaveStateText(TextWriter writer)
 		{
-			ser.Serialize(writer, new GBLSerialized(this));
+			writer.Write(JsonSerializer.Serialize(new GBLSerialized(this), _options));
 		}
 
 		public void LoadStateText(TextReader reader)
 		{
-			var s = (GBLSerialized)ser.Deserialize(reader, typeof(GBLSerialized));
+			var s = JsonSerializer.Deserialize<GBLSerialized>(reader.ReadToEnd(), _options);
 			if (s.NumCores != _numCores)
 			{
 				throw new InvalidOperationException("Core number mismatch!");
@@ -49,7 +48,6 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 			_linkShiftSignal = s.LinkShiftSignal;
 			_linkSpaced = s.LinkSpaced;
 			_linkSpaceSignal = s.LinkSpaceSignal;
-			reader.ReadToEnd();
 		}
 
 		public void SaveStateBinary(BinaryWriter writer)
@@ -97,7 +95,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 			_linkSpaceSignal = reader.ReadBoolean();
 		}
 
-		private readonly JsonSerializer ser = new JsonSerializer { Formatting = Formatting.Indented };
+		private readonly JsonSerializerOptions _options = new() { WriteIndented = true };
 
 		private class GBLSerialized
 		{

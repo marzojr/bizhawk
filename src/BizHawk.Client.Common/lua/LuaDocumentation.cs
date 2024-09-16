@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace BizHawk.Client.Common
 {
@@ -117,18 +117,14 @@ namespace BizHawk.Client.Common
 				Scope = "source.lua - string";
 			}
 
-			[JsonProperty(PropertyName = "scope")]
 			public string Scope { get; set; }
 
-			[JsonProperty(PropertyName = "completions")]
 			public List<Completion> Completions { get; set; } = new List<Completion>();
 
 			public class Completion
 			{
-				[JsonProperty(PropertyName = "trigger")]
 				public string Trigger { get; set; }
 
-				[JsonProperty(PropertyName = "contents")]
 				public string Contents { get; set; }
 			}
 		}
@@ -184,7 +180,7 @@ namespace BizHawk.Client.Common
 				sc.Completions.Add(completion);
 			}
 
-			return JsonConvert.SerializeObject(sc);
+			return JsonSerializer.Serialize(sc, new JsonSerializerOptions {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
 		}
 
 		public string ToNotepadPlusPlusAutoComplete()

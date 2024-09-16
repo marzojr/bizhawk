@@ -15,8 +15,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-
-using Newtonsoft.Json;
+using System.Text.Json;
 
 using BizHawk.Emulation.Common;
 using BizHawk.Common;
@@ -1065,7 +1064,7 @@ namespace BizHawk.Emulation.Cores.Sony.PSX
 		{
 			public SyncSettings Clone()
 			{
-				return JsonConvert.DeserializeObject<SyncSettings>(JsonConvert.SerializeObject(this));
+				return JsonSerializer.Deserialize<SyncSettings>(JsonSerializer.Serialize(this)); // what am I witnessing
 			}
 
 			public bool EnableLEC;

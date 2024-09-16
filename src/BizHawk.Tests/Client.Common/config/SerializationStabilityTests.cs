@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using BizHawk.Client.Common;
 using BizHawk.Common;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using BizHawk.Emulation.Common.Json;
 
 namespace BizHawk.Tests.Client.Common.config
 {
@@ -29,7 +30,7 @@ namespace BizHawk.Tests.Client.Common.config
 			typeof(DateTime),
 			typeof(Dictionary<,>),
 			typeof(int),
-			typeof(JToken),
+			typeof(JsonElement),
 			typeof(List<>),
 			typeof(Nullable<>),
 			typeof(object),
@@ -44,7 +45,7 @@ namespace BizHawk.Tests.Client.Common.config
 		{
 			[typeof(AnalogBind)] = @"{""Value"":""X1 LeftThumbX Axis"",""Mult"":0.8,""Deadzone"":0.1}",
 			[typeof(CheatConfig)] = $@"{{""DisableOnLoad"":false,""LoadFileByGame"":true,""AutoSaveOnClose"":true,""Recent"":{RECENT_SER}}}",
-			[typeof(FeedbackBind)] = @"{""Channels"":""Left+Right"",""GamepadPrefix"":""X1 "",""Prescale"":1.0}",
+			[typeof(FeedbackBind)] = @"{""Channels"":""Left+Right"",""GamepadPrefix"":""X1 "",""Prescale"":1}",
 			[typeof(MessagePosition)] = @"{""X"":0,""Y"":0,""Anchor"":0}",
 			[typeof(MovieConfig)] = $@"{{""MovieEndAction"":3,""EnableBackupMovies"":true,""MoviesOnDisk"":false,""MovieCompressionLevel"":2,""VBAStyleMovieLoadState"":false,""DefaultTasStateManagerSettings"":{ZWINDER_SER}}}",
 			[typeof(PathEntry)] = PATHENTRY_SER,
@@ -87,13 +88,84 @@ namespace BizHawk.Tests.Client.Common.config
 		[TestMethod]
 		public void TestRoundTripSerialization()
 		{
-			static object Deser(string s, Type type) => JToken.Parse(s).ToObject(type, ConfigService.Serializer)!;
-			static string Ser(object o) => JToken.FromObject(o, ConfigService.Serializer).ToString(Formatting.None);
+			static object? Deser(string s, Type type) => JsonSerializer.Deserialize(s, type, ConfigService.SerializerOptions);
+			static string Ser(object? o) => JsonSerializer.Serialize(o, ConfigService.SerializerOptions);
+
 			foreach (var (type, s) in KnownGoodFromBizHawk)
 			{
 				if (s == "TODO") continue;
 				Assert.AreEqual(s, Ser(Deser(s, type)), $"{type} failed serialization round-trip");
 			}
+		}
+
+		[TestMethod]
+		[DataRow("0.8")]
+		[DataRow("1.00000036")]
+		[DataRow("1.8")]
+		public void TestRoundTripSerializationFloatConverter(string floatValue)
+		{
+			float deserialized = JsonSerializer.Deserialize<float>(floatValue, ConfigService.SerializerOptions);
+			string serialized = JsonSerializer.Serialize(deserialized, ConfigService.SerializerOptions);
+			Assert.AreEqual(floatValue, serialized);
+		}
+
+		[TestMethod]
+		[DataRow("[1,2,3]")]
+		[DataRow("[]")]
+		[DataRow("null")]
+		[DataRow("[255,0,127,128,1]")]
+		public void TestRoundTripSerializationByteArrayConverter(string byteArrayValue)
+		{
+			byte[]? deserialized = JsonSerializer.Deserialize<byte[]>(byteArrayValue, ConfigService.SerializerOptions);
+			string serialized = JsonSerializer.Serialize(deserialized, ConfigService.SerializerOptions);
+			Assert.AreEqual(byteArrayValue, serialized);
+		}
+
+		[TestMethod]
+		public void TestSerializationTypeConverter()
+		{
+			var color = Color.FromArgb(200, 255, 13, 42);
+			string serialized = JsonSerializer.Serialize(color, ConfigService.SerializerOptions);
+			Assert.AreEqual("\"200, 255, 13, 42\"", serialized);
+
+			var newColor = JsonSerializer.Deserialize<Color>(serialized, ConfigService.SerializerOptions);
+			Assert.AreEqual(color, newColor);
+		}
+
+		private static bool Equals<T>(T[,] array1, T[,] array2)
+		{
+			return array1.Rank == array2.Rank
+				&& Enumerable.Range(0, array1.Rank).All(dimension => array1.GetLength(dimension) == array2.GetLength(dimension))
+				&& array1.Cast<T>().SequenceEqual(array2.Cast<T>());
+		}
+
+		[TestMethod]
+		public void TestSerialization2DArrayConverter()
+		{
+			var options = new JsonSerializerOptions
+			{
+				Converters = { new Array2DJsonConverter<byte>() }
+			};
+			var optionsWithByteArrayConverter = new JsonSerializerOptions
+			{
+				Converters = { new Array2DJsonConverter<byte>(), new ByteArrayAsNormalArrayJsonConverter() }
+			};
+
+			byte[,] testByteArray =
+			{
+				{ 1, 2, 3 },
+				{ 255, 0, 128 }
+			};
+
+			string serialized = JsonSerializer.Serialize(testByteArray, options);
+			Assert.AreEqual("[\"AQID\",\"/wCA\"]", serialized);
+			byte[,] deserialized = JsonSerializer.Deserialize<byte[,]>(serialized, options)!;
+			Assert.IsTrue(Equals(testByteArray, deserialized));
+
+			string serialized2 = JsonSerializer.Serialize(testByteArray, optionsWithByteArrayConverter);
+			Assert.AreEqual("[[1,2,3],[255,0,128]]", serialized2);
+			byte[,] deserialized2 = JsonSerializer.Deserialize<byte[,]>(serialized2, optionsWithByteArrayConverter)!;
+			Assert.IsTrue(Equals(testByteArray, deserialized2));
 		}
 	}
 }

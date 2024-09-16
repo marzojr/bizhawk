@@ -181,7 +181,7 @@ namespace BizHawk.Client.Common
 
 			if (!string.IsNullOrWhiteSpace(userData))
 			{
-				var bag = (Dictionary<string, object>)ConfigService.LoadWithType(userData);
+				var bag = ConfigService.LoadWithType<Dictionary<string, object>>(userData);
 				_userBag.Clear();
 				foreach (var (k, v) in bag) _userBag.Add(k, v);
 			}

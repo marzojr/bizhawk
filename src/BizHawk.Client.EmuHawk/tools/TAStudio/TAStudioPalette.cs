@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Text.Json.Serialization;
 
 namespace BizHawk.Client.EmuHawk
 {
@@ -49,6 +50,7 @@ namespace BizHawk.Client.EmuHawk
 
 		public readonly Color AnalogEdit_Col;
 
+		[JsonConstructor]
 		public TAStudioPalette(
 //			Color currentFrame_FrameCol,
 			Color currentFrame_InputLog,
