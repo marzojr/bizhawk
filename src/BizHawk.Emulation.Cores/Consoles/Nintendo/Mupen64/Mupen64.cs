@@ -224,7 +224,11 @@ public partial class Mupen64 : IEmulator
 		// the stop command requires trying to advance an additional frame before the core actually stops, as the core is currently paused
 		var error = Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
 		Console.WriteLine(error.ToString());
-		_coreThread.Join();
+		// don't use Thread.Join, see #3220
+		while (_coreThread.IsAlive)
+		{
+			Thread.Sleep(1);
+		}
 
 		Mupen64Api.CoreDetachPlugin(m64p_plugin_type.GFX);
 		VideoPluginApi.PluginShutdown();
