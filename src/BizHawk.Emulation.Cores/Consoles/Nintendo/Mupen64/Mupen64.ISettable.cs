@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
@@ -33,7 +32,7 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 	}
 
 	[CoreSettings]
-	public record SyncSettings
+	public record class SyncSettings
 	{
 		[DisplayName("Video Plugin name")]
 		[Description("Name of the video plugin to use, e.g. \"angrylion-plus\"")]

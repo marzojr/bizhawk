@@ -9,7 +9,7 @@ public partial class Mupen64 : IRegionable
 	public DisplayType Region
 	{
 		get => _region;
-		private set
+		private init
 		{
 			_region = value;
 			VsyncNumerator = _region switch

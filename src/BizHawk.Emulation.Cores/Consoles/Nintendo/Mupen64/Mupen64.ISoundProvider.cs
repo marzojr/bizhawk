@@ -1,5 +1,4 @@
-﻿using System;
-using BizHawk.Emulation.Common;
+﻿using BizHawk.Emulation.Common;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
