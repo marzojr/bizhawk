@@ -210,7 +210,7 @@ public abstract class Mupen64Api
 	public struct m64p_video_extension_functions
 	{
 		private uint Functions;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 17)]
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VidExtFunctions)]
 		private IntPtr[] ExtensionFunctions;
 
 		public m64p_video_extension_functions(m64p_video_extension_functions_managed extensionFunctionsManaged)

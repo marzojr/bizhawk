@@ -1,14 +1,13 @@
 ﻿using System.Runtime.InteropServices;
+using System.Threading;
 using BizHawk.BizInvoke;
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
 using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64Api;
-using Thread = System.Threading.Thread;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
 [PortedCore(CoreNames.Mupen64Plus, "", "2.6.0", "https://github.com/mupen64plus/mupen64plus-core", isReleased: false)]
-[ServiceNotApplicable([ typeof(IDriveLight) ])]
 public partial class Mupen64 : IEmulator
 {
 	private readonly IOpenGLProvider _openGLProvider;
