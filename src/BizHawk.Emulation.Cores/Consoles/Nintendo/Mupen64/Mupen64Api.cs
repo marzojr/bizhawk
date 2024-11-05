@@ -308,4 +308,10 @@ public abstract class Mupen64Api
 
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract void DebugDecodeOp(uint instruction, byte[] op, byte[] args, int pc);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract void SaveSavestate(byte[] buffer);
+
+	// [BizImport(CallingConvention.Cdecl)]
+	// public abstract void LoadSavestate(byte[] buffer);
 }
