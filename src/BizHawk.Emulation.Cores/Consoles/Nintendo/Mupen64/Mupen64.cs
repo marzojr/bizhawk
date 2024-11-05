@@ -287,11 +287,13 @@ public partial class Mupen64 : IEmulator
 		InputCallbacks.Call();
 
 		controller++;
-		var ret = new Mupen64InputPluginApi.InputState
+		var ret = new Mupen64InputPluginApi.InputState();
+		if (controller == 1 && _syncSettings.Port1Connected || controller == 2 && _syncSettings.Port2Connected
+			|| controller == 3 && _syncSettings.Port3Connected || controller == 4 && _syncSettings.Port4Connected)
 		{
-			X_AXIS = (sbyte)_controller.AxisValue($"P{controller} X Axis"),
-			Y_AXIS = (sbyte)_controller.AxisValue($"P{controller} Y Axis")
-		};
+			ret.X_AXIS = (sbyte) _controller.AxisValue($"P{controller} X Axis");
+			ret.Y_AXIS = (sbyte) _controller.AxisValue($"P{controller} Y Axis");
+		}
 
 		for (int index = 0; index < Mupen64Controller.BoolButtons.Length; index++)
 		{
