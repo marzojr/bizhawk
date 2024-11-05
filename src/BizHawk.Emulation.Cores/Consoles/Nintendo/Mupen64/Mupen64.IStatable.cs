@@ -1,21 +1,12 @@
-﻿using System.Buffers;
-using System.IO;
-using BizHawk.Common;
+﻿using System.IO;
 using BizHawk.Emulation.Common;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
 public partial class Mupen64 : IStatable
 {
-	private enum SavestatesType
-	{
-		Unknown,
-		M64P,
-		Pj64Zip,
-		Pj64Unc
-	}
-
 	private const int SAVESTATE_SIZE = 16788288 + 1024 + 4 + 4096;
+	private readonly byte[] _savestateBuffer = new byte[SAVESTATE_SIZE];
 
 	public bool AvoidRewind => false;
 
@@ -25,12 +16,8 @@ public partial class Mupen64 : IStatable
 		writer.Write(LagCount);
 		writer.Write(IsLagFrame);
 
-		byte[] savestateBuffer = ArrayPool<byte>.Shared.Rent(SAVESTATE_SIZE);
-
-		Mupen64Api.SaveSavestate(savestateBuffer);
-		writer.Write(savestateBuffer, 0, SAVESTATE_SIZE);
-
-		ArrayPool<byte>.Shared.Return(savestateBuffer);
+		Mupen64Api.SaveSavestate(_savestateBuffer);
+		writer.Write(_savestateBuffer, 0, SAVESTATE_SIZE);
 	}
 
 	public void LoadStateBinary(BinaryReader reader)
@@ -39,10 +26,15 @@ public partial class Mupen64 : IStatable
 		LagCount = reader.ReadInt32();
 		IsLagFrame = reader.ReadBoolean();
 
-		var tempFileName = TempFileManager.GetTempFilename("mupen64-savestate");
-		using var tempFile = new FileStream(tempFileName, FileMode.Create, FileAccess.Write, FileShare.Read);
-		reader.BaseStream.CopyTo(tempFile);
+		bool success = reader.Read(_savestateBuffer, 0, SAVESTATE_SIZE) == SAVESTATE_SIZE;
+		if (success)
+		{
+			success = Mupen64Api.LoadSavestate(_savestateBuffer);
+		}
 
-		Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.STATE_LOAD, (int)SavestatesType.M64P, tempFileName);
+		if (!success)
+		{
+			Console.Error.WriteLine("Failed to load mupen savestate!");
+		}
 	}
 }

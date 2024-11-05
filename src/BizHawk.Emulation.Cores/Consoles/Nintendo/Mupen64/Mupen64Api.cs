@@ -312,6 +312,6 @@ public abstract class Mupen64Api
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract void SaveSavestate(byte[] buffer);
 
-	// [BizImport(CallingConvention.Cdecl)]
-	// public abstract void LoadSavestate(byte[] buffer);
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract bool LoadSavestate(byte[] buffer);
 }
