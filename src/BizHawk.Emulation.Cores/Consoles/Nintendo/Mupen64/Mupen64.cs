@@ -160,6 +160,11 @@ public partial class Mupen64 : IEmulator
 
 		var serviceProvider = new BasicServiceProvider(this);
 		serviceProvider.Register<ISoundProvider>(_resampler);
+		if (_syncSettings.CoreType == CoreType.Dynarec)
+		{
+			serviceProvider.Unregister<ITraceable>();
+			// serviceProvider.Unregister<IDebuggable>(); // not currently implemented
+		}
 
 		Mupen64Api.CoreStateSet(m64p_core_param.SPEED_LIMITER, 0);
 		_coreThread = new Thread(RunEmulator) {IsBackground = true};
