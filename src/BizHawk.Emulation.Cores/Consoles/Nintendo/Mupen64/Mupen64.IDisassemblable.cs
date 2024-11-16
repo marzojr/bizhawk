@@ -16,6 +16,7 @@ public partial class Mupen64 : IDisassemblable
 	public string Disassemble(MemoryDomain m, uint addr, out int length)
 	{
 		uint instruction = m.PeekUint(addr, m.EndianType is MemoryDomain.Endian.Big);
+		length = 4;
 
 		byte[] opBuffer = ArrayPool<byte>.Shared.Rent(128);
 		byte[] argsBuffer = ArrayPool<byte>.Shared.Rent(128);
@@ -26,9 +27,6 @@ public partial class Mupen64 : IDisassemblable
 		ArrayPool<byte>.Shared.Return(opBuffer);
 		ArrayPool<byte>.Shared.Return(argsBuffer);
 
-		string ret = $"{op}: {args}";
-		length = ret.Length;
-
-		return ret;
+		return $"{op}: {args}";
 	}
 }
