@@ -1,4 +1,6 @@
-﻿using BizHawk.Emulation.Common;
+﻿using System.Text;
+using BizHawk.Common;
+using BizHawk.Emulation.Common;
 using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64Api.m64p_dbg_runstate;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
@@ -14,19 +16,22 @@ public partial class Mupen64 : ITraceable
 
 	private void TraceCallback(uint pc)
 	{
+		if (Sink is null) return;
+
 		string disassembly = this.Disassemble(_memoryDomains.SystemBus, pc, out _);
-		string registerInfo = ""; // TODO
-		_sink.Put(new TraceInfo(disassembly, registerInfo));
+		var registerInfo = GetCpuFlagsAndRegisters();
+		StringBuilder registerStringBuilder = new();
+		registerStringBuilder.Append($"PC:{registerInfo["PC"].Value.ToString($"X{registerInfo["PC"].BitSize / 4}")}");
+		foreach (var (registerName, registerValue) in registerInfo)
+		{
+			if (registerName.Contains("REG"))
+			{
+				registerStringBuilder.Append($" {registerName}:{registerValue.Value.ToString($"X{registerValue.BitSize / 4}")}");
+			}
+
+		}
+		Sink.Put(new TraceInfo(disassembly, registerStringBuilder.ToString()));
 	}
 
-	private ITraceSink _sink;
-	public ITraceSink Sink
-	{
-		get => _sink;
-		set
-		{
-			Mupen64Api.DebugSetRunState(value is null ? RUNNING : STEPPING);
-			_sink = value;
-		}
-	}
+	public ITraceSink Sink { get; set; }
 }

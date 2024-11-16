@@ -153,6 +153,19 @@ public abstract class Mupen64Api
 		RUNNING
 	}
 
+	public enum m64p_dbg_cpu_data
+	{
+		PC = 1,
+		REG_REG,
+		REG_HI,
+		REG_LO,
+		REG_COP0,
+		REG_COP1_DOUBLE_PTR,
+		REG_COP1_SIMPLE_PTR,
+		REG_COP1_FGR_64,
+		TLB
+	}
+
 	private const int VidExtFunctions = 17;
 	public delegate m64p_error VidExtFuncInit();
 	public delegate m64p_error VidExtFuncQuit();
@@ -290,6 +303,9 @@ public abstract class Mupen64Api
 
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract void DebugMemWrite8(uint address, byte value);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract IntPtr DebugGetCPUDataPtr(m64p_dbg_cpu_data cpuDataType);
 
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract m64p_error ConfigOpenSection(string sectionName, ref IntPtr configSectionHandle);

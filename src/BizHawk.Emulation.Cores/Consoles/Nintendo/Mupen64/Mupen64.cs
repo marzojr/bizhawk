@@ -182,6 +182,9 @@ public partial class Mupen64 : IEmulator
 	public bool FrameAdvance(IController controller, bool render, bool renderSound = true)
 	{
 		_controller = controller;
+		// if a tracer is active (Sink != null), set debug mode to stepping so the trace callback gets called
+		Mupen64Api.DebugSetRunState(Sink is null ? m64p_dbg_runstate.RUNNING : m64p_dbg_runstate.STEPPING);
+		Mupen64Api.DebugStep(); // make sure we aren't stuck in paused debugger state (from stepping); no-op if not stepping
 		// m64p_emu_state retState = 0;
 		// var retStatePointer = &retState;
 		// Mupen64Api.CoreDoCommand(m64p_command.M64CMD_CORE_STATE_QUERY, (int)m64p_core_param.M64CORE_EMU_STATE, (IntPtr)retStatePointer);
