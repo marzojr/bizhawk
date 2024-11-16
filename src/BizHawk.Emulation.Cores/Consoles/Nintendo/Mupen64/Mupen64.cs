@@ -163,7 +163,7 @@ public partial class Mupen64 : IEmulator
 		if (_syncSettings.CoreType == CoreType.Dynarec)
 		{
 			serviceProvider.Unregister<ITraceable>();
-			// serviceProvider.Unregister<IDebuggable>(); // not currently implemented
+			serviceProvider.Unregister<IDebuggable>();
 		}
 
 		Mupen64Api.CoreStateSet(m64p_core_param.SPEED_LIMITER, 0);
