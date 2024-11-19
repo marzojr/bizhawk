@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -184,6 +185,12 @@ namespace BizHawk.Client.EmuHawk
 			initialConfig.ResolveDefaults();
 			if (initialConfig.SaveSlot is 0) initialConfig.SaveSlot = 10; //TODO remove after a while
 			// initialConfig should really be globalConfig as it's mutable
+
+			//TODO ideally this should happen as early as possible, which means parsing the config earlier, which means parsing the command-line flags earlier... actually there's not that much else above this --yoshi
+			if (initialConfig.SetInvariantCulture)
+			{
+				CultureInfo.CurrentCulture = CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+			}
 
 			StringLogUtil.DefaultToDisk = initialConfig.Movies.MoviesOnDisk;
 
