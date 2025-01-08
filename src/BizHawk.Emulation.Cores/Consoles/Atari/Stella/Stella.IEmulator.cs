@@ -19,14 +19,16 @@ namespace BizHawk.Emulation.Cores.Atari.Stella
 			// Handle all the console controls here
 			bool powerPressed = false;
 			bool resetPressed = false;
+			bool selectPressed = false;
 			if (controller.IsPressed("Power")) powerPressed = true;
 			if (controller.IsPressed("Reset")) resetPressed = true;
+			if (controller.IsPressed("Select")) selectPressed = true;
 			if (controller.IsPressed("Toggle Left Difficulty"))	_leftDifficultyToggled = !_leftDifficultyToggled;
 			if (controller.IsPressed("Toggle Right Difficulty")) _rightDifficultyToggled = !_rightDifficultyToggled;
 
 			IsLagFrame = true;
 
-			Core.stella_frame_advance(port1, port2, resetPressed, powerPressed, _leftDifficultyToggled, _rightDifficultyToggled);
+			Core.stella_frame_advance(port1, port2, resetPressed, powerPressed, selectPressed, _leftDifficultyToggled, _rightDifficultyToggled);
 
 			if (IsLagFrame)
 				LagCount++;

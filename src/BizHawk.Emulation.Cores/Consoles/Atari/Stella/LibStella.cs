@@ -28,7 +28,7 @@ namespace BizHawk.Emulation.Cores.Atari.Stella
 			[In] InitSettings settings);
 
 		[BizImport(CallingConvention.Cdecl)]
-		public abstract void stella_frame_advance(int port1, int port2, bool reset, bool power, bool leftDiffToggled, bool rightDiffToggled);
+		public abstract void stella_frame_advance(int port1, int port2, bool reset, bool power, bool select, bool leftDiffToggled, bool rightDiffToggled);
 
 		[BizImport(CallingConvention.Cdecl)]
 		public abstract void stella_get_video(out int w, out int h, out int pitch, ref IntPtr buffer);

@@ -157,12 +157,13 @@ ECL_EXPORT void stella_get_video(int& w, int& h, int& pitch, uint8_t*& buffer)
 }
 
 
-ECL_EXPORT void stella_frame_advance(uint8_t port1, uint8_t port2, bool reset, bool power, bool leftDiffToggled, bool rightDiffToggled)
+ECL_EXPORT void stella_frame_advance(uint8_t port1, uint8_t port2, bool reset, bool power, bool select, bool leftDiffToggled, bool rightDiffToggled)
 {
 				_a2600->console().switches().setLeftDifficultyA(leftDiffToggled);
     _a2600->console().switches().setRightDifficultyA(rightDiffToggled);
 				_a2600->console().switches().setReset(!reset);
     if (power) _a2600->console().system().reset(true);
+				_a2600->console().switches().setSelect(!select);
 
 				_a2600->console().leftController().write(::Controller::DigitalPin::One,   port1 & 0b00010000);  // Up
 				_a2600->console().leftController().write(::Controller::DigitalPin::Two,   port1 & 0b00100000);  // Down
