@@ -76,8 +76,8 @@
 	branch = tasvideos-2.2
 [submodule "waterbox/stella/core"]
 	path = waterbox/stella/core
-	url = https://github.com/TASEmulators/stella.git
-	branch = tasvideos-1
+	url = https://github.com/bigbass1997/stella.git
+	branch = add-select-switch
 [submodule "waterbox/uae/libretro-uae"]
 	path = waterbox/uae/libretro-uae
 	url = https://github.com/TASEmulators/libretro-uae.git
