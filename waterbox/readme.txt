@@ -65,7 +65,6 @@ It consists of a modified musl libc, and build scripts to tie it all together.
 	cd ares64 && ./make-both.sh
 	cd bsnescore && make install
 	cd gpgx && make install
-	cd libsnes && make install
 	cd mame-arcade && make install
 	cd melon && make install
 	cd nyma && make -f faust.mak install

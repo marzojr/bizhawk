@@ -88,7 +88,6 @@ jobs:
           Assets/dll/faust.wbx.zst
           Assets/dll/gpgx.wbx.zst
           Assets/dll/hyper.wbx.zst
-          Assets/dll/libsnes.wbx.zst
           Assets/dll/melonDS.wbx.zst
           Assets/dll/ngp.wbx.zst
           Assets/dll/pcfx.wbx.zst
