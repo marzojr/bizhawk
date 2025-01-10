@@ -22,7 +22,6 @@ Jump to:
 	- [MSXHawk](#msxhawk)
 	- [NLua](#nlua)
 	- [Nyma cores](#nyma-cores)
-	- [Octoshock](#octoshock)
 	- [quickerNES](#quickernes)
 	- [Roslyn Analyzers](#roslyn-analyzers)
 	- [Virtu](#virtu)
@@ -257,13 +256,6 @@ Uses C#; you will need the .NET SDK or an IDE which includes it. See the [.NET s
 > Several cores ported from Mednafen with minimal changes, so tracking upstream is easier.
 
 See [Waterbox (toolchain + cores)](#waterbox-toolchain--cores).
-
-
-
-## Octoshock
-> The unmanaged side of the Octoshock core from Mednafen.
-
-Uses C++.
 
 
 
