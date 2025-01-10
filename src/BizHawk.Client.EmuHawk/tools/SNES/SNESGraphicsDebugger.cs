@@ -1207,7 +1207,6 @@ namespace BizHawk.Client.EmuHawk
 		{
 #if false
 			//TODO
-			LibsnesApi dll = TODO;
 			dll.QUERY_set_backdropColor(DecodeWinformsColorToSNES(checkBackdropColor.Checked ? pnBackdropColor.BackColor : Color.FromArgb(-1)));
 #endif
 		}

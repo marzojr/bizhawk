@@ -67,7 +67,6 @@
 		<Compile Update="Consoles/Nintendo/SubNESHawk/SubNESHawk.*.cs" DependentUpon="SubNESHawk.cs" />
 		<Compile Update="Consoles/Nintendo/QuickNES/QuickNES.*.cs" DependentUpon="QuickNES.cs" />
 		<Compile Update="Consoles/Nintendo/Sameboy/SameBoy.*.cs" DependentUpon="SameBoy.cs" />
-		<Compile Update="Consoles/Nintendo/SNES/LibsnesCore.*.cs" DependentUpon="LibsnesCore.cs" />
 		<Compile Update="Consoles/PC Engine/PCEngine.*.cs" DependentUpon="PCEngine.cs" />
 		<Compile Update="Consoles/Sega/GGHawkLink/GGHawkLink.*.cs" DependentUpon="GGHawkLink.cs" />
 		<Compile Update="Consoles/Sega/gpgx64/GPGX.*.cs" DependentUpon="GPGX.cs" />

@@ -35,7 +35,7 @@ namespace BizHawk.Client.Common
 			([ VSystemID.Raw.GBL ],
 				[ CoreNames.GambatteLink, CoreNames.GBHawkLink, CoreNames.GBHawkLink3x, CoreNames.GBHawkLink4x ]),
 			([ VSystemID.Raw.SGB ],
-				[ CoreNames.Gambatte, CoreNames.Bsnes115, CoreNames.SubBsnes115, CoreNames.Bsnes ]),
+				[ CoreNames.Gambatte, CoreNames.Bsnes115, CoreNames.SubBsnes115 ]),
 			([ VSystemID.Raw.GEN ],
 				[ CoreNames.Gpgx, CoreNames.PicoDrive ]),
 			([ VSystemID.Raw.N64 ],
@@ -49,7 +49,7 @@ namespace BizHawk.Client.Common
 			([ VSystemID.Raw.SMS, VSystemID.Raw.GG, VSystemID.Raw.SG ],
 				[ CoreNames.Gpgx, CoreNames.SMSHawk ]),
 			([ VSystemID.Raw.SNES ],
-				[ CoreNames.Snes9X, CoreNames.Bsnes115, CoreNames.SubBsnes115, CoreNames.Faust, CoreNames.Bsnes ]),
+				[ CoreNames.Snes9X, CoreNames.Bsnes115, CoreNames.SubBsnes115, CoreNames.Faust ]),
 			([ VSystemID.Raw.TI83 ],
 				[ CoreNames.Emu83, CoreNames.TI83Hawk ]),
 		};

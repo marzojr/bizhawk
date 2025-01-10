@@ -11,7 +11,6 @@ using BizHawk.Emulation.Cores.Consoles.Sega.gpgx;
 using BizHawk.Emulation.Cores.Nintendo.BSNES;
 using BizHawk.Emulation.Cores.Nintendo.NES;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.NDS;
-using BizHawk.Emulation.Cores.Nintendo.SNES;
 using BizHawk.Emulation.Cores.PCEngine;
 using BizHawk.Emulation.Cores.Sega.MasterSystem;
 using BizHawk.Emulation.Cores.WonderSwan;
@@ -195,7 +194,6 @@ namespace BizHawk.Client.Common
 		public object? GetSettings() => Emulator switch
 		{
 			GPGX gpgx => gpgx.GetSettings(),
-			LibsnesCore snes => snes.GetSettings(),
 			NES nes => nes.GetSettings(),
 			NDS nds => nds.GetSettings(),
 			PCEngine pce => pce.GetSettings(),
@@ -208,7 +206,6 @@ namespace BizHawk.Client.Common
 		public PutSettingsDirtyBits PutSettings(object settings) => Emulator switch
 		{
 			GPGX gpgx => gpgx.PutSettings((GPGX.GPGXSettings) settings),
-			LibsnesCore snes => snes.PutSettings((LibsnesCore.SnesSettings) settings),
 			NES nes => nes.PutSettings((NES.NESSettings) settings),
 			NDS nds => nds.PutSettings((NDS.NDSSettings) settings),
 			PCEngine pce => pce.PutSettings((PCEngine.PCESettings) settings),
@@ -221,19 +218,6 @@ namespace BizHawk.Client.Common
 		public void SetRenderPlanes(params bool[] args)
 		{
 			static bool GetSetting(bool[] settings, int index) => index >= settings.Length || settings[index];
-			void SetLibsnes(LibsnesCore core)
-			{
-				var s = core.GetSettings();
-				s.ShowBG1_0 = s.ShowBG1_1 = GetSetting(args, 0);
-				s.ShowBG2_0 = s.ShowBG2_1 = GetSetting(args, 1);
-				s.ShowBG3_0 = s.ShowBG3_1 = GetSetting(args, 2);
-				s.ShowBG4_0 = s.ShowBG4_1 = GetSetting(args, 3);
-				s.ShowOBJ_0 = GetSetting(args, 4);
-				s.ShowOBJ_1 = GetSetting(args, 5);
-				s.ShowOBJ_2 = GetSetting(args, 6);
-				s.ShowOBJ_3 = GetSetting(args, 7);
-				core.PutSettings(s);
-			}
 			void SetBsnes(ISettable<BsnesCore.SnesSettings, BsnesCore.SnesSyncSettings> settingsProvider)
 			{
 				var s = settingsProvider.GetSettings();
@@ -305,9 +289,6 @@ namespace BizHawk.Client.Common
 			{
 				case GPGX gpgx:
 					SetGPGX(gpgx);
-					break;
-				case LibsnesCore snes:
-					SetLibsnes(snes);
 					break;
 				case BsnesCore bsnes:
 					SetBsnes(bsnes);
