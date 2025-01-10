@@ -13,7 +13,6 @@ using BizHawk.Emulation.Cores.Atari.Atari2600;
 using BizHawk.Emulation.Cores.Atari.Jaguar;
 using BizHawk.Emulation.Cores.Atari.Lynx;
 using BizHawk.Emulation.Cores.Calculators.Emu83;
-using BizHawk.Emulation.Cores.Calculators.TI83;
 using BizHawk.Emulation.Cores.ColecoVision;
 using BizHawk.Emulation.Cores.Computers.Amiga;
 using BizHawk.Emulation.Cores.Computers.AmstradCPC;
@@ -894,34 +893,6 @@ namespace BizHawk.Client.EmuHawk
 		private void Ti83KeypadMenuItem_Click(object sender, EventArgs e)
 			=> Tools.Load<TI83KeyPad>();
 
-		private void Ti83LoadTIFileMenuItem_Click(object sender, EventArgs e)
-		{
-			if (Emulator is not TI83 ti83) return;
-			var result = this.ShowFileOpenDialog(
-				discardCWDChange: true,
-				filter: TI83ProgramFilesFSFilterSet,
-				initDir: Config.PathEntries.RomAbsolutePath(Emulator.SystemId));
-			if (result is null) return;
-			try
-			{
-				ti83.LinkPort.SendFileToCalc(File.OpenRead(result), true);
-				return;
-			}
-			catch (IOException ex)
-			{
-				if (this.ShowMessageBox3(
-					owner: null,
-					icon: EMsgBoxIcon.Question,
-					caption: "Upload Failed",
-					text: $"Invalid file format. Reason: {ex.Message} \nForce transfer? This may cause the calculator to crash.")
-						is not true)
-				{
-					return;
-				}
-			}
-			ti83.LinkPort.SendFileToCalc(File.OpenRead(result), false);
-		}
-
 		private DialogResult OpenTI83PaletteSettingsDialog(ISettingsAdapter settable)
 		{
 			using TI83PaletteConfig form = new(settable);
@@ -933,7 +904,6 @@ namespace BizHawk.Client.EmuHawk
 			var result = Emulator switch
 			{
 				Emu83 => OpenTI83PaletteSettingsDialog(GetSettingsAdapterForLoadedCore<Emu83>()),
-				TI83 => OpenTI83PaletteSettingsDialog(GetSettingsAdapterForLoadedCore<TI83>()),
 				_ => DialogResult.None
 			};
 			if (result.IsOk()) AddOnScreenMessage("Palette settings saved");
@@ -1386,9 +1356,6 @@ namespace BizHawk.Client.EmuHawk
 			};
 			items.Add(subNESHawkSubmenu);
 
-			// TI83Hawk
-			items.Add(CreateCoreSubmenu(VSystemCategory.Other, CoreNames.TI83Hawk, CreateSettingsItem("Palette...", (_, _) => OpenTI83PaletteSettingsDialog(GetSettingsAdapterFor<TI83>()))));
-
 			// TIC80
 			items.Add(CreateCoreSubmenu(VSystemCategory.PCs, CoreNames.TIC80, CreateGenericCoreConfigItem<TIC80>(CoreNames.TIC80)));
 
@@ -1486,7 +1453,6 @@ namespace BizHawk.Client.EmuHawk
 					break;
 				case VSystemID.Raw.TI83:
 					TI83SubMenu.Visible = true;
-					LoadTIFileMenuItem.Visible = Emulator is TI83;
 					break;
 				case VSystemID.Raw.ZXSpectrum:
 					zXSpectrumToolStripMenuItem.Visible = true;

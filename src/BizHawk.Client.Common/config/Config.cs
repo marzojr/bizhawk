@@ -50,8 +50,6 @@ namespace BizHawk.Client.Common
 				[ CoreNames.Gpgx, CoreNames.SMSHawk ]),
 			([ VSystemID.Raw.SNES ],
 				[ CoreNames.Snes9X, CoreNames.Bsnes115, CoreNames.SubBsnes115, CoreNames.Faust, CoreNames.Bsnes ]),
-			([ VSystemID.Raw.TI83 ],
-				[ CoreNames.Emu83, CoreNames.TI83Hawk ]),
 		};
 
 		public static Dictionary<string, string> GenDefaultCorePreferences()
