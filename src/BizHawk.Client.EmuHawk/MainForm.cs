@@ -333,7 +333,6 @@ namespace BizHawk.Client.EmuHawk
 			NESSoundChannelsMenuItem.Image = Properties.Resources.Audio;
 			(KeypadMenuItem.Image, /*KeypadMenuItem.Text*/_) = ToolManager.IconAndNameCache[typeof(TI83KeyPad)]
 				= (/*TI83KeyPad.ToolIcon.ToBitmap()*/Properties.Resources.Calculator, "TI-83 Virtual KeyPad");
-			PSXControllerSettingsMenuItem.Image = Properties.Resources.GameController;
 			SNESControllerConfigurationMenuItem.Image = Properties.Resources.GameController;
 			(SnesGfxDebuggerMenuItem.Image, /*SnesGfxDebuggerMenuItem.Text*/_) = ToolManager.IconAndNameCache[typeof(SNESGraphicsDebugger)]
 				= (/*SNESGraphicsDebugger.ToolIcon.ToBitmap()*/Properties.Resources.Bug, "Graphics Debugger");

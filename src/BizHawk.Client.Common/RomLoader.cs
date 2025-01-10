@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 
 using BizHawk.Common;
@@ -11,7 +10,6 @@ using BizHawk.Emulation.Cores;
 using BizHawk.Emulation.Cores.Libretro;
 using BizHawk.Emulation.Cores.Nintendo.Sameboy;
 using BizHawk.Emulation.Cores.Nintendo.SNES;
-using BizHawk.Emulation.Cores.Sony.PSX;
 using BizHawk.Emulation.Cores.Arcades.MAME;
 using BizHawk.Emulation.DiscSystem;
 
@@ -618,27 +616,6 @@ namespace BizHawk.Client.Common
 				out game);
 		}
 
-		private void LoadPSF(string path, CoreComm nextComm, HawkFile file, out IEmulator nextEmulator, out RomGame rom, out GameInfo game)
-		{
-			// TODO: Why does the PSF loader need CbDeflater provided?  Surely this is a matter internal to it.
-			static byte[] CbDeflater(Stream instream, int size)
-			{
-				return new GZipStream(instream, CompressionMode.Decompress).ReadAllBytes();
-			}
-			var psf = new PSF();
-			psf.Load(path, CbDeflater);
-			nextEmulator = new Octoshock(
-				nextComm,
-				psf,
-				GetCoreSettings<Octoshock, Octoshock.Settings>(),
-				GetCoreSyncSettings<Octoshock, Octoshock.SyncSettings>()
-			);
-
-			// total garbage, this
-			rom = new RomGame(file);
-			game = rom.GameInfo;
-		}
-
 		// HACK due to MAME wanting CHDs as hard drives / handling it on its own (bad design, I know!)
 		// only matters for XML, as CHDs are never the "main" rom for MAME
 		// (in general, this is kind of bad as CHD hard drives might be useful for other future cores?)
@@ -858,10 +835,12 @@ namespace BizHawk.Client.Common
 							if (!LoadXML(path, nextComm, file, forcedCoreName, out nextEmulator, out rom, out game))
 								return false;
 							break;
+#if false // was only wired up for Octoshock
 						case ".psf":
 						case ".minipsf":
 							LoadPSF(path, nextComm, file, out nextEmulator, out rom, out game);
 							break;
+#endif
 						case ".zip" when forcedCoreName is null:
 						case ".7z" when forcedCoreName is null:
 							LoadMAME(path: path, nextComm, file, ext: ext, out nextEmulator, out rom, out game, out cancel);

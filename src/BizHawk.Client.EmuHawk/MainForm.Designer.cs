@@ -245,11 +245,6 @@ namespace BizHawk.Client.EmuHawk
 			this.toolStripSeparator28 = new BizHawk.WinForms.Controls.ToolStripSeparatorEx();
 			this.GBGPUViewerMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.GBPrinterViewerMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
-			this.PSXSubMenu = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
-			this.PSXControllerSettingsMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
-			this.PSXOptionsMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
-			this.PSXDiscControlsMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
-			this.PSXHashDiscsToolStripMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.SNESSubMenu = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.SNESControllerConfigurationMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.toolStripSeparator18 = new BizHawk.WinForms.Controls.ToolStripSeparatorEx();
@@ -393,7 +388,6 @@ namespace BizHawk.Client.EmuHawk
             this.TI83SubMenu,
             this.A7800SubMenu,
             this.GBSubMenu,
-            this.PSXSubMenu,
             this.SNESSubMenu,
             this.ColecoSubMenu,
             this.N64SubMenu,
@@ -1625,36 +1619,6 @@ namespace BizHawk.Client.EmuHawk
 			this.GBPrinterViewerMenuItem.Text = "&Printer Viewer";
 			this.GBPrinterViewerMenuItem.Click += new System.EventHandler(this.GbPrinterViewerMenuItem_Click);
 			// 
-			// PSXSubMenu
-			// 
-			this.PSXSubMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.PSXControllerSettingsMenuItem,
-            this.PSXOptionsMenuItem,
-            this.PSXDiscControlsMenuItem,
-            this.PSXHashDiscsToolStripMenuItem});
-			this.PSXSubMenu.Text = "PSX";
-			this.PSXSubMenu.DropDownOpened += new System.EventHandler(this.PsxSubMenu_DropDownOpened);
-			// 
-			// PSXControllerSettingsMenuItem
-			// 
-			this.PSXControllerSettingsMenuItem.Text = "Controller / Memcard Settings";
-			this.PSXControllerSettingsMenuItem.Click += new System.EventHandler(this.PsxControllerSettingsMenuItem_Click);
-			// 
-			// PSXOptionsMenuItem
-			// 
-			this.PSXOptionsMenuItem.Text = "&Options";
-			this.PSXOptionsMenuItem.Click += new System.EventHandler(this.PsxOptionsMenuItem_Click);
-			// 
-			// PSXDiscControlsMenuItem
-			// 
-			this.PSXDiscControlsMenuItem.Text = "&Disc Controls";
-			this.PSXDiscControlsMenuItem.Click += new System.EventHandler(this.PsxDiscControlsMenuItem_Click);
-			// 
-			// PSXHashDiscsToolStripMenuItem
-			// 
-			this.PSXHashDiscsToolStripMenuItem.Text = "&Hash Discs";
-			this.PSXHashDiscsToolStripMenuItem.Click += new System.EventHandler(this.PsxHashDiscsMenuItem_Click);
-			// 
 			// SNESSubMenu
 			// 
 			this.SNESSubMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -2698,13 +2662,9 @@ namespace BizHawk.Client.EmuHawk
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx BarcodeReaderMenuItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx FeaturesMenuItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx DebuggerMenuItem;
-		private BizHawk.WinForms.Controls.ToolStripMenuItemEx PSXSubMenu;
-		private BizHawk.WinForms.Controls.ToolStripMenuItemEx PSXOptionsMenuItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx SaveRAMSubMenu;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx FlushSaveRAMMenuItem;
-		private BizHawk.WinForms.Controls.ToolStripMenuItemEx PSXDiscControlsMenuItem;
 		private BizHawk.WinForms.Controls.StatusLabelEx UpdateNotification;
-		private BizHawk.WinForms.Controls.ToolStripMenuItemEx PSXControllerSettingsMenuItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx MacroToolMenuItem;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx AppleSubMenu;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx AppleDisksSubMenu;
@@ -2713,7 +2673,6 @@ namespace BizHawk.Client.EmuHawk
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx MusicRipperMenuItem;
 		private BizHawk.WinForms.Controls.ToolStripSeparatorEx toolStripSeparator35;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx settingsToolStripMenuItem1;
-		private BizHawk.WinForms.Controls.ToolStripMenuItemEx PSXHashDiscsToolStripMenuItem;
 		private System.Windows.Forms.Timer timerMouseIdle;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx miUnthrottled;
 		private BizHawk.WinForms.Controls.ToolStripMenuItemEx toolStripMenuItem17;
