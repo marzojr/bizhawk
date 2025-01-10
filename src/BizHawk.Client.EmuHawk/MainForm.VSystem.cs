@@ -857,7 +857,7 @@ namespace BizHawk.Client.EmuHawk
 		{
 			if (layer is < 1 or > 4) return; // should this throw?
 			bool result = false;
-			if (Emulator is LibsnesCore bsnes)
+			if (Emulator is BsnesCore bsnes)
 			{
 				var s = bsnes.GetSettings();
 				result = layer switch
