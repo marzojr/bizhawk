@@ -27,6 +27,7 @@
 #define M64P_PLUGIN_PROTOTYPES 1
 #include "m64p_plugin.h"
 #include "m64p_config.h"
+#include <stdbool.h>
 
 // Some stuff from n-rage plugin
 #define RD_GETSTATUS		0x00 // get status
@@ -55,7 +56,7 @@
 typedef struct
 {
     CONTROL *control;               // pointer to CONTROL struct in Core library
-	BOOL rumbling;
+	bool rumbling;
 } SController;
 
 /* global data definitions */

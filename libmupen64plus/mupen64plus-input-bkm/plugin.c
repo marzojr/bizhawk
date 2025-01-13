@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #define M64P_PLUGIN_PROTOTYPES 1
 #include "m64p_types.h"
@@ -39,6 +40,24 @@
 
 #include <errno.h>
 
+#ifdef max
+#undef max
+#endif
+#define max(a, b) __extension__ ({ \
+    __typeof__(a) _a = (a); \
+    __typeof__(b) _b = (b); \
+    _a > _b ? _a : _b; \
+})
+
+#ifdef min
+#undef min
+#endif
+#define min(a, b) __extension__ ({ \
+    __typeof__(a) _a = (a); \
+    __typeof__(b) _b = (b); \
+    _a < _b ? _a : _b; \
+})
+
 /* global data definitions */
 SController controller[4];   // 4 controllers
 
@@ -49,7 +68,7 @@ static int l_PluginInit = 0;
 
 /* Callbacks for data flow out of mupen */
 static int (*l_inputCallback)(int i) = NULL;
-static int (*l_setrumbleCallback)(int i, int on) = NULL;
+static void (*l_setrumbleCallback)(int i, int on) = NULL;
 
 static int romopen = 0;         // is a rom opened
 
@@ -77,7 +96,7 @@ EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Con
                                    void (*DebugCallback)(void *, int, const char *))
 {
     ptr_CoreGetAPIVersions CoreAPIVersionFunc;
-    
+
     int ConfigAPIVersion, DebugAPIVersion, VidextAPIVersion;
 
     if (l_PluginInit)
@@ -186,7 +205,7 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
 
     if (APIVersion != NULL)
         *APIVersion = INPUT_PLUGIN_API_VERSION;
-    
+
     if (PluginNamePtr != NULL)
         *PluginNamePtr = PLUGIN_NAME;
 
@@ -194,7 +213,7 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
     {
         *Capabilities = 0;
     }
-                    
+
     return M64ERR_SUCCESS;
 }
 
@@ -336,7 +355,7 @@ EXPORT void CALL ReadController(int Control, unsigned char *Command)
 	int value;
 	if(Control == -1)
 		return;
-	
+
 	switch(Command[2])
 	{
 	case RD_RESETCONTROLLER:

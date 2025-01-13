@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *   Mupen64plus-input-bkm - version.h                                     *
- *   Edited        2014      null_ptr                                      *
- *   Copyright (C) 2009-2012 Richard Goedeken                              *
+ *   Mupen64plus-core - osal/dynamiclib_unix.c                             *
+ *   Mupen64Plus homepage: http://code.google.com/p/mupen64plus/           *
+ *   Copyright (C) 2009 Richard Goedeken                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,18 +19,19 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* This header file is for versioning information
- *
- */
+#include <stdlib.h>
+#include <stdio.h>
+#include <dlfcn.h>
 
-#if !defined(VERSION_H)
-#define VERSION_H
+#include "m64p_types.h"
+#include "osal_dynamiclib.h"
 
-#define PLUGIN_NAME    "Mupen64Plus Bizhawk Input Plugin"
-#define PLUGIN_VERSION           0x016305
-#define INPUT_PLUGIN_API_VERSION 0x20101
-#define CONFIG_API_VERSION       0x020302
+void * osal_dynlib_getproc(m64p_dynlib_handle LibHandle, const char *pccProcedureName)
+{
+    if (pccProcedureName == NULL)
+        return NULL;
 
-#define VERSION_PRINTF_SPLIT(x) (((x) >> 16) & 0xffff), (((x) >> 8) & 0xff), ((x) & 0xff)
+    return dlsym(LibHandle, pccProcedureName);
+}
 
-#endif /* #define VERSION_H */
+

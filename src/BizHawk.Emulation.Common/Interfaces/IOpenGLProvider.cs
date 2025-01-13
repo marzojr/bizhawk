@@ -1,3 +1,5 @@
+using SDL2;
+
 namespace BizHawk.Emulation.Common
 {
 	/// <summary>
@@ -17,7 +19,7 @@ namespace BizHawk.Emulation.Common
 		/// The requested OpenGL context will be shared with the current context
 		/// Note: creating a context implicitly makes that created context current
 		/// </summary>
-		public object RequestGLContext(int major, int minor, bool coreProfile);
+		public object RequestGLContext(int major, int minor, bool coreProfile, int width=1, int height=1);
 
 		/// <summary>
 		/// Frees this OpenGL context
@@ -40,5 +42,13 @@ namespace BizHawk.Emulation.Common
 		/// The user must make a context active before using this
 		/// </summary>
 		public IntPtr GetGLProcAddress(string proc);
+
+		/// <summary>
+		/// Gets the current value for <paramref name="attribute"/> in the current OpenGL context
+		/// </summary>
+		/// <param name="attribute">The attribute to check</param>
+		public int GLGetAttribute(SDL.SDL_GLattr attribute);
+
+		public void SwapBuffers(object context);
 	}
 }

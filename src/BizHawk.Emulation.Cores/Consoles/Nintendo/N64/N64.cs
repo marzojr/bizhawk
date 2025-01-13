@@ -6,7 +6,7 @@ using BizHawk.Emulation.Cores.Nintendo.N64.NativeApi;
 
 namespace BizHawk.Emulation.Cores.Nintendo.N64
 {
-	[PortedCore(CoreNames.Mupen64Plus, "", "2.0", "https://code.google.com/p/mupen64plus/", singleInstance: true)]
+	[PortedCore(CoreNames.Mupen64Plus + "b", "", "2.0", "https://code.google.com/p/mupen64plus/", singleInstance: true)]
 	public partial class N64 : IEmulator, ISaveRam, IDebuggable, IStatable, IInputPollable, IDisassemblable, IRegionable,
 		ISettable<N64Settings, N64SyncSettings>
 	{
