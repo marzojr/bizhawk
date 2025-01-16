@@ -4,7 +4,9 @@ using BizHawk.Emulation.Cores.Components.MC6809;
 
 namespace BizHawk.Emulation.Cores.Consoles.Vectrex
 {
-	[Core(CoreNames.VectrexHawk, "")]
+	[Core(
+		name: CoreNames.VectrexHawk,
+		author: "alyosha")]
 	public partial class VectrexHawk : IEmulator, ISaveRam, IDebuggable, IInputPollable, IRegionable, 
 	ISettable<object, VectrexHawk.VectrexSyncSettings>
 	{
