@@ -3,7 +3,10 @@ using BizHawk.Emulation.Cores.Sega.MasterSystem;
 
 namespace BizHawk.Emulation.Cores.Sega.GGHawkLink
 {
-	[Core(CoreNames.GGHawkLink, "", isReleased: false)]
+	[Core(
+		name: CoreNames.GGHawkLink,
+		author: "Vecna",
+		isReleased: false)]
 	public partial class GGHawkLink : IEmulator, ISaveRam, IDebuggable, IStatable, IInputPollable, IRegionable, ILinkable,
 		ISettable<GGHawkLink.GGLinkSettings, GGHawkLink.GGLinkSyncSettings>
 	{
