@@ -6,7 +6,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 public abstract class Mupen64PluginApi
 {
 	[BizImport(CallingConvention.Cdecl)]
-	public abstract Mupen64Api.m64p_error PluginStartup(IntPtr coreLibHandle, IntPtr context, IntPtr debugCallback);
+	public abstract Mupen64Api.m64p_error PluginStartup(IntPtr coreLibHandle, IntPtr context, Mupen64Api.DebugCallback debugCallback);
 
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract Mupen64Api.m64p_error PluginShutdown();

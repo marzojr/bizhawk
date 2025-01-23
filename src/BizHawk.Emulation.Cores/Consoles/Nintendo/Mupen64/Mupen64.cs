@@ -114,26 +114,26 @@ public partial class Mupen64 : IEmulator
 
 		var videoPluginName = $"mupen64plus-video-{_syncSettings.VideoPlugin}";
 		(VideoPluginApi, VideoPluginApiHandle) = LoadLib<Mupen64VideoPluginApi>(videoPluginName);
-		error = VideoPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
+		error = VideoPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, _debugCallback);
 		Console.WriteLine(error.ToString());
 		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.GFX, VideoPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
 		(AudioPluginApi, AudioPluginApiHandle) = LoadLib<Mupen64AudioPluginApi>("mupen64plus-audio-bkm");
-		error = AudioPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
+		error = AudioPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null);
 		Console.WriteLine(error.ToString());
 		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.AUDIO, AudioPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
 		(InputPluginApi, InputPluginApiHandle) = LoadLib<Mupen64InputPluginApi>("mupen64plus-input-bkm");
-		error = InputPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
+		error = InputPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null);
 		Console.WriteLine(error.ToString());
 		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.INPUT, InputPluginApiHandle);
 		Console.WriteLine(error.ToString());
 
 		var rspPluginName = $"mupen64plus-rsp-{_syncSettings.RspPlugin}";
 		(RspPluginApi, RspPluginApiHandle) = LoadLib<Mupen64PluginApi>(rspPluginName);
-		error = RspPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, IntPtr.Zero);
+		error = RspPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null);
 		Console.WriteLine(error.ToString());
 		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.RSP, RspPluginApiHandle);
 		Console.WriteLine(error.ToString());

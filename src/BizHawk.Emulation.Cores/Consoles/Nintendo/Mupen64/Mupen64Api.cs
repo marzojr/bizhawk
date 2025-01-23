@@ -183,7 +183,7 @@ public abstract class Mupen64Api
 	public delegate uint VidExtFuncGLGetDefaultFramebuffer();
     public delegate m64p_error VidExtFuncInitWithRenderMode(m64p_render_mode renderMode);
     public delegate m64p_error VidExtFuncVKGetSurface(ref IntPtr surface, IntPtr instance);
-    public delegate m64p_error VidExtFuncVKGetInstanceExtensions(ref IntPtr extensions, ref uint numExtensions);
+    public delegate m64p_error VidExtFuncVKGetInstanceExtensions(ref IntPtr[] extensions, ref uint numExtensions);
 
 	[StructLayout(LayoutKind.Sequential)]
 	public sealed class m64p_video_extension_functions_managed

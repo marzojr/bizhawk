@@ -146,7 +146,7 @@ public partial class Mupen64
 		return m64p_error.UNSUPPORTED;
 	}
 
-	private static m64p_error VidExt_VK_GetInstanceExtensions(ref IntPtr extensions, ref uint numExtensions)
+	private static m64p_error VidExt_VK_GetInstanceExtensions(ref IntPtr[] extensions, ref uint numExtensions)
 	{
 		return m64p_error.UNSUPPORTED;
 	}
