@@ -85,3 +85,26 @@
 [submodule "ExternalProjects/FlooohChips/chips"]
 	path = ExternalProjects/FlooohChips/chips
 	url = https://github.com/floooh/chips.git
+[submodule "ExternalProjects/mupen64plus/mupen64plus-rsp-cxd4"]
+	path = ExternalProjects/mupen64plus/mupen64plus-rsp-cxd4
+	url = https://github.com/mupen64plus/mupen64plus-rsp-cxd4
+[submodule "ExternalProjects/mupen64plus/mupen64plus-rsp-hle"]
+	path = ExternalProjects/mupen64plus/mupen64plus-rsp-hle
+	url = https://github.com/mupen64plus/mupen64plus-rsp-hle
+[submodule "ExternalProjects/mupen64plus/mupen64plus-rsp-parallel"]
+	path = ExternalProjects/mupen64plus/mupen64plus-rsp-parallel
+	url = https://github.com/Rosalie241/parallel-rsp
+	branch = RMG
+[submodule "ExternalProjects/mupen64plus/mupen64plus-video-angrylion-plus"]
+	path = ExternalProjects/mupen64plus/mupen64plus-video-angrylion-plus
+	url = https://github.com/ata4/angrylion-rdp-plus
+[submodule "ExternalProjects/mupen64plus/mupen64plus-video-GLideN64"]
+	path = ExternalProjects/mupen64plus/mupen64plus-video-GLideN64
+	url = https://github.com/gonetz/GLideN64
+[submodule "ExternalProjects/mupen64plus/mupen64plus-video-parallel"]
+	path = ExternalProjects/mupen64plus/mupen64plus-video-parallel
+	url = https://github.com/Rosalie241/parallel-rdp-standalone
+[submodule "ExternalProjects/mupen64plus/mupen64plus-core"]
+	path = ExternalProjects/mupen64plus/mupen64plus-core
+	url = https://github.com/Morilli/mupen64plus-core
+	branch = bizhawk
