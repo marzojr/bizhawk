@@ -12,10 +12,10 @@ namespace BizHawk.Client.EmuHawk
 		public bool SupportsGLVersion(int major, int minor)
 			=> OpenGLVersion.SupportsVersion(major, minor);
 
-		public object RequestGLContext(int major, int minor, bool coreProfile, int width=1, int height=1)
+		public object RequestGLContext(int major, int minor, bool coreProfile, int width=1, int height=1, bool vulkan=false)
 		{
-			var ret = new SDL2OpenGLContext(major, minor, coreProfile, width, height);
-			ret.SetVsync(false);
+			var ret = new SDL2OpenGLContext(major, minor, coreProfile, width, height, vulkan);
+			if (!vulkan) ret.SetVsync(false);
 			return ret;
 		}
 
@@ -35,6 +35,16 @@ namespace BizHawk.Client.EmuHawk
 		{
 			_ = SDL.SDL_GL_GetAttribute(attribute, out int value);
 			return value;
+		}
+
+		public ulong vulkan(object context, IntPtr instance)
+		{
+			return ((SDL2OpenGLContext) context).CreateVulkanSurface(instance);
+		}
+
+		public IntPtr[] GetVulkanInstanceExtensions()
+		{
+			return SDL2OpenGLContext.GetVulkanInstanceExtensions();
 		}
 
 		public void SwapBuffers(object context)

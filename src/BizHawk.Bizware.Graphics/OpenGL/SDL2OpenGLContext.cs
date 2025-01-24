@@ -40,6 +40,11 @@ namespace BizHawk.Bizware.Graphics
 				throw new($"Could not init SDL video! SDL Error: {SDL_GetError()}");
 			}
 
+			if (SDL_Vulkan_LoadLibrary(null) != 0)
+			{
+				throw new Exception($"SDL_Vulkan_LoadLibrary failed: {SDL_GetError()}");
+			}
+
 			if (OSTailoredCode.IsUnixHost)
 			{
 				// if we fail to load EGL, we'll just try again with GLX...
@@ -198,18 +203,25 @@ namespace BizHawk.Bizware.Graphics
 			}
 		}
 
-		public SDL2OpenGLContext(int majorVersion, int minorVersion, bool coreProfile, int width=1, int height=1)
+		public SDL2OpenGLContext(int majorVersion, int minorVersion, bool coreProfile, int width=1, int height=1, bool vulkan=false)
 		{
 			// offscreen contexts are shared (as we want to send texture from it over to our control's context)
 			// make sure to set the current graphics control context before creating this context
 			SetAttributes(majorVersion, minorVersion, coreProfile, shareContext: true);
 
-			_sdlWindow = SDL_CreateWindow(null, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
-				SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_HIDDEN);
+			SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_HIDDEN;
+			if (vulkan)
+				flags = SDL_WindowFlags.SDL_WINDOW_VULKAN;
+			else
+				flags |= SDL_WindowFlags.SDL_WINDOW_OPENGL;
+
+			_sdlWindow = SDL_CreateWindow(null, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 			if (_sdlWindow == IntPtr.Zero)
 			{
 				throw new($"Could not create SDL Window! SDL Error: {SDL_GetError()}");
 			}
+
+			if (vulkan) return;
 
 			try
 			{
@@ -278,6 +290,33 @@ namespace BizHawk.Bizware.Graphics
 			}
 
 			SDL_GL_SwapWindow(_sdlWindow);
+		}
+
+		public ulong CreateVulkanSurface(IntPtr instance)
+		{
+			if (SDL_Vulkan_CreateSurface(_sdlWindow, instance, out ulong surface) != SDL_bool.SDL_TRUE)
+			{
+				throw new InvalidOperationException($"Failed to create vulkan surface! SDL error: {SDL_GetError()}");
+			}
+
+			return surface;
+		}
+
+		public static IntPtr[] GetVulkanInstanceExtensions()
+		{
+			if (SDL_Vulkan_GetInstanceExtensions(IntPtr.Zero, out uint count, IntPtr.Zero) != SDL_bool.SDL_TRUE)
+			{
+				throw new InvalidOperationException($"SDL_Vulkan_GetInstanceExtensions failed: {SDL_GetError()}");
+			}
+
+			var vulkanInstanceExtensions = new IntPtr[count];
+
+			if (SDL_Vulkan_GetInstanceExtensions(IntPtr.Zero, pCount: out count, vulkanInstanceExtensions) != SDL_bool.SDL_TRUE)
+			{
+				throw new InvalidOperationException($"SDL_Vulkan_GetInstanceExtensions failed: {SDL_GetError()}");
+			}
+
+			return vulkanInstanceExtensions;
 		}
 	}
 }

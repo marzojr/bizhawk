@@ -57,7 +57,7 @@ public partial class Mupen64
 		if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, out int major)) major = 2;
 		if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, out int minor)) minor = 1;
 		bool coreProfile = GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, out int profile) && (SDL.SDL_GLprofile)profile == SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE;
-		_glContext = _openGLProvider.RequestGLContext(major, minor, coreProfile, width, height);
+		_glContext = _openGLProvider.RequestGLContext(major, minor, coreProfile, width, height, _renderMode is m64p_render_mode.VULKAN);
 
 		BufferWidth = width;
 		BufferHeight = height;
@@ -108,6 +108,8 @@ public partial class Mupen64
 
 	private m64p_error VidExt_GL_SwapBuffers()
 	{
+		if (_renderMode != m64p_render_mode.OPENGL) return m64p_error.INVALID_STATE;
+
 		if (isRenderThread)
 			_openGLProvider.SwapBuffers(_glContext);
 
@@ -136,18 +138,36 @@ public partial class Mupen64
 		return 0;
 	}
 
-	private static m64p_error VidExt_InitWithRenderMode(m64p_render_mode renderMode)
+	private m64p_render_mode _renderMode;
+
+	private m64p_error VidExt_InitWithRenderMode(m64p_render_mode renderMode)
 	{
-		return renderMode is m64p_render_mode.OPENGL ? m64p_error.SUCCESS : m64p_error.UNSUPPORTED;
+		_renderMode = renderMode;
+		return m64p_error.SUCCESS;
 	}
 
-	private static m64p_error VidExt_VK_GetSurface(ref IntPtr surface, IntPtr instance)
+	private m64p_error VidExt_VK_GetSurface(ref IntPtr surface, IntPtr instance)
 	{
-		return m64p_error.UNSUPPORTED;
+		if (_renderMode != m64p_render_mode.VULKAN)
+		{
+			return m64p_error.INVALID_STATE;
+		}
+
+		ulong surfaceID = _openGLProvider.vulkan(_glContext, instance);
+
+		surface = (IntPtr) surfaceID;
+
+		return m64p_error.SUCCESS;
 	}
 
-	private static m64p_error VidExt_VK_GetInstanceExtensions(ref IntPtr[] extensions, ref uint numExtensions)
+	private IntPtr[] _vulkanInstanceExtensions;
+
+	private m64p_error VidExt_VK_GetInstanceExtensions(ref IntPtr[] extensions, ref uint numExtensions)
 	{
-		return m64p_error.UNSUPPORTED;
+		_vulkanInstanceExtensions = _openGLProvider.GetVulkanInstanceExtensions();
+		extensions = _vulkanInstanceExtensions;
+		numExtensions = (uint)_vulkanInstanceExtensions.Length;
+
+		return m64p_error.SUCCESS;
 	}
 }
