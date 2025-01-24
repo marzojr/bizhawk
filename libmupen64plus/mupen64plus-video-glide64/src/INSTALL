@@ -1,8 +1,0 @@
-For Linux :
-
-Just type "make" and install the Glide64.so file that should be hopefully produced
-into the plugins directory of the emulator.
-
-For FreeBSD :
-
-Instead, use "gmake", also 

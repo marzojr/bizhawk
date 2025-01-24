@@ -1,12 +1,3 @@
-[submodule "libmupen64plus/mupen64plus-win32-deps"]
-	path = libmupen64plus/mupen64plus-win32-deps
-	url = https://github.com/mupen64plus/mupen64plus-win32-deps.git
-[submodule "libmupen64plus/GLideN64"]
-	path = libmupen64plus/GLideN64
-	url = https://github.com/TASEmulators/GLideN64.git
-[submodule "libmupen64plus/mupen64plus-rsp-cxd4"]
-	path = libmupen64plus/mupen64plus-rsp-cxd4
-	url = https://github.com/TASEmulators/mupen64plus-rsp-cxd4.git
 [submodule "waterbox/snes9x"]
 	path = waterbox/snes9x
 	url = https://github.com/TASEmulators/snes9x.git
@@ -44,10 +35,6 @@
 	path = waterbox/ares64/ares/thirdparty/angrylion-rdp
 	url = https://github.com/TASEmulators/angrylion-rdp.git
 	branch = ares
-[submodule "libmupen64plus/mupen64plus-video-angrylion-rdp"]
-	path = libmupen64plus/mupen64plus-video-angrylion-rdp
-	url = https://github.com/TASEmulators/angrylion-rdp.git
-	branch = biz_mupen64plus
 [submodule "waterbox/mame-arcade/mame"]
 	path = waterbox/mame-arcade/mame
 	url = https://github.com/TASEmulators/mame.git
