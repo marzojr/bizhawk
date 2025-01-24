@@ -211,7 +211,7 @@ namespace BizHawk.Bizware.Graphics
 
 			SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_HIDDEN;
 			if (vulkan)
-				flags = SDL_WindowFlags.SDL_WINDOW_VULKAN;
+				flags |= SDL_WindowFlags.SDL_WINDOW_VULKAN;
 			else
 				flags |= SDL_WindowFlags.SDL_WINDOW_OPENGL;
 
