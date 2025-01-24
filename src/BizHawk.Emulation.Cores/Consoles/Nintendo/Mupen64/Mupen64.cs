@@ -33,9 +33,9 @@ public partial class Mupen64 : IEmulator
 	private IController _controller;
 	private bool _disposed;
 
-	private void DebugCallback(IntPtr context, int level, string message)
+	private static void DebugCallback(IntPtr context, m64p_msg_level level, string message)
 	{
-		Console.WriteLine($"DEBUG CALLBACK {level}: {message}");
+		Util.DebugWriteLine($"{level}: {message}");
 	}
 
 	private readonly DebugCallback _debugCallback;
@@ -228,9 +228,6 @@ public partial class Mupen64 : IEmulator
 
 		Console.WriteLine("entering dispose...");
 		Mupen64Api.CoreDoCommand(m64p_command.STOP, 0, IntPtr.Zero);
-		// the stop command requires trying to advance an additional frame before the core actually stops, as the core is currently paused
-		var error = Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
-		Console.WriteLine(error.ToString());
 		// don't use Thread.Join, see #3220
 		while (_coreThread.IsAlive)
 		{

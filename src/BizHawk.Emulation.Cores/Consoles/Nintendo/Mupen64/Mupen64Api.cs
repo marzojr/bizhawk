@@ -166,6 +166,15 @@ public abstract class Mupen64Api
 		TLB
 	}
 
+	public enum m64p_msg_level
+	{
+		ERROR = 1,
+		WARNING,
+		INFO,
+		STATUS,
+		VERBOSE
+	}
+
 	private const int VidExtFunctions = 17;
 	public delegate m64p_error VidExtFuncInit();
 	public delegate m64p_error VidExtFuncQuit();
@@ -239,7 +248,7 @@ public abstract class Mupen64Api
 
 	public delegate void m64p_frame_callback(uint frameIndex);
 	public delegate void StateCallback(IntPtr context2, m64p_core_param paramChanged, int newValue);
-	public delegate void DebugCallback(IntPtr context, int level, string message);
+	public delegate void DebugCallback(IntPtr context, m64p_msg_level level, string message);
 
 	public delegate void dbg_frontend_init();
 	public delegate void dbg_frontend_update(uint pc);

@@ -216,7 +216,7 @@ namespace BizHawk.Common
 			public IntPtr GetProcAddrOrThrow(IntPtr hModule, string procName)
 			{
 				var ret = GetProcAddrOrZero(hModule, procName);
-				return ret != IntPtr.Zero ? ret : throw new InvalidOperationException($"got null pointer from {nameof(GetProcAddress)}, {GetErrorMessage()}");
+				return ret != IntPtr.Zero ? ret : throw new InvalidOperationException($"got null pointer from {nameof(GetProcAddress)} trying to find symbol {procName}, {GetErrorMessage()}");
 			}
 
 			public IntPtr LoadOrZero(string dllToLoad) => LoadLibraryW(dllToLoad);
@@ -224,7 +224,7 @@ namespace BizHawk.Common
 			public IntPtr LoadOrThrow(string dllToLoad)
 			{
 				var ret = LoadOrZero(dllToLoad);
-				return ret != IntPtr.Zero ? ret : throw new InvalidOperationException($"got null pointer from {nameof(LoadLibraryW)} while trying to load {dllToLoad}, {GetErrorMessage()}");
+				return ret != IntPtr.Zero ? ret : throw new InvalidOperationException($"got null pointer from {nameof(LoadLibraryW)} trying to load {dllToLoad}, {GetErrorMessage()}");
 			}
 
 			public unsafe string GetErrorMessage()
