@@ -13,7 +13,6 @@ using BizHawk.Emulation.Cores.Nintendo.Gameboy;
 using BizHawk.Emulation.Cores.Nintendo.GBA;
 using BizHawk.Emulation.Cores.Nintendo.NES;
 using BizHawk.Emulation.Cores.Nintendo.Sameboy;
-using BizHawk.Emulation.Cores.Nintendo.SNES;
 using BizHawk.Emulation.Cores.Nintendo.SNES9X;
 using BizHawk.Emulation.Cores.Nintendo.SubGBHawk;
 using BizHawk.Emulation.Cores.Nintendo.SubNESHawk;
@@ -51,7 +50,6 @@ namespace BizHawk.Client.EmuHawk
 			[typeof(MGBAHawk)] = new[] { "DisplayBG0", "DisplayBG1", "DisplayBG2", "DisplayBG3", "DisplayOBJ" },
 			[typeof(NES)] = new[] { "DispBackground", "DispSprites" },
 			[typeof(Sameboy)] = new[] { "EnableBGWIN", "EnableOBJ" },
-			[typeof(LibsnesCore)] = new[] { "ShowBG1_0", "ShowBG2_0", "ShowBG3_0", "ShowBG4_0", "ShowBG1_1", "ShowBG2_1", "ShowBG3_1", "ShowBG4_1", "ShowOBJ_0", "ShowOBJ_1", "ShowOBJ_2", "ShowOBJ_3" },
 			[typeof(Snes9x)] = new[] { "ShowBg0", "ShowBg1", "ShowBg2", "ShowBg3", "ShowSprites0", "ShowSprites1", "ShowSprites2", "ShowSprites3", "ShowWindow", "ShowTransparency" },
 			[typeof(PCEngine)] = new[] { "ShowBG1", "ShowOBJ1", "ShowBG2", "ShowOBJ2", },
 			[typeof(GPGX)] = new[] { "DrawBGA", "DrawBGB", "DrawBGW", "DrawObj", },

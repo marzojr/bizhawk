@@ -6,7 +6,6 @@ cd libco && make -f Makefile $1 -j && cd -
 cd ares64 && ./make-both.sh $1 && cd -
 cd bsnescore && make -f Makefile $1 -j && cd -
 cd gpgx && make -f Makefile $1 -j && cd -
-cd libsnes && make -f Makefile $1 -j && cd -
 cd melon && make -f Makefile $1 -j && cd -
 cd picodrive && make -f Makefile $1 -j && cd -
 cd stella && make -f Makefile $1 -j && cd -

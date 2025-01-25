@@ -4,7 +4,6 @@ using BizHawk.Emulation.Cores.Consoles.Nintendo.Gameboy;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.NDS;
 using BizHawk.Emulation.Cores.Consoles.Sega.gpgx;
 using BizHawk.Emulation.Cores.Consoles.Sega.PicoDrive;
-using BizHawk.Emulation.Cores.Nintendo.SNES;
 
 namespace BizHawk.Client.EmuHawk
 {
@@ -155,7 +154,6 @@ namespace BizHawk.Client.EmuHawk
 				VSystemID.Raw.SGX => ConsoleID.PCEngine, // ???
 				VSystemID.Raw.SGXCD => ConsoleID.PCEngineCD, // ???
 				VSystemID.Raw.SMS => ConsoleID.MasterSystem,
-				VSystemID.Raw.SNES when Emu is LibsnesCore { IsSGB: true } => ConsoleID.GB,
 				VSystemID.Raw.SNES => ConsoleID.SNES,
 				VSystemID.Raw.TI83 => ConsoleID.TI83,
 				VSystemID.Raw.TIC80 => ConsoleID.Tic80,

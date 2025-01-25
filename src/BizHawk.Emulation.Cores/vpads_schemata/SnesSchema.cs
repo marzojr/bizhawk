@@ -16,7 +16,6 @@ namespace BizHawk.Emulation.Cores
 		{
 			return core switch
 			{
-				LibsnesCore libsnes => GetLibsnesPadSchemas(libsnes),
 				BsnesCore bsnes => GetBsnesPadSchemas(bsnes),
 				SubBsnesCore subBsnes => GetBsnesPadSchemas(subBsnes.ServiceProvider.GetService<ISettable<BsnesCore.SnesSettings, BsnesCore.SnesSyncSettings>>()),
 				NymaCore nyma => GetFaustSchemas(nyma, showMessageBox),
@@ -52,60 +51,6 @@ namespace BizHawk.Emulation.Cores
 				case LibSnes9x.RightPortDevice.SuperScope:
 					yield return SuperScope(2);
 					break;
-			}
-
-			yield return ConsoleButtons();
-		}
-
-		private IEnumerable<PadSchema> GetLibsnesPadSchemas(LibsnesCore core)
-		{
-			var syncSettings = core.GetSyncSettings();
-
-			var ports = new[]
-			{
-				syncSettings.LeftPort,
-				syncSettings.RightPort
-			};
-
-			int offset = 0;
-			for (int i = 0; i < 2; i++)
-			{
-				int playerNum = i + offset + 1;
-				switch (ports[i])
-				{
-					default:
-					case LibsnesControllerDeck.ControllerType.Unplugged:
-						offset -= 1;
-						break;
-					case LibsnesControllerDeck.ControllerType.Gamepad:
-						yield return StandardController(playerNum);
-						break;
-					case LibsnesControllerDeck.ControllerType.Multitap:
-						for (int j = 0; j < 4; j++)
-						{
-							yield return StandardController(playerNum + j);
-						}
-
-						offset += 3;
-						break;
-					case LibsnesControllerDeck.ControllerType.Mouse:
-						yield return Mouse(playerNum);
-						break;
-					case LibsnesControllerDeck.ControllerType.SuperScope:
-						yield return SuperScope(playerNum);
-						break;
-					case LibsnesControllerDeck.ControllerType.Justifier:
-						for (int j = 0; j < 2; j++)
-						{
-							yield return Justifier(playerNum);
-							offset += j;
-						}
-
-						break;
-					case LibsnesControllerDeck.ControllerType.Payload:
-						yield return Payload(playerNum);
-						break;
-				}
 			}
 
 			yield return ConsoleButtons();
@@ -231,7 +176,7 @@ namespace BizHawk.Emulation.Cores
 
 		private static PadSchema Mouse(int controller)
 		{
-			var defAxes = new SnesMouseController().Definition.Axes;
+			var defAxes = SnesMouseController.Definition.Axes;
 			return new PadSchema
 			{
 				Size = new Size(345, 225),

@@ -10,7 +10,6 @@ using BizHawk.Emulation.Common;
 using BizHawk.Emulation.Cores;
 using BizHawk.Emulation.Cores.Libretro;
 using BizHawk.Emulation.Cores.Nintendo.Sameboy;
-using BizHawk.Emulation.Cores.Nintendo.SNES;
 using BizHawk.Emulation.Cores.Sony.PSX;
 using BizHawk.Emulation.Cores.Arcades.MAME;
 using BizHawk.Emulation.DiscSystem;
@@ -696,28 +695,8 @@ namespace BizHawk.Client.Common
 			}
 			catch (Exception ex)
 			{
-				try
-				{
-					// need to get rid of this hack at some point
-					rom = new RomGame(file);
-					game = rom.GameInfo;
-					game.System = VSystemID.Raw.SNES;
-					nextEmulator = new LibsnesCore(
-						game,
-						null,
-						rom.FileData,
-						Path.GetDirectoryName(path.SubstringBefore('|')),
-						nextComm,
-						GetCoreSettings<LibsnesCore, LibsnesCore.SnesSettings>(),
-						GetCoreSyncSettings<LibsnesCore, LibsnesCore.SnesSyncSettings>()
-					);
-					return true;
-				}
-				catch
-				{
-					DoLoadErrorCallback(ex.ToString(), VSystemID.Raw.GBL, LoadErrorType.Xml);
-					return false;
-				}
+				DoLoadErrorCallback(ex.ToString(), VSystemID.Raw.GBL, LoadErrorType.Xml);
+				return false;
 			}
 		}
 

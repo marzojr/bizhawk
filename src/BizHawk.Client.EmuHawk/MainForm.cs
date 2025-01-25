@@ -33,7 +33,6 @@ using BizHawk.Emulation.Cores.Consoles.SNK;
 using BizHawk.Emulation.Cores.Nintendo.GBA;
 using BizHawk.Emulation.Cores.Nintendo.N64;
 using BizHawk.Emulation.Cores.Nintendo.NES;
-using BizHawk.Emulation.Cores.Nintendo.SNES;
 
 using BizHawk.Emulation.DiscSystem;
 
@@ -3525,12 +3524,6 @@ namespace BizHawk.Client.EmuHawk
 			var name = Game.FilesystemSafeName();
 			name += $".{Emulator.Attributes().CoreName}";
 
-			// Bsnes profiles have incompatible savestates so save the profile name
-			if (Emulator is LibsnesCore bsnes)
-			{
-				name += $".{bsnes.CurrentProfile}";
-			}
-
 			if (MovieSession.Movie.IsActive())
 			{
 				name += $".{Path.GetFileNameWithoutExtension(MovieSession.Movie.Filename)}";
@@ -3724,7 +3717,7 @@ namespace BizHawk.Client.EmuHawk
 					InputManager.SyncControls(Emulator, MovieSession, Config);
 					_multiDiskMode = false;
 
-					if (oaOpenrom != null && Path.GetExtension(oaOpenrom.Path.Replace("|", "")).ToLowerInvariant() == ".xml" && Emulator is not LibsnesCore)
+					if (oaOpenrom != null && Path.GetExtension(oaOpenrom.Path.Replace("|", "")).ToLowerInvariant() == ".xml")
 					{
 						// this is a multi-disk bundler file
 						// determine the xml assets and create RomStatusDetails for all of them
