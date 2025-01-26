@@ -1,3 +1,0 @@
-TODO: mupen64plus-video-parallel will NOT build correctly from the submodule, need to build from https://github.com/Rosalie241/RMG/tree/master/Source/3rdParty/mupen64plus-video-parallel
-
-TODO: everything else
