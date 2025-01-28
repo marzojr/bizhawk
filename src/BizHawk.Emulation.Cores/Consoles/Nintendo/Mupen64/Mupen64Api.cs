@@ -322,6 +322,12 @@ public abstract class Mupen64Api
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract m64p_error ConfigSetParameter(IntPtr configSectionHandle, string paramName, m64p_type paramType, IntPtr paramValue);
 
+	public unsafe m64p_error ConfigSetParameter(IntPtr configSectionHandle, string paramName, int value)
+		=> ConfigSetParameter(configSectionHandle, paramName, m64p_type.INT, (IntPtr) (&value));
+
+	public unsafe m64p_error ConfigSetParameter(IntPtr configSectionHandle, string paramName, bool value)
+		=> ConfigSetParameter(configSectionHandle, paramName, m64p_type.BOOL, (IntPtr) (&value));
+
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract m64p_error DebugSetCallbacks(dbg_frontend_init dbgFrontendInit, dbg_frontend_update dbgFrontendUpdate, dbg_frontend_vi dbgFrontendVi);
 

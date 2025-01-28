@@ -38,6 +38,14 @@ public partial class Mupen64 : IEmulator
 		Util.DebugWriteLine($"{level}: {message}");
 	}
 
+	private static void ThrowIfError(m64p_error returnValue, string errorMessage)
+	{
+		if (returnValue != m64p_error.SUCCESS)
+		{
+			throw new Exception($"{errorMessage}: {returnValue}");
+		}
+	}
+
 	private readonly DebugCallback _debugCallback;
 	private readonly Mupen64InputPluginApi.InputCallback _inputCallback;
 	private readonly Mupen64InputPluginApi.RumbleCallback _rumbleCallback;
@@ -68,8 +76,7 @@ public partial class Mupen64 : IEmulator
 		_debuggerInitCallback = DebuggerInitCallback;
 		Mupen64Api.DebugSetCallbacks(_debuggerInitCallback, _traceCallback, null);
 
-		var error = Mupen64Api.CoreStartup(FRONTEND_API_VERSION, null, null, IntPtr.Zero, _debugCallback, IntPtr.Zero, _stateCallback);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(Mupen64Api.CoreStartup(FRONTEND_API_VERSION, null, null, IntPtr.Zero, _debugCallback, IntPtr.Zero, _stateCallback), "CoreStartup failed");
 
 		IntPtr coreConfigSection = IntPtr.Zero;
 		Mupen64Api.ConfigOpenSection("Core", ref coreConfigSection);
@@ -106,41 +113,30 @@ public partial class Mupen64 : IEmulator
 			VidExt_VK_GetInstanceExtensions = VidExt_VK_GetInstanceExtensions,
 		};
 		var videoExtensions = new m64p_video_extension_functions(_videoExtensionFunctionsManaged);
-		error = Mupen64Api.CoreOverrideVidExt(ref videoExtensions);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(Mupen64Api.CoreOverrideVidExt(ref videoExtensions), "CoreOverrideVidExt failed");
 
-		error = Mupen64Api.CoreDoCommand(m64p_command.ROM_OPEN, rom.RomData.Length, rom.RomData);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(Mupen64Api.CoreDoCommand(m64p_command.ROM_OPEN, rom.RomData.Length, rom.RomData), "ROM_OPEN failed");
 
-		var videoPluginName = $"mupen64plus-video-{_syncSettings.VideoPlugin}";
+		var videoPluginName = $"mupen64plus-video-{VideoPluginFileName(_syncSettings.VideoPlugin)}";
 		(VideoPluginApi, VideoPluginApiHandle) = LoadLib<Mupen64VideoPluginApi>(videoPluginName);
-		error = VideoPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, _debugCallback);
-		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.GFX, VideoPluginApiHandle);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(VideoPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, _debugCallback), "Video plugin startup failed");
+		ThrowIfError(Mupen64Api.CoreAttachPlugin(m64p_plugin_type.GFX, VideoPluginApiHandle), "Video plugin attaching failed");
 
 		(AudioPluginApi, AudioPluginApiHandle) = LoadLib<Mupen64AudioPluginApi>("mupen64plus-audio-bkm");
-		error = AudioPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null);
-		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.AUDIO, AudioPluginApiHandle);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(AudioPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null), "Audio plugin startup failed");
+		ThrowIfError(Mupen64Api.CoreAttachPlugin(m64p_plugin_type.AUDIO, AudioPluginApiHandle), "Audio plugin attaching failed");
 
 		(InputPluginApi, InputPluginApiHandle) = LoadLib<Mupen64InputPluginApi>("mupen64plus-input-bkm");
-		error = InputPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null);
-		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.INPUT, InputPluginApiHandle);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(InputPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null), "Input plugin startup failed");
+		ThrowIfError(Mupen64Api.CoreAttachPlugin(m64p_plugin_type.INPUT, InputPluginApiHandle), "Input plugin attaching failed");
 
-		var rspPluginName = $"mupen64plus-rsp-{_syncSettings.RspPlugin}";
+		var rspPluginName = $"mupen64plus-rsp-{RspPluginFileName(_syncSettings.RspPlugin)}";
 		(RspPluginApi, RspPluginApiHandle) = LoadLib<Mupen64PluginApi>(rspPluginName);
-		error = RspPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null);
-		Console.WriteLine(error.ToString());
-		error = Mupen64Api.CoreAttachPlugin(m64p_plugin_type.RSP, RspPluginApiHandle);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(RspPluginApi.PluginStartup(Mupen64ApiHandle, IntPtr.Zero, null), "Rsp plugin startup failed");
+		ThrowIfError(Mupen64Api.CoreAttachPlugin(m64p_plugin_type.RSP, RspPluginApiHandle), "Rsp plugin attaching failed");
 
 		_frameCallback = FrameCallback;
-		error = Mupen64Api.CoreDoCommand(m64p_command.SET_FRAME_CALLBACK, 0, Marshal.GetFunctionPointerForDelegate(_frameCallback));
-		Console.WriteLine(error.ToString());
+		Mupen64Api.CoreDoCommand(m64p_command.SET_FRAME_CALLBACK, 0, Marshal.GetFunctionPointerForDelegate(_frameCallback));
 
 		ControllerDefinition = Mupen64Controller.MakeControllerDefinition(_syncSettings);
 		_inputCallback = InputCallback;
@@ -157,6 +153,32 @@ public partial class Mupen64 : IEmulator
 		InputPluginApi.SetControllerPakType(3, _syncSettings.Port1PakType);
 
 		InitSound(AudioPluginApi.GetAudioRate());
+
+		IntPtr configSectionHandle = default;
+		switch (_syncSettings.VideoPlugin)
+		{
+			case N64VideoPlugin.Parallel:
+				Mupen64Api.ConfigOpenSection("Video-Parallel", ref configSectionHandle);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "Upscaling", _syncSettings.UpscaleFactor);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "DeinterlaceMode", _syncSettings.DeinterlaceMode);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "VIAA", _syncSettings.Antialiasing);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "Divot", _syncSettings.Divot);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "GammaDither", _syncSettings.GammaDither);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "VIBilerp", _syncSettings.BilinearScaling);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "DeinterlaceMode", _syncSettings.Dedither);
+				break;
+			case N64VideoPlugin.AngrylionPlus:
+				Mupen64Api.ConfigOpenSection("Video-AngrylionPlus", ref configSectionHandle);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "Parallel", _syncSettings.ParallelRendering);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "ViInterpolation", _syncSettings.InterpolationMode);
+				break;
+			case N64VideoPlugin.GlideN64:
+				Mupen64Api.ConfigOpenSection("Video-GLideN64", ref configSectionHandle);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "UseNativeResolutionFactor", _syncSettings.UseNativeResolutionFactor);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "EnableHWLighting", _syncSettings.EnableHWLighting);
+				Mupen64Api.ConfigSetParameter(configSectionHandle, "EnableCoverage", _syncSettings.EnableCoverage);
+				break;
+		}
 
 		var serviceProvider = new BasicServiceProvider(this);
 		serviceProvider.Register<ISoundProvider>(_resampler);
@@ -200,8 +222,7 @@ public partial class Mupen64 : IEmulator
 		}
 
 		IsLagFrame = true;
-		var error = Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
-		Console.WriteLine(error.ToString());
+		ThrowIfError(Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero), "Frame advance failed");
 		_frameFinished.WaitOne();
 		UpdateAudio(renderSound);
 		Frame++;
