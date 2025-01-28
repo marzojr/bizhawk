@@ -108,6 +108,7 @@ namespace BizHawk.Client.EmuHawk
 			{
 				propertyGrid1.SelectedObject = _s;
 				propertyGrid1.AdjustDescriptionHeightToFit();
+				propertyGrid2.EnableCategoriesIfUsed();
 			}
 			else
 			{
@@ -118,6 +119,7 @@ namespace BizHawk.Client.EmuHawk
 			{
 				propertyGrid2.SelectedObject = _ss;
 				propertyGrid2.AdjustDescriptionHeightToFit();
+				propertyGrid2.EnableCategoriesIfUsed();
 			}
 			else
 			{
