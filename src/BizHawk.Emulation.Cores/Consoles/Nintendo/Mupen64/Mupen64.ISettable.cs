@@ -186,6 +186,11 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 		public int InterpolationMode { get; set; }
 
 		// video-GLideN64 settings
+		[Description("Enable threaded video backend.")]
+		[DefaultValue(false)]
+		[Category("Video Plugin: GLideN64")]
+		public bool ThreadedVideo { get; set; }
+
 		[Description("Frame buffer size is the factor of N64 native resolution.")]
 		[DefaultValue(0)]
 		[Category("Video Plugin: GLideN64")]
