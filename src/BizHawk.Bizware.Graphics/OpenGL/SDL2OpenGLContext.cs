@@ -205,7 +205,7 @@ namespace BizHawk.Bizware.Graphics
 			SetAttributes(majorVersion, minorVersion, coreProfile, shareContext: true);
 
 			_sdlWindow = SDL_CreateWindow(null, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
-				SDL_WindowFlags.SDL_WINDOW_HIDDEN | SDL_WindowFlags.SDL_WINDOW_OPENGL);
+				SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_HIDDEN);
 			if (_sdlWindow == IntPtr.Zero)
 			{
 				throw new($"Could not create SDL Window! SDL Error: {SDL_GetError()}");

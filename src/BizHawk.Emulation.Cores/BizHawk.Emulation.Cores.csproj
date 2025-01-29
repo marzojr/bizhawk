@@ -54,6 +54,7 @@
 		<Compile Update="Consoles/Nintendo/GBHawkLink4x/GBHawkLink4x.*.cs" DependentUpon="GBHawkLink4x.cs" />
 		<Compile Update="Consoles/Nintendo/Ares64/Ares64.*.cs" DependentUpon="Ares64.cs" />
 		<Compile Update="Consoles/Nintendo/BSNES/BsnesCore.*.cs" DependentUpon="BsnesCore.cs" />
+		<Compile Update="Consoles/Nintendo/Mupen64/Mupen64.*.cs" DependentUpon="Mupen64.cs" />
 		<Compile Update="Consoles/Nintendo/N64/N64.*.cs" DependentUpon="N64.cs" />
 		<Compile Update="Consoles/Nintendo/NES/Boards/AxROM.cs" SubType="Code" />
 		<Compile Update="Consoles/Nintendo/NES/Boards/CPROM.cs" SubType="Code" />
@@ -75,8 +76,5 @@
 		<Compile Update="Consoles/Sony/PSX/Octoshock.cs" SubType="Code" />
 		<Compile Update="Consoles/Sony/PSX/Octoshock.*.cs" DependentUpon="Octoshock.cs" />
 		<Compile Update="Consoles/WonderSwan/WonderSwan.*.cs" DependentUpon="WonderSwan.cs" />
-		<Compile Update="Consoles\Nintendo\Mupen64\Mupen64.*.cs">
-		  <DependentUpon>Mupen64.cs</DependentUpon>
-		</Compile>
 	</ItemGroup>
 </Project>
