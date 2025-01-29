@@ -19,6 +19,9 @@ $(TARGET): $(SRCS)
 
 install: $(TARGET)
 	cp $(TARGET) ../../../Assets/dll/
+ifneq ($(wildcard ../../../output/dll/.),)
+	cp $(TARGET) ../../../output/dll/
+endif
 
 clean:
 	rm $(TARGET)

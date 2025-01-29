@@ -25,7 +25,7 @@
 #define __PLUGIN_H__
 
 #define M64P_PLUGIN_PROTOTYPES 1
-#include "m64p_plugin.h"
+#include <api/m64p_plugin.h>
 #include <stdbool.h>
 
 // Some stuff from n-rage plugin
