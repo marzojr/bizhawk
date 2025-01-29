@@ -534,7 +534,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.NDS
 
 			if (_glContext != null)
 			{
-				_openGLProvider.ReleaseGLContext(_glContext);
+				_openGLProvider.ReleaseContext(_glContext);
 				_glContext = null;
 			}
 

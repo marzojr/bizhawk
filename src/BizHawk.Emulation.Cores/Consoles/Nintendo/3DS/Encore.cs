@@ -179,7 +179,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.N3DS
 		private void ReleaseGLContextCallback(IntPtr context)
 		{
 			var handle = GCHandle.FromIntPtr(context);
-			_openGLProvider.ReleaseGLContext(handle.Target);
+			_openGLProvider.ReleaseContext(handle.Target);
 			_glContexts.Remove(handle.Target);
 			handle.Free();
 		}

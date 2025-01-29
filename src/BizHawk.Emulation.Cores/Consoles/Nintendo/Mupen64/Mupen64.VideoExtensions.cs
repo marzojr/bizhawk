@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BizHawk.Common;
 using SDL2;
 using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64Api;
 
@@ -50,14 +51,21 @@ public partial class Mupen64
 
 	private m64p_error VidExt_SetVideoMode(int width, int height, int bitsPerPixel, m64p_video_mode screenMode, m64p_video_flags flags)
 	{
-		isRenderThread = true;
+		_isRenderThread = true;
 		Console.WriteLine($"Attempted to SetVideoMode, width {width}, height {height}, bpp {bitsPerPixel}, screenMode {screenMode}, flags {flags}");
-		if (_glContext is not null)
-			_openGLProvider.ReleaseGLContext(_glContext);
-		if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, out int major)) major = 2;
-		if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, out int minor)) minor = 1;
-		bool coreProfile = GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, out int profile) && (SDL.SDL_GLprofile)profile == SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE;
-		_glContext = _openGLProvider.RequestGLContext(major, minor, coreProfile, width, height, _renderMode is m64p_render_mode.VULKAN);
+		if (_sdlContext is not null)
+			_openGLProvider.ReleaseContext(_sdlContext);
+		if (_renderMode is m64p_render_mode.VULKAN)
+		{
+			_sdlContext = _openGLProvider.RequestVulkanContext(width, height);
+		}
+		else
+		{
+			if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, out int major)) major = 2;
+			if (!GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, out int minor)) minor = 1;
+			bool coreProfile = GLAttributes.TryGetValue(SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, out int profile) && (SDL.SDL_GLprofile)profile == SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE;
+			_sdlContext = _openGLProvider.RequestGLContext(major, minor, coreProfile, width, height);
+		}
 
 		BufferWidth = width;
 		BufferHeight = height;
@@ -104,16 +112,16 @@ public partial class Mupen64
 	}
 
 	[ThreadStatic] 
-	private static bool isRenderThread;
+	private static bool _isRenderThread;
 
 	private m64p_error VidExt_GL_SwapBuffers()
 	{
 		if (_renderMode != m64p_render_mode.OPENGL) return m64p_error.INVALID_STATE;
 
-		if (isRenderThread)
-			_openGLProvider.SwapBuffers(_glContext);
+		if (_isRenderThread)
+			_openGLProvider.SwapBuffers(_sdlContext);
 
-		Console.WriteLine("SwapBuffers was called.");
+		Util.DebugWriteLine("SwapBuffers was called.");
 
 		return m64p_error.SUCCESS;
 	}
@@ -153,7 +161,7 @@ public partial class Mupen64
 			return m64p_error.INVALID_STATE;
 		}
 
-		ulong surfaceID = _openGLProvider.vulkan(_glContext, instance);
+		ulong surfaceID = _openGLProvider.CreateVulkanSurface(_sdlContext, instance);
 
 		surface = (IntPtr) surfaceID;
 

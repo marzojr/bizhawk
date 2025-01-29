@@ -7,11 +7,11 @@ using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64Api;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
-[PortedCore(CoreNames.Mupen64Plus, "", "2.6.0", "https://github.com/mupen64plus/mupen64plus-core", isReleased: false)]
+[PortedCore(CoreNames.Mupen64Plus, "Mupen64 contributors and Mupen64Plus contributors; port by Morilli", "2.6.0", "https://github.com/mupen64plus/mupen64plus-core", isReleased: false)]
 public partial class Mupen64 : IEmulator
 {
 	private readonly IOpenGLProvider _openGLProvider;
-	private object _glContext;
+	private object _sdlContext;
 
 	private readonly Mupen64Api Mupen64Api;
 	private readonly IntPtr Mupen64ApiHandle;
@@ -275,15 +275,15 @@ public partial class Mupen64 : IEmulator
 		Mupen64Api.CoreShutdown();
 		OSTailoredCode.LinkedLibManager.FreeByPtr(Mupen64ApiHandle);
 
-		if (_glContext is not null)
-			_openGLProvider.ReleaseGLContext(_glContext);
+		if (_sdlContext is not null)
+			_openGLProvider.ReleaseContext(_sdlContext);
 	}
 
 	private bool _hasPaused;
 	private readonly StateCallback _stateCallback;
 	private void StateChanged(IntPtr context2, m64p_core_param paramChanged, int newValue)
 	{
-		Console.WriteLine($"State changed! Param {paramChanged}, new value {newValue}");
+		Util.DebugWriteLine($"State changed! Param {paramChanged}, new value {newValue}");
 
 		if (paramChanged == m64p_core_param.EMU_STATE)
 		{
