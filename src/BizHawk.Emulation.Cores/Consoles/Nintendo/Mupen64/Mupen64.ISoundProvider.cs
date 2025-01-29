@@ -32,7 +32,6 @@ public partial class Mupen64
 
 		if (audioBufferSize > 0)
 		{
-			Console.WriteLine($"reading and enqueuing {audioBufferSize} samples");
 			AudioPluginApi.ReadAudioBuffer(_audioBuffer);
 			if (renderSound)
 				_resampler.EnqueueSamples(_audioBuffer, audioBufferSize / 2);
