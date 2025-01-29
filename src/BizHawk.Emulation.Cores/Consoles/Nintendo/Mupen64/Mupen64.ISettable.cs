@@ -47,7 +47,7 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 		Parallel,
 		[Display(Name = "cxd4")]
 		Cxd4,
-		[Display(Name = "HLE")]
+		[Display(Name = "hle")]
 		Hle,
 	}
 
@@ -76,14 +76,14 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 	[CoreSettings]
 	public record class SyncSettings
 	{
-		[Description("Video plugin to be used. paraLLEl and angrylion-plus will not work with the HLE rsp plugin")]
+		[Description("Video plugin to be used. paraLLEl and angrylion-plus will not work with the hle rsp plugin")]
 		[DefaultValue(N64VideoPlugin.Parallel)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		[Category("General")]
 		public N64VideoPlugin VideoPlugin { get; set; }
 
 		[DisplayName("Rsp Plugin name")]
-		[Description("Rsp plugin to be used. HLE will not work with the paraLLEl and angrylion-plus video plugins")]
+		[Description("Rsp plugin to be used. hle will not work with the paraLLEl and angrylion-plus video plugins")]
 		[DefaultValue(N64RspPlugin.Parallel)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		[Category("General")]
