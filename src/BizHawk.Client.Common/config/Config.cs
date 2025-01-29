@@ -44,8 +44,6 @@ namespace BizHawk.Client.Common
 				[ CoreNames.QuickNes, CoreNames.NesHawk, CoreNames.SubNesHawk ]),
 			([ VSystemID.Raw.PCE, VSystemID.Raw.PCECD, VSystemID.Raw.SGX, VSystemID.Raw.SGXCD ],
 				[ CoreNames.TurboNyma, CoreNames.HyperNyma, CoreNames.PceHawk ]),
-			([ VSystemID.Raw.PSX ],
-				[ CoreNames.Nymashock, CoreNames.Octoshock ]),
 			([ VSystemID.Raw.SMS, VSystemID.Raw.GG, VSystemID.Raw.SG ],
 				[ CoreNames.Gpgx, CoreNames.SMSHawk ]),
 			([ VSystemID.Raw.SNES ],

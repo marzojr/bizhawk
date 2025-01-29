@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
@@ -693,47 +692,6 @@ namespace BizHawk.Client.EmuHawk
 
 
 
-		private DialogResult OpenOctoshockGamepadSettingsDialog(ISettingsAdapter settable)
-		{
-			using PSXControllerConfig form = new(settable);
-			return this.ShowDialogWithTempMute(form);
-		}
-
-		private void PsxControllerSettingsMenuItem_Click(object sender, EventArgs e)
-			=> _ = Emulator switch
-			{
-				Octoshock => OpenOctoshockGamepadSettingsDialog(GetSettingsAdapterForLoadedCore<Octoshock>()),
-				_ => DialogResult.None
-			};
-
-		private DialogResult OpenOctoshockSettingsDialog(ISettingsAdapter settable, OctoshockDll.eVidStandard vidStandard, Size vidSize)
-			=> PSXOptions.DoSettingsDialog(Config, this, settable, vidStandard, vidSize);
-
-		private void PsxOptionsMenuItem_Click(object sender, EventArgs e)
-		{
-			var result = Emulator switch
-			{
-				Octoshock octoshock => OpenOctoshockSettingsDialog(GetSettingsAdapterForLoadedCore<Octoshock>(), octoshock.SystemVidStandard, octoshock.CurrentVideoSize),
-				_ => DialogResult.None
-			};
-			if (result.IsOk()) FrameBufferResized();
-		}
-
-		private void PsxDiscControlsMenuItem_Click(object sender, EventArgs e)
-			=> Tools.Load<VirtualpadTool>().ScrollToPadSchema("Console");
-
-		private void PsxHashDiscsMenuItem_Click(object sender, EventArgs e)
-		{
-			if (Emulator is not IRedumpDiscChecksumInfo psx) return;
-			using PSXHashDiscs form = new() { _psx = psx };
-			this.ShowDialogWithTempMute(form);
-		}
-
-		private void PsxSubMenu_DropDownOpened(object sender, EventArgs e)
-			=> PSXControllerSettingsMenuItem.Enabled = MovieSession.Movie.NotActive();
-
-
-
 		private DialogResult OpenOldBSNESGamepadSettingsDialog(ISettingsAdapter settable)
 		{
 			using SNESControllerSettings form = new(settable);
@@ -1310,22 +1268,6 @@ namespace BizHawk.Client.EmuHawk
 			// O2Hawk
 			items.Add(CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.O2Hawk, CreateGenericCoreConfigItem<O2Hawk>(CoreNames.O2Hawk)));
 
-			// Octoshock
-			var octoshockGamepadSettingsItem = CreateSettingsItem("Controller / Memcard Settings...", (_, _) => OpenOctoshockGamepadSettingsDialog(GetSettingsAdapterFor<Octoshock>()));
-			var octoshockSettingsItem = CreateSettingsItem("Options...", PsxOptionsMenuItem_Click);
-			// using init buffer sizes here (in practice, they don't matter here, but might as well)
-			var octoshockNTSCSettingsItem = CreateSettingsItem("Options (as NTSC)...", (_, _) => OpenOctoshockSettingsDialog(GetSettingsAdapterFor<Octoshock>(), OctoshockDll.eVidStandard.NTSC, new(280, 240)));
-			var octoshockPALSettingsItem = CreateSettingsItem("Options (as PAL)...", (_, _) => OpenOctoshockSettingsDialog(GetSettingsAdapterFor<Octoshock>(), OctoshockDll.eVidStandard.PAL, new(280, 288)));
-			var octoshockSubmenu = CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Octoshock, octoshockGamepadSettingsItem, octoshockSettingsItem, octoshockNTSCSettingsItem, octoshockPALSettingsItem);
-			octoshockSubmenu.DropDownOpened += (_, _) =>
-			{
-				var loadedCoreIsOctoshock = Emulator is Octoshock;
-				octoshockGamepadSettingsItem.Enabled = !loadedCoreIsOctoshock || MovieSession.Movie.NotActive();
-				octoshockSettingsItem.Visible = loadedCoreIsOctoshock;
-				octoshockNTSCSettingsItem.Visible = octoshockPALSettingsItem.Visible = !loadedCoreIsOctoshock;
-			};
-			items.Add(octoshockSubmenu);
-
 			// PCEHawk
 			items.Add(CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.PceHawk, CreateGenericCoreConfigItem<PCEngine>(CoreNames.PceHawk)));
 
@@ -1438,7 +1380,6 @@ namespace BizHawk.Client.EmuHawk
 			GBSubMenu.Visible = false;
 			A7800SubMenu.Visible = false;
 			SNESSubMenu.Visible = false;
-			PSXSubMenu.Visible = false;
 			ColecoSubMenu.Visible = false;
 			N64SubMenu.Visible = false;
 			Ares64SubMenu.Visible = false;
@@ -1480,9 +1421,6 @@ namespace BizHawk.Client.EmuHawk
 					break;
 				case VSystemID.Raw.NES:
 					NESSubMenu.Visible = true;
-					break;
-				case VSystemID.Raw.PSX when Emulator is Octoshock:
-					PSXSubMenu.Visible = true;
 					break;
 				case VSystemID.Raw.TI83:
 					TI83SubMenu.Visible = true;

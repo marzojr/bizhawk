@@ -72,8 +72,6 @@
 		<Compile Update="Consoles/Sega/GGHawkLink/GGHawkLink.*.cs" DependentUpon="GGHawkLink.cs" />
 		<Compile Update="Consoles/Sega/gpgx64/GPGX.*.cs" DependentUpon="GPGX.cs" />
 		<Compile Update="Consoles/Sega/SMS/SMS.*.cs" DependentUpon="SMS.cs" />
-		<Compile Update="Consoles/Sony/PSX/Octoshock.cs" SubType="Code" />
-		<Compile Update="Consoles/Sony/PSX/Octoshock.*.cs" DependentUpon="Octoshock.cs" />
 		<Compile Update="Consoles/WonderSwan/WonderSwan.*.cs" DependentUpon="WonderSwan.cs" />
 	</ItemGroup>
 </Project>

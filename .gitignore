@@ -35,10 +35,6 @@ UpgradeLog.htm
 .hgignore
 .hgtags
 
-/psx/octoshock/bizhawk/Win32
-/psx/octoshock/bizhawk/x64
-/psx/octoshock/bizhawk/*.opendb
-
 **/StyleCop.Cache
 /waterbox/**/*.wbx
 /waterbox/**/*.wbx.in

@@ -13,38 +13,7 @@ namespace BizHawk.Emulation.Cores
 	{
 		public IEnumerable<PadSchema> GetPadSchemas(IEmulator core, Action<string> showMessageBox)
 		{
-			if (core is Octoshock octo)
-			{
-				var settings = octo.GetSyncSettings();
-
-				var fioConfig = settings.FIOConfig.ToLogical();
-				for (int i = 0; i < fioConfig.DevicesPlayer.Length; i++)
-				{
-					if (fioConfig.DevicesPlayer[i] == OctoshockDll.ePeripheralType.None)
-					{
-						continue;
-					}
-
-					int pNum = i + 1;
-					if (fioConfig.DevicesPlayer[i] == OctoshockDll.ePeripheralType.DualAnalog || fioConfig.DevicesPlayer[i] == OctoshockDll.ePeripheralType.DualShock)
-					{
-						yield return DualShockController(pNum);
-					}
-
-					if (fioConfig.DevicesPlayer[i] == OctoshockDll.ePeripheralType.Pad)
-					{
-						yield return GamePadController(pNum);
-					}
-
-					if (fioConfig.DevicesPlayer[i] == OctoshockDll.ePeripheralType.NegCon)
-					{
-						yield return NeGcon(pNum);
-					}
-				}
-
-				yield return ConsoleButtons(octo);
-			}
-			else if (core is Nymashock nyma)
+			if (core is Nymashock nyma)
 			{
 				foreach (var result in nyma.ActualPortData)
 				{
@@ -67,45 +36,6 @@ namespace BizHawk.Emulation.Cores
 
 				yield return NymaConsoleButtons(nyma.ControllerDefinition.Axes["Disk Index"]);
 			}
-		}
-
-		private static PadSchema DualShockController(int controller)
-		{
-			var stickRanges = new[] { new AxisSpec(0.RangeTo(255), 128), new AxisSpec(0.RangeTo(255), 128, isReversed: true) };
-			return new PadSchema
-			{
-				Size = new Size(500, 290),
-				DisplayName = $"DualShock Player{controller}",
-				Buttons = new PadSchemaControl[]
-				{
-					ButtonSchema.Up(32, 50, controller),
-					ButtonSchema.Down(32, 71, controller),
-					ButtonSchema.Left(11, 62, controller),
-					ButtonSchema.Right(53, 62, controller),
-					new ButtonSchema(3, 32, controller, "L1"),
-					new ButtonSchema(191, 32, controller, "R1"),
-					new ButtonSchema(3, 10, controller, "L2"),
-					new ButtonSchema(191, 10, controller, "R2"),
-					new ButtonSchema(72, 90, controller, "L3"),
-					new ButtonSchema(130, 90, controller, "R3"),
-					new ButtonSchema(148, 62, controller, "Square") { Icon = VGamepadButtonImage.Square },
-					new ButtonSchema(169, 50, controller, "Triangle") { Icon = VGamepadButtonImage.Triangle },
-					new ButtonSchema(190, 62, controller, "Circle") { Icon = VGamepadButtonImage.Circle },
-					new ButtonSchema(169, 71, controller, "Cross") { Icon = VGamepadButtonImage.Cross },
-					new ButtonSchema(112, 62, controller, "Start", "S"),
-					new ButtonSchema(90, 62, controller, "Select", "s"),
-					new AnalogSchema(3, 120, $"P{controller} LStick X")
-					{
-						Spec = stickRanges[0],
-						SecondarySpec = stickRanges[1]
-					},
-					new AnalogSchema(260, 120, $"P{controller} RStick X")
-					{
-						Spec = stickRanges[0],
-						SecondarySpec = stickRanges[1]
-					}
-				}
-			};
 		}
 
 		private static PadSchema NymaDualShockController(int controller)
@@ -145,32 +75,6 @@ namespace BizHawk.Emulation.Cores
 						Spec = stickRanges[0],
 						SecondarySpec = stickRanges[1]
 					}
-				}
-			};
-		}
-
-		private static PadSchema GamePadController(int controller)
-		{
-			return new PadSchema
-			{
-				Size = new Size(240, 115),
-				DisplayName = $"Gamepad Player{controller}",
-				Buttons = new[]
-				{
-					ButtonSchema.Up(37, 55, controller),
-					ButtonSchema.Down(37, 76, controller),
-					ButtonSchema.Left(16, 67, controller),
-					ButtonSchema.Right(58, 67, controller),
-					new ButtonSchema(8, 37, controller, "L1"),
-					new ButtonSchema(196, 37, controller, "R1"),
-					new ButtonSchema(8, 15, controller, "L2"),
-					new ButtonSchema(196, 15, controller, "R2"),
-					new ButtonSchema(153, 67, controller, "Square") { Icon = VGamepadButtonImage.Square },
-					new ButtonSchema(174, 55, controller, "Triangle") { Icon = VGamepadButtonImage.Triangle },
-					new ButtonSchema(195, 67, controller, "Circle") { Icon = VGamepadButtonImage.Circle },
-					new ButtonSchema(174, 76, controller, "Cross") { Icon = VGamepadButtonImage.Cross },
-					new ButtonSchema(112, 67, controller, "Start", "S"),
-					new ButtonSchema(90, 67, controller, "Select", "s")
 				}
 			};
 		}
@@ -410,19 +314,6 @@ namespace BizHawk.Emulation.Cores
 					new ButtonSchema(174, 76, controller, "X") { Icon = VGamepadButtonImage.Cross },
 					new ButtonSchema(112, 67, controller, "Start", "S"),
 					new ButtonSchema(90, 67, controller, "Select", "s")
-				}
-			};
-		}
-
-		private static PadSchema ConsoleButtons(Octoshock octo)
-		{
-			return new ConsoleSchema
-			{
-				Size = new Size(310, 400),
-				Buttons = new PadSchemaControl[]
-				{
-					new ButtonSchema(10, 15, "Reset"),
-					new DiscManagerSchema(10, 54, new Size(300, 300), octo, new[] { "Open", "Close", "Disc Select" })
 				}
 			};
 		}

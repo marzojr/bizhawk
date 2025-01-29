@@ -15,7 +15,6 @@ using BizHawk.Common.PathExtensions;
 using BizHawk.Emulation.Common;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.N3DS;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.NDS;
-using BizHawk.Emulation.Cores.Sony.PSX;
 
 namespace BizHawk.Client.Common
 {
@@ -220,16 +219,6 @@ namespace BizHawk.Client.Common
 				padding.Top += GameExtraPadding.Top;
 				padding.Right += GameExtraPadding.Right;
 				padding.Bottom += GameExtraPadding.Bottom;
-			}
-
-			// an experimental feature
-			if (source && GlobalEmulator is Octoshock psx)
-			{
-				var corePadding = psx.VideoProvider_Padding;
-				padding.Left += corePadding.Width / 2;
-				padding.Right += corePadding.Width - corePadding.Width / 2;
-				padding.Top += corePadding.Height / 2;
-				padding.Bottom += corePadding.Height - corePadding.Height / 2;
 			}
 
 			// apply user's crop selections as a negative padding (believe it or not, this largely works)
