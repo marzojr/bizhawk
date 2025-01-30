@@ -82,7 +82,6 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 		[Category("General")]
 		public N64VideoPlugin VideoPlugin { get; set; }
 
-		[DisplayName("Rsp Plugin name")]
 		[Description("Rsp plugin to be used. hle will not work with the paraLLEl and angrylion-plus video plugins")]
 		[DefaultValue(N64RspPlugin.Hle)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
