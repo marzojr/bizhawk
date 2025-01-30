@@ -28,6 +28,7 @@ using BizHawk.Emulation.Cores.Consoles.NEC.PCE;
 using BizHawk.Emulation.Cores.Consoles.NEC.PCFX;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.Ares64;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.Faust;
+using BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.N3DS;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.NDS;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.QuickNES;
@@ -1250,12 +1251,14 @@ namespace BizHawk.Client.EmuHawk
 			items.Add(CreateCoreSubmenu(VSystemCategory.PCs, CoreNames.MSXHawk, CreateGenericCoreConfigItem<MSX>(CoreNames.MSXHawk)));
 
 			// Mupen64Plus
+			items.Add(CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Mupen64Plus, CreateGenericCoreConfigItem<Mupen64>(CoreNames.Mupen64Plus)));
+
 			var mupen64PlusGraphicsSettingsItem = CreateSettingsItem("Video Plugins...", N64PluginSettingsMenuItem_Click);
 			var mupen64PlusGamepadSettingsItem = CreateSettingsItem("Controller Settings...", (_, _) => OpenMupen64PlusGamepadSettingsDialog(GetSettingsAdapterFor<N64>()));
 			var mupen64PlusAnalogConstraintItem = CreateSettingsItem("Circular Analog Range", N64CircularAnalogRangeMenuItem_Click);
 			var mupen64PlusMupenStyleLagFramesItem = CreateSettingsItem("Mupen Style Lag Frames", (sender, _) => Mupen64PlusSetMupenStyleLag(!((ToolStripMenuItem) sender).Checked, GetSettingsAdapterFor<N64>()));
 			var mupen64PlusUseExpansionSlotItem = CreateSettingsItem("Use Expansion Slot", (sender, _) => Mupen64PlusSetUseExpansionSlot(!((ToolStripMenuItem) sender).Checked, GetSettingsAdapterFor<N64>()));
-			var mupen64PlusSubmenu = CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Mupen64Plus, mupen64PlusGraphicsSettingsItem, mupen64PlusGamepadSettingsItem, mupen64PlusAnalogConstraintItem, mupen64PlusMupenStyleLagFramesItem, mupen64PlusUseExpansionSlotItem);
+			var mupen64PlusSubmenu = CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Mupen64Plus + "b", mupen64PlusGraphicsSettingsItem, mupen64PlusGamepadSettingsItem, mupen64PlusAnalogConstraintItem, mupen64PlusMupenStyleLagFramesItem, mupen64PlusUseExpansionSlotItem);
 			mupen64PlusSubmenu.DropDownOpened += (_, _) =>
 			{
 				var settable = GetSettingsAdapterFor<N64>();

@@ -77,14 +77,14 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 	public record class SyncSettings
 	{
 		[Description("Video plugin to be used. paraLLEl and angrylion-plus will not work with the hle rsp plugin")]
-		[DefaultValue(N64VideoPlugin.Parallel)]
+		[DefaultValue(N64VideoPlugin.GlideN64)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		[Category("General")]
 		public N64VideoPlugin VideoPlugin { get; set; }
 
 		[DisplayName("Rsp Plugin name")]
 		[Description("Rsp plugin to be used. hle will not work with the paraLLEl and angrylion-plus video plugins")]
-		[DefaultValue(N64RspPlugin.Parallel)]
+		[DefaultValue(N64RspPlugin.Hle)]
 		[TypeConverter(typeof(DescribableEnumConverter))]
 		[Category("General")]
 		public N64RspPlugin RspPlugin { get; set; }
