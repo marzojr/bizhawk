@@ -51,25 +51,25 @@ public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 		Hle,
 	}
 
-	public string RspPluginFileName(N64RspPlugin rspPlugin)
+	private static string RspPluginFileName(N64RspPlugin rspPlugin)
 	{
 		return rspPlugin switch
 		{
 			N64RspPlugin.Parallel => "parallel",
 			N64RspPlugin.Cxd4 => "cxd4-sse2",
 			N64RspPlugin.Hle => "hle",
-			_ => "parallel",
+			_ => "hle",
 		};
 	}
 
-	public string VideoPluginFileName(N64VideoPlugin videoPlugin)
+	private static string VideoPluginFileName(N64VideoPlugin videoPlugin)
 	{
 		return videoPlugin switch
 		{
 			N64VideoPlugin.Parallel => "parallel",
 			N64VideoPlugin.GlideN64 => "GLideN64",
 			N64VideoPlugin.AngrylionPlus => "angrylion-plus",
-			_ => "parallel",
+			_ => "GLideN64",
 		};
 	}
 
