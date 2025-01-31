@@ -313,12 +313,6 @@ public abstract class Mupen64Api
 		fixed (byte* arrayPointer = array)
 			return CoreDoCommand(command, arrayLength, (IntPtr)arrayPointer);
 	}
-	public unsafe m64p_error CoreDoCommand(m64p_command command, int paramInt, string paramString)
-	{
-		byte[] bytes = Encoding.UTF8.GetBytes(paramString);
-		fixed (byte* bytePointer = bytes)
-			return CoreDoCommand(command, paramInt, (IntPtr)bytePointer);
-	}
 	public unsafe m64p_error CoreStateSet(m64p_core_param parameter, int value)
 	{
 		int* valuePointer = &value;

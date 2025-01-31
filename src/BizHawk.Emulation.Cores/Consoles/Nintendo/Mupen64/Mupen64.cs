@@ -30,8 +30,14 @@ public partial class Mupen64 : IEmulator
 
 	private readonly m64p_video_extension_functions_managed _videoExtensionFunctionsManaged;
 	private readonly Thread _coreThread;
+	private bool _hasPaused;
 	private IController _controller;
 	private bool _disposed;
+
+	private readonly StateCallback _stateCallback;
+	private readonly DebugCallback _debugCallback;
+	private readonly Mupen64InputPluginApi.InputCallback _inputCallback;
+	private readonly Mupen64InputPluginApi.RumbleCallback _rumbleCallback;
 
 	private static void DebugCallback(IntPtr context, m64p_msg_level level, string message)
 	{
@@ -45,10 +51,6 @@ public partial class Mupen64 : IEmulator
 			throw new Exception($"{errorMessage}: {returnValue}");
 		}
 	}
-
-	private readonly DebugCallback _debugCallback;
-	private readonly Mupen64InputPluginApi.InputCallback _inputCallback;
-	private readonly Mupen64InputPluginApi.RumbleCallback _rumbleCallback;
 
 	[CoreConstructor(VSystemID.Raw.N64)]
 	public Mupen64(CoreLoadParameters<object, SyncSettings> loadParameters)
@@ -72,9 +74,9 @@ public partial class Mupen64 : IEmulator
 
 		_stateCallback = StateChanged;
 		_debugCallback = DebugCallback;
-		_traceCallback = TraceCallback;
 		_debuggerInitCallback = DebuggerInitCallback;
-		Mupen64Api.DebugSetCallbacks(_debuggerInitCallback, _traceCallback, null);
+		_debuggerUpdateCallback = DebuggerUpdateCallback;
+		Mupen64Api.DebugSetCallbacks(_debuggerInitCallback, _debuggerUpdateCallback, null);
 
 		ThrowIfError(Mupen64Api.CoreStartup(FRONTEND_API_VERSION, null, null, IntPtr.Zero, _debugCallback, IntPtr.Zero, _stateCallback), "CoreStartup failed");
 
@@ -276,8 +278,14 @@ public partial class Mupen64 : IEmulator
 			_openGLProvider.ReleaseContext(_sdlContext);
 	}
 
-	private bool _hasPaused;
-	private readonly StateCallback _stateCallback;
+	private void RunEmulator() => Mupen64Api.CoreDoCommand(m64p_command.EXECUTE, 0, IntPtr.Zero);
+
+	private static (T Lib, IntPtr NativeHandle) LoadLib<T>(string name) where T : class
+	{
+		var resolver = new DynamicLibraryImportResolver(OSTailoredCode.IsUnixHost ? $"lib{name}.so" : $"{name}.dll", hasLimitedLifetime: false);
+		return (BizInvoker.GetInvoker<T>(resolver, CallingConventionAdapters.Native), resolver.GetHandle());
+	}
+
 	private void StateChanged(IntPtr context2, m64p_core_param paramChanged, int newValue)
 	{
 		Util.DebugWriteLine($"State changed! Param {paramChanged}, new value {newValue}");
@@ -294,14 +302,6 @@ public partial class Mupen64 : IEmulator
 				Mupen64Api.CoreDoCommand(m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
 			}
 		}
-	}
-
-	private void RunEmulator() => Mupen64Api.CoreDoCommand(m64p_command.EXECUTE, 0, IntPtr.Zero);
-
-	private static (T Lib, IntPtr NativeHandle) LoadLib<T>(string name) where T : class
-	{
-		var resolver = new DynamicLibraryImportResolver(OSTailoredCode.IsUnixHost ? $"lib{name}.so" : $"{name}.dll", hasLimitedLifetime: false);
-		return (BizInvoker.GetInvoker<T>(resolver, CallingConventionAdapters.Native), resolver.GetHandle());
 	}
 
 	private Mupen64InputPluginApi.InputState InputCallback(int controller)

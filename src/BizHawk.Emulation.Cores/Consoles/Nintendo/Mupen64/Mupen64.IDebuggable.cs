@@ -9,6 +9,9 @@ public partial class Mupen64 : IDebuggable
 {
 	private readonly MemoryCallbackSystem _memoryCallbacks = new([ "System Bus" ]);
 
+	private readonly Mupen64Api.dbg_frontend_init _debuggerInitCallback;
+	private readonly Mupen64Api.dbg_frontend_update _debuggerUpdateCallback;
+
 	public IDictionary<string, RegisterValue> GetCpuFlagsAndRegisters()
 	{
 		var ret = new Dictionary<string, RegisterValue>();
@@ -124,5 +127,23 @@ public partial class Mupen64 : IDebuggable
 		int breakpointId = Mupen64Api.DebugBreakpointLookup(address, size, flags);
 		Debug.Assert(breakpointId >= 0, "Tried to remove non-existent breakpoint somehow");
 		Mupen64Api.DebugBreakpointCommand(Mupen64Api.m64p_dbg_bkp_command.REMOVE_IDX, (uint)breakpointId);
+	}
+
+	private void DebuggerInitCallback() => Mupen64Api.DebugSetRunState(Mupen64Api.m64p_dbg_runstate.RUNNING);
+
+	private void DebuggerUpdateCallback(uint pc)
+	{
+		if (Sink is not null)
+		{
+			UpdateTrace(pc);
+		}
+		else
+		{
+			Mupen64Api.DebugBreakpointTriggeredBy(out var flags, out uint accessed);
+			uint address = flags.HasFlag(Mupen64Api.m64p_dbg_bkp_flags.EXEC) ? pc : accessed;
+			uint value = flags.HasFlag(Mupen64Api.m64p_dbg_bkp_flags.WRITE) ? 0 : Mupen64Api.DebugMemRead32(address);
+			MemoryCallbacks.CallMemoryCallbacks(address, value, (uint) flags >> 1 << 12, "System Bus");
+			Mupen64Api.DebugSetRunState(Mupen64Api.m64p_dbg_runstate.RUNNING); // breakpoint hits set the debugger run state to PAUSED
+		}
 	}
 }
