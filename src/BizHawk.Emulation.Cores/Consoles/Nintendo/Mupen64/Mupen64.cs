@@ -182,6 +182,9 @@ public partial class Mupen64 : IEmulator
 			serviceProvider.Unregister<IDebuggable>();
 		}
 
+		_memoryCallbacks.CallbackAdded += AddBreakpoint;
+		_memoryCallbacks.CallbackRemoved += RemoveBreakpoint;
+
 		Mupen64Api.CoreStateSet(m64p_core_param.SPEED_LIMITER, 0);
 		_coreThread = new Thread(RunEmulator) {IsBackground = true};
 		_coreThread.Start();
@@ -199,13 +202,12 @@ public partial class Mupen64 : IEmulator
 	{
 		_controller = controller;
 		_render = render;
-		// if a tracer is active (Sink != null), set debug mode to stepping so the trace callback gets called
-		Mupen64Api.DebugSetRunState(Sink is null ? m64p_dbg_runstate.RUNNING : m64p_dbg_runstate.STEPPING);
-		Mupen64Api.DebugStep(); // make sure we aren't stuck in paused debugger state (from stepping); no-op if not stepping
-		// m64p_emu_state retState = 0;
-		// var retStatePointer = &retState;
-		// Mupen64Api.CoreDoCommand(m64p_command.M64CMD_CORE_STATE_QUERY, (int)m64p_core_param.M64CORE_EMU_STATE, (IntPtr)retStatePointer);
-		// Console.WriteLine($"Current state: {retState}");
+		if ((m64p_dbg_runstate)Mupen64Api.DebugGetState(m64p_dbg_state.RUN_STATE) is m64p_dbg_runstate.PAUSED) // this could happen from stepping in IDebuggable
+		{
+			// if a tracer is active (Sink != null), set debug mode to stepping so the trace callback gets called
+			Mupen64Api.DebugSetRunState(Sink is null ? m64p_dbg_runstate.RUNNING : m64p_dbg_runstate.STEPPING);
+			Mupen64Api.DebugStep(); // escape from debugger pause wait
+		}
 
 		if (controller.IsPressed("Reset"))
 		{

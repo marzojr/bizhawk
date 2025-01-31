@@ -175,6 +175,45 @@ public abstract class Mupen64Api
 		VERBOSE
 	}
 
+	public enum m64p_dbg_state
+	{
+      RUN_STATE = 1,
+      PREVIOUS_PC,
+      NUM_BREAKPOINTS,
+      CPU_DYNACORE,
+      CPU_NEXT_INTERRUPT
+    }
+
+	public enum m64p_dbg_bkp_command
+	{
+		ADD_ADDR = 1,
+		ADD_STRUCT,
+		REPLACE,
+		REMOVE_ADDR,
+		REMOVE_IDX,
+		ENABLE,
+		DISABLE,
+		CHECK
+	}
+
+	[Flags]
+	public enum m64p_dbg_bkp_flags
+	{
+		ENABLED = 0x01,
+		READ = 0x02,
+		WRITE = 0x04,
+		EXEC = 0x08,
+		LOG = 0x10 /* Log to the console when this breakpoint hits */
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct m64p_breakpoint
+	{
+		public uint address;
+		public uint endaddr;
+		public m64p_dbg_bkp_flags flags;
+	}
+
 	private const int VidExtFunctions = 17;
 	public delegate m64p_error VidExtFuncInit();
 	public delegate m64p_error VidExtFuncQuit();
@@ -286,6 +325,14 @@ public abstract class Mupen64Api
 		return CoreDoCommand(m64p_command.CORE_STATE_SET, (int)parameter, (IntPtr)valuePointer);
 	}
 
+	public unsafe m64p_error CoreStateQuery(m64p_core_param parameter, out int value)
+	{
+		int outValue = 0;
+		var ret = CoreDoCommand(m64p_command.CORE_STATE_QUERY, (int) parameter, (IntPtr)(&outValue));
+		value = outValue;
+		return ret;
+	}
+
 	[BizImport(CallingConvention.Cdecl, Compatibility = true)]
 	public abstract m64p_error CoreOverrideVidExt(ref m64p_video_extension_functions videoFunctionStruct);
 
@@ -335,10 +382,25 @@ public abstract class Mupen64Api
 	public abstract m64p_error DebugSetRunState(m64p_dbg_runstate runstate);
 
 	[BizImport(CallingConvention.Cdecl)]
+	public abstract int DebugGetState(m64p_dbg_state statenum);
+
+	[BizImport(CallingConvention.Cdecl)]
 	public abstract m64p_error DebugStep();
 
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract void DebugDecodeOp(uint instruction, byte[] op, byte[] args, int pc);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract int DebugBreakpointLookup(uint address, uint size, m64p_dbg_bkp_flags flags);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract void DebugBreakpointTriggeredBy(out m64p_dbg_bkp_flags flags, out uint accessed);
+
+	[BizImport(CallingConvention.Cdecl)]
+	public abstract int DebugBreakpointCommand(m64p_dbg_bkp_command command, uint index, ref m64p_breakpoint bkp);
+
+	public unsafe int DebugBreakpointCommand(m64p_dbg_bkp_command command, uint index)
+		=> DebugBreakpointCommand(command, index, ref *(m64p_breakpoint*)null);
 
 	[BizImport(CallingConvention.Cdecl)]
 	public abstract void SaveSavestate(byte[] buffer);

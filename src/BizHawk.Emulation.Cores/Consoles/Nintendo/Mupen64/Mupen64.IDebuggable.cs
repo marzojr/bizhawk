@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using BizHawk.Emulation.Common;
 
@@ -6,6 +7,8 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
 public partial class Mupen64 : IDebuggable
 {
+	private readonly MemoryCallbackSystem _memoryCallbacks = new([ "System Bus" ]);
+
 	public IDictionary<string, RegisterValue> GetCpuFlagsAndRegisters()
 	{
 		var ret = new Dictionary<string, RegisterValue>();
@@ -54,8 +57,8 @@ public partial class Mupen64 : IDebuggable
 	[FeatureNotImplemented] // could probably be implemented, just a bit annoying
 	public void SetCpuRegister(string register, int value) => throw new NotImplementedException();
 
-	// TODO: currently nonfunctional, need to do something similar to the old implementation probably
-	public IMemoryCallbackSystem MemoryCallbacks { get; } = new MemoryCallbackSystem([ "System Bus" ]);
+	public IMemoryCallbackSystem MemoryCallbacks => _memoryCallbacks;
+
 	public bool CanStep(StepType type)
 	{
 		return type switch
@@ -71,8 +74,11 @@ public partial class Mupen64 : IDebuggable
 		{
 			case StepType.Into:
 				Mupen64Api.DebugSetRunState(Mupen64Api.m64p_dbg_runstate.PAUSED); // no-op when already paused
-				Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero); // no-op when already frame advancing
-				Mupen64Api.DebugStep();
+				Mupen64Api.CoreStateQuery(Mupen64Api.m64p_core_param.EMU_STATE, out int state);
+				if (state == (int)Mupen64Api.m64p_emu_state.PAUSED)
+					Mupen64Api.CoreDoCommand(Mupen64Api.m64p_command.ADVANCE_FRAME, 0, IntPtr.Zero);
+				else
+					Mupen64Api.DebugStep();
 				break;
 
 			default:
@@ -82,4 +88,41 @@ public partial class Mupen64 : IDebuggable
 
 	[FeatureNotImplemented] // can probably implement this for pure interpreter at least, but is it worth it?
 	public long TotalExecutedCycles => throw new NotImplementedException();
+
+	private void AddBreakpoint(IMemoryCallback callback)
+	{
+		uint address = 0;
+		uint endAddress = uint.MaxValue;
+		if (callback.Address.HasValue)
+		{
+			address = endAddress = callback.Address.Value;
+		}
+		var flags = Mupen64Api.m64p_dbg_bkp_flags.ENABLED | (Mupen64Api.m64p_dbg_bkp_flags) (2 << (int) callback.Type); // trust
+		flags |= Mupen64Api.m64p_dbg_bkp_flags.LOG;
+
+		var breakpoint = new Mupen64Api.m64p_breakpoint
+		{
+			address = address,
+			endaddr = endAddress,
+			flags = flags
+		};
+
+		Mupen64Api.DebugBreakpointCommand(Mupen64Api.m64p_dbg_bkp_command.ADD_STRUCT, 0, ref breakpoint);
+	}
+
+	private void RemoveBreakpoint(IMemoryCallback callback)
+	{
+		uint address = 0;
+		uint size = uint.MaxValue;
+		if (callback.Address.HasValue)
+		{
+			address = callback.Address.Value;
+			size = 1;
+		}
+		var flags = Mupen64Api.m64p_dbg_bkp_flags.ENABLED | (Mupen64Api.m64p_dbg_bkp_flags) (2 << (int) callback.Type); // trust
+
+		int breakpointId = Mupen64Api.DebugBreakpointLookup(address, size, flags);
+		Debug.Assert(breakpointId >= 0, "Tried to remove non-existent breakpoint somehow");
+		Mupen64Api.DebugBreakpointCommand(Mupen64Api.m64p_dbg_bkp_command.REMOVE_IDX, (uint)breakpointId);
+	}
 }
