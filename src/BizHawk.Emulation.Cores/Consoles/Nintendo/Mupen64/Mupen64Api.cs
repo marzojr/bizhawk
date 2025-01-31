@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using BizHawk.BizInvoke;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;

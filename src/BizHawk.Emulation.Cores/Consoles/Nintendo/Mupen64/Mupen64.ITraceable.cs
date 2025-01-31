@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
-using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64Api.m64p_dbg_runstate;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
@@ -37,7 +36,7 @@ public partial class Mupen64 : ITraceable
 		set
 		{
 			_sink = value;
-			Mupen64Api.DebugSetRunState(_sink is null ? RUNNING : STEPPING);
+			Mupen64Api.DebugSetRunState(_sink is null ? Mupen64Api.m64p_dbg_runstate.RUNNING : Mupen64Api.m64p_dbg_runstate.STEPPING);
 		}
 	}
 }
