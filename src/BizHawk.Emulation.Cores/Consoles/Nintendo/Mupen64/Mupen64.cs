@@ -246,7 +246,6 @@ public partial class Mupen64 : IEmulator
 		if (_disposed) return;
 		_disposed = true;
 
-		Console.WriteLine("entering dispose...");
 		Mupen64Api.CoreDoCommand(m64p_command.STOP, 0, IntPtr.Zero);
 		// don't use Thread.Join, see #3220
 		while (_coreThread.IsAlive)

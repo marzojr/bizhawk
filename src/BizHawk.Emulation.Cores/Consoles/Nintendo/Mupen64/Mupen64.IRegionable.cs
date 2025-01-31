@@ -4,7 +4,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
 public partial class Mupen64 : IRegionable
 {
-	private DisplayType _region;
+	private readonly DisplayType _region;
 
 	public DisplayType Region
 	{

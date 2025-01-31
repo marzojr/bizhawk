@@ -7,7 +7,7 @@ using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64.N64Contro
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
-public class Mupen64Controller
+public static class Mupen64Controller
 {
 	public static readonly string[] BoolButtons =
 	[
