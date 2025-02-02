@@ -14,7 +14,7 @@ Jump to:
 	- [iso-parser](#iso-parser)
 	- [LibBizAbiAdapter](#libbizabiadapter)
 	- [LibBizHash](#libbizhash)
-	- [libmupen64plus](#libmupen64plus)
+	- [mupen64plus](#mupen64plus)
 	- [librcheevos](#librcheevos)
 	- [LibretroBridge](#libretrobridge)
 	- [Mednadisc](#mednadisc)
@@ -188,7 +188,7 @@ Uses C.
 
 
 
-## libmupen64plus
+## mupen64plus
 > The unmanaged side of the Mupen64Plus core and its bundled plugins.
 
 These use C/C++.

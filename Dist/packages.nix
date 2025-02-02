@@ -149,7 +149,7 @@
 			''(
 				cd Assets/dll;
 				rm -f "lua54.dll" \
-					"mupen64plus-audio-bkm.dll" "mupen64plus-input-bkm.dll" "mupen64plus-rsp-cxd4-sse2.dll" "mupen64plus-rsp-hle.dll" "mupen64plus-video-angrylion-rdp.dll" "mupen64plus-video-glide64.dll" "mupen64plus-video-glide64mk2.dll" "mupen64plus-video-GLideN64.dll" "mupen64plus-video-rice.dll" "mupen64plus.dll" "octoshock.dll" \
+					"mupen64plus-audio-bkm.dll" "mupen64plus-input-bkm.dll" "mupen64plus-rsp-cxd4-sse2.dll" "mupen64plus-rsp-hle.dll" "mupen64plus-rsp-parallel" "mupen64plus-video-angrylion-plus.dll" "mupen64plus-video-GLideN64.dll" "mupen64plus-video-parallel.dll" "mupen64plus.dll" "octoshock.dll" \
 					"bizlynx.dll" "bizswan.dll" "blip_buf.dll" "libbizhash.dll" "libdarm.dll" "libemu83.dll" "libfwunpack.dll" "libgambatte.dll" "libLibretroBridge.dll" "libquicknes.dll" "librcheevos.dll" "libsameboy.dll" "mgba.dll" "MSXHawk.dll" "waterboxhost.dll"
 			)
 			''}rm Assets/EmuHawkMono.sh # replaced w/ launch-scripts.nix
