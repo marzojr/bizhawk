@@ -47,10 +47,6 @@
 			"P2 Pause": "S, J1 B4 X1 B"
 		},
 		"Nintendo 64 Controller": {
-			"P1 A Up": "Up, J1 POV1U",
-			"P1 A Down": "Down, J1 POV1D",
-			"P1 A Left": "Left, J1 POV1L",
-			"P1 A Right": "Right, J1 POV1R",
 			"P1 DPad U": "X1 DpadUp",
 			"P1 DPad D": "X1 DpadDown",
 			"P1 DPad L": "X1 DpadLeft",
