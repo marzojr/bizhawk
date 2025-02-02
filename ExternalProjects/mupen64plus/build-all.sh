@@ -52,7 +52,6 @@ cmake -S mupen64plus-video-GLideN64/src -B build/video-GLideN64 -G Ninja -DCMAKE
 cmake --build build/video-GLideN64
 install_to_bizhawk build/video-GLideN64/ mupen64plus-video-GLideN64
 
-# TODO: this submodule will NOT build a proper working dll, current source used: https://github.com/Rosalie241/RMG/tree/master/Source/3rdParty/mupen64plus-video-parallel
 rm -rf build/video-parallel && mkdir -p build/video-parallel
 cmake -S mupen64plus-video-parallel -B build/video-parallel -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build/video-parallel
