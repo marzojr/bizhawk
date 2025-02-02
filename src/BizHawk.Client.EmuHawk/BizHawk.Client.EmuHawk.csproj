@@ -166,15 +166,6 @@
 		<Compile Update="config/Messages/MessageRow.cs" SubType="UserControl" />
 		<Compile Update="config/Messages/MessageRow.Designer.cs" DependentUpon="MessageRow.cs" />
 		<EmbeddedResource Update="config/Messages/MessageRow.resx" DependentUpon="MessageRow.cs" />
-		<Compile Update="config/N64/N64ControllerSettingControl.cs" SubType="UserControl" />
-		<Compile Update="config/N64/N64ControllerSettingControl.Designer.cs" DependentUpon="N64ControllerSettingControl.cs" />
-		<EmbeddedResource Update="config/N64/N64ControllerSettingControl.resx" DependentUpon="N64ControllerSettingControl.cs" />
-		<Compile Update="config/N64/N64ControllersSetup.cs" SubType="Form" />
-		<Compile Update="config/N64/N64ControllersSetup.Designer.cs" DependentUpon="N64ControllersSetup.cs" />
-		<EmbeddedResource Update="config/N64/N64ControllersSetup.resx" DependentUpon="N64ControllersSetup.cs" />
-		<Compile Update="config/N64/N64VideoPluginconfig.cs" SubType="Form" />
-		<Compile Update="config/N64/N64VideoPluginconfig.Designer.cs" DependentUpon="N64VideoPluginconfig.cs" />
-		<EmbeddedResource Update="config/N64/N64VideoPluginconfig.resx" DependentUpon="N64VideoPluginconfig.cs" />
 		<Compile Update="config/NDS/NDSSettings.cs" SubType="Form" />
 		<Compile Update="config/NDS/NDSSettings.Designer.cs" DependentUpon="NDSSettings.cs" />
 		<EmbeddedResource Update="config/NDS/NDSSettings.resx" DependentUpon="NDSSettings.cs" />

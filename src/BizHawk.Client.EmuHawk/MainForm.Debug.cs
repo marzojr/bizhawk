@@ -67,7 +67,6 @@ namespace BizHawk.Client.EmuHawk
 						DropDownItems =
 						{
 							new DebugVSystemChildItem(N64RomByteswapToolForm.TOOL_NAME, OpenTool<N64RomByteswapToolForm>) { RequiresLoadedRom = false },
-							new DebugVSystemChildItem(N64VideoSettingsFuzzToolForm.TOOL_NAME, OpenTool<N64VideoSettingsFuzzToolForm>),
 						},
 					},
 				},

@@ -192,7 +192,7 @@ namespace BizHawk.Client.Common
 		public ClientProfile SelectedProfile { get; set; } = ClientProfile.Unknown;
 
 		// N64
-		public bool N64UseCircularAnalogConstraint { get; set; } = true;
+		public bool N64UseCircularAnalogConstraint { get; set; } = false; // TODO: hook up in UI
 
 		// Run-Control settings
 		public int FrameProgressDelayMs { get; set; } = 500; // how long until a frame advance hold turns into a frame progress?

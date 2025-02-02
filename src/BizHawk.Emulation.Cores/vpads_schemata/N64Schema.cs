@@ -4,7 +4,7 @@ using System.Drawing;
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
 using BizHawk.Emulation.Cores.Consoles.Nintendo.Ares64;
-using BizHawk.Emulation.Cores.Nintendo.N64;
+using BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 
 namespace BizHawk.Emulation.Cores
 {
@@ -13,16 +13,15 @@ namespace BizHawk.Emulation.Cores
 	{
 		public IEnumerable<PadSchema> GetPadSchemas(IEmulator core, Action<string> showMessageBox)
 		{
-			if (core is N64 n64)
+			if (core is Mupen64 n64)
 			{
 				var ss = n64.GetSyncSettings();
-				for (var i = 0; i < 4; i++)
-				{
-					if (ss.Controllers[i].IsConnected)
-					{
-						yield return StandardController(i + 1);
-					}
-				}
+
+				int i = 1;
+				if (ss.Port1Connected) yield return StandardController(i++);
+				if (ss.Port2Connected) yield return StandardController(i++);
+				if (ss.Port3Connected) yield return StandardController(i++);
+				if (ss.Port4Connected) yield return StandardController(i);
 			}
 			else if (core is Ares64 ares64)
 			{

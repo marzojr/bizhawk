@@ -48,7 +48,6 @@ using BizHawk.Emulation.Cores.Nintendo.GBHawkLink3x;
 using BizHawk.Emulation.Cores.Nintendo.GBHawkLink4x;
 using BizHawk.Emulation.Cores.Nintendo.GBHawkLink;
 using BizHawk.Emulation.Cores.Nintendo.Gameboy;
-using BizHawk.Emulation.Cores.Nintendo.N64;
 using BizHawk.Emulation.Cores.Nintendo.NES;
 using BizHawk.Emulation.Cores.Nintendo.SNES9X;
 using BizHawk.Emulation.Cores.Nintendo.SNES;
@@ -432,82 +431,6 @@ namespace BizHawk.Client.EmuHawk
 		{
 			IntVControllerSettingsMenuItem.Enabled = MovieSession.Movie.NotActive();
 		}
-
-
-
-		private DialogResult OpenMupen64PlusGraphicsSettingsDialog(ISettingsAdapter settable)
-		{
-			using N64VideoPluginConfig form = new(settable);
-			return this.ShowDialogWithTempMute(form);
-		}
-
-		private void N64PluginSettingsMenuItem_Click(object sender, EventArgs e)
-		{
-			if (OpenMupen64PlusGraphicsSettingsDialog(GetSettingsAdapterFor<N64>()).IsOk()
-				&& Emulator is not N64) // If it's loaded, the reboot required message will appear
-			{
-				AddOnScreenMessage("Plugin settings saved");
-			}
-		}
-
-		private DialogResult OpenMupen64PlusGamepadSettingsDialog(ISettingsAdapter settable)
-		{
-			using N64ControllersSetup form = new(settable);
-			return this.ShowDialogWithTempMute(form);
-		}
-
-		private void N64ControllerSettingsMenuItem_Click(object sender, EventArgs e)
-			=> _ = Emulator switch
-			{
-				N64 => OpenMupen64PlusGamepadSettingsDialog(GetSettingsAdapterForLoadedCore<N64>()),
-				_ => DialogResult.None
-			};
-
-		private void N64CircularAnalogRangeMenuItem_Click(object sender, EventArgs e)
-			=> Config.N64UseCircularAnalogConstraint = !Config.N64UseCircularAnalogConstraint;
-
-		private static void Mupen64PlusSetMupenStyleLag(bool newValue, ISettingsAdapter settable)
-		{
-			var s = (N64Settings) settable.GetSettings();
-			s.UseMupenStyleLag = newValue;
-			settable.PutCoreSettings(s);
-		}
-
-		private void MupenStyleLagMenuItem_Click(object sender, EventArgs e)
-			=> Mupen64PlusSetMupenStyleLag(!((ToolStripMenuItem) sender).Checked, GetSettingsAdapterForLoadedCore<N64>());
-
-		private void Mupen64PlusSetUseExpansionSlot(bool newValue, ISettingsAdapter settable)
-		{
-			var ss = (N64SyncSettings) settable.GetSyncSettings();
-			ss.DisableExpansionSlot = !newValue;
-			settable.PutCoreSyncSettings(ss);
-		}
-
-		private void N64ExpansionSlotMenuItem_Click(object sender, EventArgs e)
-		{
-			if (Emulator is not N64) return;
-			Mupen64PlusSetUseExpansionSlot(!((ToolStripMenuItem) sender).Checked, GetSettingsAdapterForLoadedCore<N64>());
-			FlagNeedsReboot();
-		}
-
-		private void N64SubMenu_DropDownOpened(object sender, EventArgs e)
-		{
-			N64PluginSettingsMenuItem.Enabled = N64ControllerSettingsMenuItem.Enabled
-				= N64ExpansionSlotMenuItem.Enabled
-				= MovieSession.Movie.NotActive();
-			N64CircularAnalogRangeMenuItem.Checked = Config.N64UseCircularAnalogConstraint;
-			var mupen = (N64) Emulator;
-			var s = mupen.GetSettings();
-			MupenStyleLagMenuItem.Checked = s.UseMupenStyleLag;
-			N64ExpansionSlotMenuItem.Checked = mupen.UsingExpansionSlot;
-			N64ExpansionSlotMenuItem.Enabled = !mupen.IsOverridingUserExpansionSlotSetting;
-		}
-
-		private void Ares64SettingsMenuItem_Click(object sender, EventArgs e)
-			=> OpenGenericCoreConfigFor<Ares64>(CoreNames.Ares64 + " Settings");
-
-		private void Ares64SubMenu_DropDownOpened(object sender, EventArgs e)
-			=> Ares64CircularAnalogRangeMenuItem.Checked = Config.N64UseCircularAnalogConstraint;
 
 
 
@@ -1123,10 +1046,7 @@ namespace BizHawk.Client.EmuHawk
 			items.Add(a7800HawkSubmenu);
 
 			// Ares64
-			var ares64AnalogConstraintItem = CreateSettingsItem("Circular Analog Range", N64CircularAnalogRangeMenuItem_Click);
-			var ares64Submenu = CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Ares64, CreateGenericCoreConfigItem<Ares64>(CoreNames.Ares64));
-			ares64Submenu.DropDownOpened += (_, _) => ares64AnalogConstraintItem.Checked = Config.N64UseCircularAnalogConstraint;
-			items.Add(ares64Submenu);
+			items.Add(CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Ares64, CreateGenericCoreConfigItem<Ares64>(CoreNames.Ares64)));
 
 			// Atari2600Hawk
 			items.Add(CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Atari2600Hawk, CreateGenericCoreConfigItem<Atari2600>(CoreNames.Atari2600Hawk)));
@@ -1252,36 +1172,6 @@ namespace BizHawk.Client.EmuHawk
 
 			// Mupen64Plus
 			items.Add(CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Mupen64Plus, CreateGenericCoreConfigItem<Mupen64>(CoreNames.Mupen64Plus)));
-
-			var mupen64PlusGraphicsSettingsItem = CreateSettingsItem("Video Plugins...", N64PluginSettingsMenuItem_Click);
-			var mupen64PlusGamepadSettingsItem = CreateSettingsItem("Controller Settings...", (_, _) => OpenMupen64PlusGamepadSettingsDialog(GetSettingsAdapterFor<N64>()));
-			var mupen64PlusAnalogConstraintItem = CreateSettingsItem("Circular Analog Range", N64CircularAnalogRangeMenuItem_Click);
-			var mupen64PlusMupenStyleLagFramesItem = CreateSettingsItem("Mupen Style Lag Frames", (sender, _) => Mupen64PlusSetMupenStyleLag(!((ToolStripMenuItem) sender).Checked, GetSettingsAdapterFor<N64>()));
-			var mupen64PlusUseExpansionSlotItem = CreateSettingsItem("Use Expansion Slot", (sender, _) => Mupen64PlusSetUseExpansionSlot(!((ToolStripMenuItem) sender).Checked, GetSettingsAdapterFor<N64>()));
-			var mupen64PlusSubmenu = CreateCoreSubmenu(VSystemCategory.Consoles, CoreNames.Mupen64Plus + "b", mupen64PlusGraphicsSettingsItem, mupen64PlusGamepadSettingsItem, mupen64PlusAnalogConstraintItem, mupen64PlusMupenStyleLagFramesItem, mupen64PlusUseExpansionSlotItem);
-			mupen64PlusSubmenu.DropDownOpened += (_, _) =>
-			{
-				var settable = GetSettingsAdapterFor<N64>();
-				var s = (N64Settings) settable.GetSettings();
-				var isMovieActive = MovieSession.Movie.IsActive();
-				var mupen64Plus = Emulator as N64;
-				var loadedCoreIsMupen64Plus = mupen64Plus is not null;
-				mupen64PlusGraphicsSettingsItem.Enabled = !loadedCoreIsMupen64Plus || !isMovieActive;
-				mupen64PlusGamepadSettingsItem.Enabled = !loadedCoreIsMupen64Plus || !isMovieActive;
-				mupen64PlusAnalogConstraintItem.Checked = Config.N64UseCircularAnalogConstraint;
-				mupen64PlusMupenStyleLagFramesItem.Checked = s.UseMupenStyleLag;
-				if (loadedCoreIsMupen64Plus)
-				{
-					mupen64PlusUseExpansionSlotItem.Checked = mupen64Plus.UsingExpansionSlot;
-					mupen64PlusUseExpansionSlotItem.Enabled = !mupen64Plus.IsOverridingUserExpansionSlotSetting;
-				}
-				else
-				{
-					mupen64PlusUseExpansionSlotItem.Checked = !((N64SyncSettings) settable.GetSyncSettings()).DisableExpansionSlot;
-					mupen64PlusUseExpansionSlotItem.Enabled = true;
-				}
-			};
-			items.Add(mupen64PlusSubmenu);
 
 			// NeoPop
 			items.Add(CreateCoreSubmenu(VSystemCategory.Handhelds, CoreNames.NeoPop, CreateGenericNymaCoreConfigItem<NeoGeoPort>(CoreNames.NeoPop, NeoGeoPort.CachedSettingsInfo)));
@@ -1443,8 +1333,6 @@ namespace BizHawk.Client.EmuHawk
 			SNESSubMenu.Visible = false;
 			PSXSubMenu.Visible = false;
 			ColecoSubMenu.Visible = false;
-			N64SubMenu.Visible = false;
-			Ares64SubMenu.Visible = false;
 			GBLSubMenu.Visible = false;
 			AppleSubMenu.Visible = false;
 			C64SubMenu.Visible = false;
@@ -1474,12 +1362,6 @@ namespace BizHawk.Client.EmuHawk
 					break;
 				case VSystemID.Raw.INTV:
 					IntvSubMenu.Visible = true;
-					break;
-				case VSystemID.Raw.N64 when Emulator is N64:
-					N64SubMenu.Visible = true;
-					break;
-				case VSystemID.Raw.N64 when Emulator is Ares64:
-					Ares64SubMenu.Visible = true;
 					break;
 				case VSystemID.Raw.NES:
 					NESSubMenu.Visible = true;
