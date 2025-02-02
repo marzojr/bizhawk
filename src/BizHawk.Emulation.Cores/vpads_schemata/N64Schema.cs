@@ -17,11 +17,10 @@ namespace BizHawk.Emulation.Cores
 			{
 				var ss = n64.GetSyncSettings();
 
-				int i = 1;
-				if (ss.Port1Connected) yield return StandardController(i++);
-				if (ss.Port2Connected) yield return StandardController(i++);
-				if (ss.Port3Connected) yield return StandardController(i++);
-				if (ss.Port4Connected) yield return StandardController(i);
+				if (ss.Port1Connected) yield return StandardController(1);
+				if (ss.Port2Connected) yield return StandardController(2);
+				if (ss.Port3Connected) yield return StandardController(3);
+				if (ss.Port4Connected) yield return StandardController(4);
 			}
 			else if (core is Ares64 ares64)
 			{
