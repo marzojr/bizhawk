@@ -8,6 +8,7 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64;
 public partial class Mupen64 : ISettable<object, Mupen64.SyncSettings>
 {
 	private SyncSettings _syncSettings;
+	private readonly SyncSettings _activeSyncSettings;
 
 	public enum CoreType
 	{

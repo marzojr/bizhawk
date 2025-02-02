@@ -56,7 +56,7 @@ public partial class Mupen64 : IEmulator
 	public Mupen64(CoreLoadParameters<object, SyncSettings> loadParameters)
 	{
 		_openGLProvider = loadParameters.Comm.OpenGLProvider;
-		_syncSettings = loadParameters.SyncSettings ?? new SyncSettings();
+		_activeSyncSettings = _syncSettings = loadParameters.SyncSettings ?? new SyncSettings();
 
 		var rom = loadParameters.Roms[0];
 
@@ -310,8 +310,8 @@ public partial class Mupen64 : IEmulator
 
 		controller++;
 		var ret = new Mupen64InputPluginApi.InputState();
-		if (controller == 1 && _syncSettings.Port1Connected || controller == 2 && _syncSettings.Port2Connected
-			|| controller == 3 && _syncSettings.Port3Connected || controller == 4 && _syncSettings.Port4Connected)
+		if (controller == 1 && _activeSyncSettings.Port1Connected || controller == 2 && _activeSyncSettings.Port2Connected
+			|| controller == 3 && _activeSyncSettings.Port3Connected || controller == 4 && _activeSyncSettings.Port4Connected)
 		{
 			ret.X_AXIS = (sbyte) _controller.AxisValue($"P{controller} X Axis");
 			ret.Y_AXIS = (sbyte) _controller.AxisValue($"P{controller} Y Axis");
