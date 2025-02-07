@@ -33,7 +33,7 @@
 			this.btnDialogOK.Name = "btnDialogOK";
 			this.btnDialogOK.Size = new System.Drawing.Size(75, 23);
 			this.btnDialogOK.Text = "&OK";
-			this.btnDialogOK.Click += new System.EventHandler(this.btnDialogOK_Click);
+			this.btnDialogOK.Click += new BizHawk.WinForms.Controls.ButtonClickEventHandler<BizHawk.WinForms.Controls.ButtonExBase>(this.btnDialogOK_Click);
 			// 
 			// btnDialogCancel
 			// 
@@ -41,7 +41,7 @@
 			this.btnDialogCancel.Name = "btnDialogCancel";
 			this.btnDialogCancel.Size = new System.Drawing.Size(75, 23);
 			this.btnDialogCancel.Text = "&Cancel";
-			this.btnDialogCancel.Click += new System.EventHandler(this.btnDialogCancel_Click);
+			this.btnDialogCancel.Click += new BizHawk.WinForms.Controls.ButtonClickEventHandler<BizHawk.WinForms.Controls.ButtonExBase>(this.btnDialogCancel_Click);
 			// 
 			// nudPatternOn
 			// 

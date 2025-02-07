@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 
@@ -5,6 +7,8 @@ namespace BizHawk.WinForms.Controls
 {
 	public abstract class RadioButtonExBase : RadioButton, ICheckBoxOrRadioEx, ITrackedRadioButton
 	{
+		private readonly IDictionary<CBOrRBCheckedChangedEventHandler<ICheckBoxOrRadioEx>, EventHandler> _cChangedDelegates = new Dictionary<CBOrRBCheckedChangedEventHandler<ICheckBoxOrRadioEx>, EventHandler>();
+
 		/// <remarks>use to prevent recursion</remarks>
 		protected bool CheckedChangedCausedByTracker { get; private set; }
 
@@ -20,14 +24,32 @@ namespace BizHawk.WinForms.Controls
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public new bool UseVisualStyleBackColor => base.UseVisualStyleBackColor;
 
+		public new event CBOrRBCheckedChangedEventHandler<ICheckBoxOrRadioEx> CheckedChanged
+		{
+			add
+			{
+				if (!_cChangedDelegates.TryGetValue(value, out var d))
+				{
+					d = (sender, args) => value((ICheckBoxOrRadioEx) sender, args);
+					_cChangedDelegates[value] = d;
+				}
+				base.CheckedChanged += d;
+			}
+			remove
+			{
+				base.CheckedChanged -= _cChangedDelegates[value];
+				_cChangedDelegates.Remove(value);
+			}
+		}
+
 		protected RadioButtonExBase() {}
 
 		protected RadioButtonExBase(IRadioButtonReadOnlyTracker tracker)
 		{
 			tracker.Add(this);
-			CheckedChanged += (changedSender, changedArgs) =>
+			CheckedChanged += (changedSender, _) =>
 			{
-				if (((RadioButtonExBase) changedSender).Checked) tracker.UpdateDeselected(Name);
+				if (changedSender.Checked) tracker.UpdateDeselected(Name);
 			};
 		}
 

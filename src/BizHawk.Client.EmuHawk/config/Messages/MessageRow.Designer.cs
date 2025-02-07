@@ -36,7 +36,7 @@
             // 
             this.RowRadio.Name = "RowRadio";
             this.RowRadio.Text = "Frame Counter";
-            this.RowRadio.CheckedChanged += new System.EventHandler(this.RowRadio_CheckedChanged);
+            this.RowRadio.CheckedChanged += new BizHawk.WinForms.Controls.CBOrRBCheckedChangedEventHandler<BizHawk.WinForms.Controls.ICheckBoxOrRadioEx>(this.RowRadio_CheckedChanged);
             // 
             // LocationLabel
             // 
