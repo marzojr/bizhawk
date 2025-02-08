@@ -4,7 +4,7 @@ An emulation project.
 
 EmuHawk is a multi-system emulator written in C#. As well as quality-of-life features for casual players, it also has recording/playback and debugging tools, making it the first choice for TASers (Tool-Assisted Speedrunners). More info [below](#features-and-systems).
 
-A7800Hawk, Atari2600Hawk, C64Hawk, ChannelFHawk, ColecoHawk, GBHawk, IntelliHawk, NesHawk, O2Hawk, PCEHawk, SMSHawk, TI83Hawk, VectrexHawk, and ZXHawk are bespoke emulation cores written in C#.
+A7800Hawk, Atari2600Hawk, C64Hawk, ChannelFHawk, ColecoHawk, GBHawk, IntelliHawk, NesHawk, O2Hawk, PCEHawk, SMSHawk, VectrexHawk, and ZXHawk are bespoke emulation cores written in C#.
 MSXHawk is a bespoke emulation core written in C++.
 More info [below](#cores).
 
@@ -357,7 +357,7 @@ Sega Master System | **Genplus-gx**, **SMSHawk**
 Sega Saturn | **Saturnus**
 SNES | **BSNES**, Faust, Snes9x
 Super Game Boy | **BSNES**, **Gambatte**
-TI-83 | **Emu83**, **TI83Hawk**
+TI-83 | **Emu83**
 TIC-80 | **TIC-80** reference implementation
 TurboGrafx | HyperNyma, **PCEHawk**, **TurboNyma**
 Uzebox | **Uzem**

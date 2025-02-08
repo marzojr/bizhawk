@@ -56,7 +56,6 @@ namespace BizHawk.Emulation.Cores
 		public const string SubBsnes115 = "SubBSNESv115+";
 		public const string SubGbHawk = "SubGBHawk";
 		public const string SubNesHawk = "SubNESHawk";
-		public const string TI83Hawk = "TI83Hawk";
 		public const string TIC80 = "TIC-80";
 		public const string TST = "T. S. T.";
 		public const string TurboNyma = "TurboNyma";
