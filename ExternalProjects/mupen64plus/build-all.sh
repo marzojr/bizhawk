@@ -50,12 +50,7 @@ install_to_bizhawk build/video-angrylion-plus/ mupen64plus-video-angrylion-plus
 rm -rf build/video-GLideN64 && mkdir -p build/video-GLideN64
 cmake -S mupen64plus-video-GLideN64/src -B build/video-GLideN64 -G Ninja -DCMAKE_BUILD_TYPE=Release -DVEC4_OPT=On -DCRC_OPT=On -DNOHQ=On -DMUPENPLUSAPI=On -DNO_OSD=On
 cmake --build build/video-GLideN64
-# TODO: pull fix
-if [ "$OS" = "Windows_NT" ]; then
-	install_to_bizhawk build/video-GLideN64/ mupen64plus-video-GLideN64
-else
-	install_to_bizhawk build/video-GLideN64/plugin/Release/ mupen64plus-video-GLideN64
-fi
+install_to_bizhawk build/video-GLideN64/plugin/Release/ mupen64plus-video-GLideN64
 
 rm -rf build/video-parallel && mkdir -p build/video-parallel
 cmake -S mupen64plus-video-parallel -B build/video-parallel -G Ninja -DCMAKE_BUILD_TYPE=Release
