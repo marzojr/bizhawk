@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using BizHawk.Common;
 using SDL2;
 using static BizHawk.Emulation.Cores.Consoles.Nintendo.Mupen64.Mupen64Api;
@@ -168,13 +169,18 @@ public partial class Mupen64
 		return m64p_error.SUCCESS;
 	}
 
-	private IntPtr[] _vulkanInstanceExtensions;
+	private GCHandle _vulkanInstanceExtensions;
 
-	private m64p_error VidExt_VK_GetInstanceExtensions(ref IntPtr[] extensions, ref uint numExtensions)
+	private m64p_error VidExt_VK_GetInstanceExtensions(ref IntPtr extensions, ref uint numExtensions)
 	{
-		_vulkanInstanceExtensions = _openGLProvider.GetVulkanInstanceExtensions();
-		extensions = _vulkanInstanceExtensions;
-		numExtensions = (uint)_vulkanInstanceExtensions.Length;
+		if (!_vulkanInstanceExtensions.IsAllocated)
+		{
+			var vulkanInstanceExtensions = _openGLProvider.GetVulkanInstanceExtensions();
+			_vulkanInstanceExtensions = GCHandle.Alloc(vulkanInstanceExtensions, GCHandleType.Pinned);
+		}
+
+		extensions = _vulkanInstanceExtensions.AddrOfPinnedObject();
+		numExtensions = (uint) ((IntPtr[]) _vulkanInstanceExtensions.Target).Length;
 
 		return m64p_error.SUCCESS;
 	}

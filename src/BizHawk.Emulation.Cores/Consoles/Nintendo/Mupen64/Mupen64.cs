@@ -275,6 +275,8 @@ public partial class Mupen64 : IEmulator
 
 		if (_sdlContext is not null)
 			_openGLProvider.ReleaseContext(_sdlContext);
+		if (_vulkanInstanceExtensions.IsAllocated)
+			_vulkanInstanceExtensions.Free();
 	}
 
 	private void RunEmulator() => Mupen64Api.CoreDoCommand(m64p_command.EXECUTE, 0, IntPtr.Zero);
