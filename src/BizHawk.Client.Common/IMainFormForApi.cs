@@ -73,7 +73,7 @@ namespace BizHawk.Client.Common
 		bool LoadQuickSave(int slot, bool suppressOSD = false);
 
 		/// <remarks>only referenced from <c>EmuClientApi</c></remarks>
-		bool LoadRom(string path, LoadRomArgs args);
+		bool LoadRom(LoadRomArgs args);
 
 		bool LoadState(string path, string userFriendlyStateName, bool suppressOSD = false);
 

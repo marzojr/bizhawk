@@ -97,7 +97,7 @@ namespace BizHawk.Client.EmuHawk
 		}
 
 		private bool LoadRom(string filename, string archive = null)
-			=> LoadRom(filename, new LoadRomArgs(new OpenAdvanced_OpenRom(filename)));
+			=> LoadRom(new LoadRomArgs(new OpenAdvanced_OpenRom(filename)));
 
 		private bool LoadStateFile(string filename, string archive = null)
 			=> LoadState(path: filename, userFriendlyStateName: Path.GetFileName(filename));

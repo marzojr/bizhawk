@@ -25,7 +25,7 @@ namespace BizHawk.Client.EmuHawk
 
 		SettingsAdapter GetSettingsAdapterForLoadedCoreUntyped();
 
-		bool LoadRom(string path, LoadRomArgs args);
+		bool LoadRom(LoadRomArgs args);
 
 		void PauseEmulator();
 
