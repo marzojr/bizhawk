@@ -27,7 +27,13 @@ namespace BizHawk.Client.Common
 		bool IsTurboing { get; }
 
 		/// <remarks>only referenced from <see cref="CommApi"/></remarks>
-		(HttpCommunication HTTP, MemoryMappedFiles MMF, SocketServer Sockets) NetworkingHelpers { get; }
+		(
+			HttpCommunication HTTP,
+			MemoryMappedFiles MMF,
+			SocketServer Sockets,
+			WebSocketServer WebSocketServer
+		) NetworkingHelpers
+		{ get; }
 
 		/// <remarks>only referenced from <c>EmuClientApi</c></remarks>
 		bool PauseAvi { get; set; }

@@ -10,9 +10,7 @@ namespace BizHawk.Client.Common
 
 		SocketServer? Sockets { get; }
 
-#if ENABLE_WEBSOCKETS
-		WebSocketServer WebSockets { get; }
-#endif
+		WebSocketServer? WebSocketServer { get; }
 
 		string? HttpTest();
 

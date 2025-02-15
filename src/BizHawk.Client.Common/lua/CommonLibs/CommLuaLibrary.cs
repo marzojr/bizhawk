@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-
+using System.Threading.Tasks;
+using BizHawk.Client.Common.Websocket;
+using BizHawk.Client.Common.Websocket.Messages;
 using NLua;
 
 namespace BizHawk.Client.Common
@@ -10,8 +12,6 @@ namespace BizHawk.Client.Common
 	[Description("A library for communicating with other programs")]
 	public sealed class CommLuaLibrary : LuaLibraryBase
 	{
-		private readonly IDictionary<Guid, ClientWebSocketWrapper> _websockets = new Dictionary<Guid, ClientWebSocketWrapper>();
-
 		public CommLuaLibrary(ILuaLibraries luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
@@ -245,6 +245,72 @@ namespace BizHawk.Client.Common
 			return APIs.Comm.HTTP?.GetUrl;
 		}
 
+		[LuaMethodExample("comm.wss_topic( \"my-custom-topic\" );")]
+		[LuaMethod("wss_topic", "Registers a custom topic for broadcast messages, which allows clients to register.")]
+		public void RegisterCustomWebSocketServerTopic(string customTopic)
+		{
+			if (WssEnabled())
+			{
+				APIs.Comm.WebSocketServer!.RegisterCustomBroadcastTopic(customTopic);
+			}
+		}
+
+		[LuaMethodExample("comm.wss_send( \"{\\\"topic\\\": \\\"Echo\\\", \\\"Echo\\\": {\\\"requestId\\\": \\\"abcd\\\", \\\"message\\\": \\\"hello, world\\\"}}\" );")]
+		[LuaMethod("wss_send", "Broadcasts a message over the websocket server to registered clients. Message contents must be a valid [ResponseMessageWrapper] JSON string with camelCase properties.")]
+		public async Task WebSocketServerSend(string messageJson)
+		{
+			if (WssEnabled())
+			{
+				ResponseMessageWrapper? deserializedMessage = null;
+				try
+				{
+					deserializedMessage = JsonSerde.Deserialize<ResponseMessageWrapper>(messageJson);
+				}
+				catch
+				{
+					Log("Invalid message, must be of type ResponseMessageWrapper");
+				}
+				if (deserializedMessage != null)
+				{
+					await APIs.Comm.WebSocketServer!.BroadcastMessage(deserializedMessage.Value);
+				}
+			}
+		}
+
+		[LuaMethodExample("local my_handler = comm.wss_custom_handler(\"my-topic\", \r\n\tfunction(message)\r\n\tconsole.log(message);\r\n\tend);")]
+		[LuaMethod("wss_custom_handler", "Registers a custom handler that is called when there's a request on the provided custom topic. The message will always be a JSON string encoded [RequestMessageWrapper], and the response must be a JSON string encode [ResponseMessageWrapper].")]
+		public void RegisterWebSocketServerCustomHandler(string customTopic, LuaFunction luaf)
+		{
+			if (WssEnabled())
+			{
+				Task<ResponseMessageWrapper?> wrappedHandler(RequestMessageWrapper request)
+				{
+					string responseString = "";
+					// TODO I have no idea what i'm doing here. If it works then it's magic.
+					// I ripped it from [LuaWinForm.DoLuaEvent]
+					LuaSandbox.Sandbox(null, () =>
+					{
+						object[] response = luaf.Call(JsonSerde.SerializeToString(request));
+						if (response.Length > 0)
+						{
+							responseString = (string) response[0];
+						}
+					});
+
+					if (responseString != "")
+					{
+						var result = JsonSerde.Deserialize<ResponseMessageWrapper>(responseString);
+						return Task.FromResult<ResponseMessageWrapper?>(result);
+					}
+					else
+					{
+						return Task.FromResult<ResponseMessageWrapper?>(null);
+					}
+				}
+				APIs.Comm.WebSocketServer!.RegisterCustomHandler(customTopic, wrappedHandler);
+			}
+		}
+
 		private void CheckHttp()
 		{
 			if (APIs.Comm.HTTP == null)
@@ -253,55 +319,13 @@ namespace BizHawk.Client.Common
 			}
 		}
 
-#if ENABLE_WEBSOCKETS
-		[LuaMethod("ws_open", "Opens a websocket and returns the id so that it can be retrieved later.")]
-		[LuaMethodExample("local ws_id = comm.ws_open(\"wss://echo.websocket.org\");")]
-		public string WebSocketOpen(string uri)
-		{
-			var wsServer = APIs.Comm.WebSockets;
-			if (wsServer == null)
+		private bool WssEnabled() {
+			bool wssEnabled = APIs.Comm.WebSocketServer != null;
+			if (!wssEnabled)
 			{
-				Log("WebSocket server is somehow not available");
-				return null;
+				Log("WebSocket Server was not initialized, please initialize it via the command line");
 			}
-			var guid = new Guid();
-			_websockets[guid] = wsServer.Open(new Uri(uri));
-			return guid.ToString();
+			return wssEnabled;
 		}
-
-		[LuaMethod("ws_send", "Send a message to a certain websocket id (boolean flag endOfMessage)")]
-		[LuaMethodExample("local ws = comm.ws_send(ws_id, \"some message\", true);")]
-		public void WebSocketSend(
-			string guid,
-			string content,
-			bool endOfMessage)
-		{
-			if (_websockets.TryGetValue(Guid.Parse(guid), out var wrapper)) wrapper.Send(content, endOfMessage);
-		}
-
-		[LuaMethod("ws_receive", "Receive a message from a certain websocket id and a maximum number of bytes to read")]
-		[LuaMethodExample("local ws = comm.ws_receive(ws_id, str_len);")]
-		public string WebSocketReceive(string guid, int bufferCap)
-			=> _websockets.TryGetValue(Guid.Parse(guid), out var wrapper)
-				? wrapper.Receive(bufferCap)
-				: null;
-
-		[LuaMethod("ws_get_status", "Get a websocket's status")]
-		[LuaMethodExample("local ws_status = comm.ws_get_status(ws_id);")]
-		public int? WebSocketGetStatus(string guid)
-			=> _websockets.TryGetValue(Guid.Parse(guid), out var wrapper)
-				? (int) wrapper.State
-				: (int?) null;
-
-		[LuaMethod("ws_close", "Close a websocket connection with a close status")]
-		[LuaMethodExample("local ws_status = comm.ws_close(ws_id, close_status);")]
-		public void WebSocketClose(
-			string guid,
-			WebSocketCloseStatus status,
-			string closeMessage)
-		{
-			if (_websockets.TryGetValue(Guid.Parse(guid), out var wrapper)) wrapper.Close(status, closeMessage);
-		}
-#endif
 	}
 }

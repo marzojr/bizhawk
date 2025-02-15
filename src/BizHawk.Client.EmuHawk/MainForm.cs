@@ -41,6 +41,7 @@ using BizHawk.Client.EmuHawk.CoreExtensions;
 using BizHawk.Client.EmuHawk.CustomControls;
 using BizHawk.Common.CollectionExtensions;
 using BizHawk.WinForms.Controls;
+using BizHawk.Client.Common.Websocket.Messages;
 
 namespace BizHawk.Client.EmuHawk
 {
@@ -58,9 +59,9 @@ namespace BizHawk.Client.EmuHawk
 		private readonly ToolStripMenuItemEx NullHawkVSysSubmenu = new() { Enabled = false, Text = "—" };
 
 		private void MainForm_Load(object sender, EventArgs e)
-		{	
+		{
 			UpdateWindowTitle();
-			
+
 			{
 				for (int i = 1; i <= WINDOW_SCALE_MAX; i++)
 				{
@@ -503,6 +504,10 @@ namespace BizHawk.Client.EmuHawk
 				new MemoryMappedFiles(NetworkingTakeScreenshot, _argParser.MMFFilename),
 				_argParser.SocketAddress is var (socketIP, socketPort)
 					? new SocketServer(NetworkingTakeScreenshot, _argParser.SocketProtocol, socketIP, socketPort)
+					: null,
+
+				_argParser.WebSocketServerAddress is var (websocketServerIP, websocketServerPort)
+					? new WebSocketServer(System.Net.IPAddress.Parse(websocketServerIP), websocketServerPort)
 					: null
 			);
 
@@ -577,6 +582,8 @@ namespace BizHawk.Client.EmuHawk
 				}
 			);
 			InitControls();
+
+			InitWebSocketServer();
 
 			var savedOutputMethod = Config.SoundOutputMethod;
 			if (savedOutputMethod is ESoundOutputMethod.Dummy) Config.SoundOutputMethod = HostCapabilityDetector.HasXAudio2 ? ESoundOutputMethod.XAudio2 : ESoundOutputMethod.OpenAL;
@@ -1131,7 +1138,7 @@ namespace BizHawk.Client.EmuHawk
 
 		public CheatCollection CheatList { get; }
 
-		public (HttpCommunication HTTP, MemoryMappedFiles MMF, SocketServer Sockets) NetworkingHelpers { get; }
+		public (HttpCommunication HTTP, MemoryMappedFiles MMF, SocketServer Sockets, WebSocketServer WebSocketServer) NetworkingHelpers { get; }
 
 		public IRewinder Rewinder { get; private set; }
 
@@ -2111,6 +2118,132 @@ namespace BizHawk.Client.EmuHawk
 			InputManager.ControllerInputCoalescer = new(); // ctor initialises values for host haptics
 		}
 
+		private void InitWebSocketServer()
+		{
+			if (NetworkingHelpers.WebSocketServer is not null)
+			{
+				NetworkingHelpers.WebSocketServer.RegisterHandler(
+					Topic.GetInputOptions,
+					(req) =>
+					{
+						string requestId = req.GetInputOptions?.RequestId;
+						var controls = InputManager.ClickyVirtualPadController.ToBoolButtonNameList();
+						return System.Threading.Tasks.Task.FromResult<ResponseMessageWrapper?>(new ResponseMessageWrapper(
+							new GetInputOptionsResponseMessage(requestId, controls.ToHashSet())
+						));
+					}
+				);
+
+				NetworkingHelpers.WebSocketServer.RegisterHandler(
+					Topic.Input,
+					(req) =>
+					{
+						bool success = true;
+						string requestId = req.Input?.RequestId;
+						var currentAutofires = new HashSet<string>(InputManager.StickyAutofireController.CurrentAutofires);
+						if (req.Input.Value.ClearInputs) {
+							InputManager.StickyAutofireController.ClearStickies();
+						}
+
+						foreach (var input in req.Input.Value.Inputs)
+						{
+							if (input.HoldFrames == null)
+							{
+								var autoPattern = new AutoPatternBool([ true ], skipLag: true);
+								InputManager.StickyAutofireController.SetButtonAutofire(input.Name, true, autoPattern);
+							}
+							else if (input.HoldFrames == 0)
+							{
+								InputManager.StickyAutofireController.SetButtonAutofire(input.Name, false);
+							}
+							else if (input.HoldFrames > 0)
+							{
+								bool[] pattern = new bool[input.HoldFrames.Value];
+								for (int i = 0; i < input.HoldFrames; i++)
+								{
+									pattern[i] = true;
+								}
+								var autoPattern = new AutoPatternBool(pattern, skipLag: true, iterations: 1);
+								InputManager.StickyAutofireController.SetButtonAutofire(input.Name, true, autoPattern);
+							}
+							else if (input.HoldFrames == -1)
+							{
+								if (currentAutofires.Contains(input.Name))
+								{
+									InputManager.StickyAutofireController.SetButtonAutofire(input.Name, false);
+								}
+								else
+								{
+									var autoPattern = new AutoPatternBool([ true ], skipLag: true, iterations: -1);
+									InputManager.StickyAutofireController.SetButtonAutofire(input.Name, true, autoPattern);
+								}
+							} 
+							else
+							{
+								// else input.HoldFrames is negative, an invalid value
+								success = false;
+								break;
+							}
+						}
+						return System.Threading.Tasks.Task.FromResult<ResponseMessageWrapper?>(new ResponseMessageWrapper(
+							new InputResponseMessage(requestId, success)
+						));
+					}
+				);
+
+				NetworkingHelpers.WebSocketServer.RegisterHandler(
+					Topic.EmulatorCommand,
+					(req) =>
+					{
+						bool success = false;
+						string requestId = req.EmulatorCommand?.RequestId;
+						try {
+							if (req.EmulatorCommand.Value.StepSpeed != null)
+							{
+								int steps = req.EmulatorCommand.Value.StepSpeed.Value.Steps;
+								if (steps > 0)
+								{
+									IncreaseSpeed(steps);
+									success = true;
+								}
+								else if (steps < 0)
+								{
+									DecreaseSpeed(-steps);
+									success = true;
+								}
+							}
+							else if (req.EmulatorCommand.Value.RebootCore != null)
+							{
+								RebootCore();
+								success = true;
+							}
+							else if (req.EmulatorCommand.Value.SaveNamedState != null)
+							{
+								string relativePath = req.EmulatorCommand.Value.SaveNamedState.Value.RelativePath;
+								string absolutePath = $"{Config.PathEntries.SaveStateAbsolutePath(Game.System)}/{relativePath}.State";
+								SaveState(
+									absolutePath, 
+									relativePath, 
+									false, 
+									false
+								);
+							}
+						} 
+						catch (Exception e)
+						{
+							Console.WriteLine("failed emulator command request {0}", e);
+							success = false;
+						}
+						return System.Threading.Tasks.Task.FromResult<ResponseMessageWrapper?>(new ResponseMessageWrapper(
+							new EmulatorCommandResponseMessage(requestId, success)
+						));
+					}
+				);
+
+				_ = NetworkingHelpers.WebSocketServer.Start();
+			}
+		}
+
 		private void LoadMoviesFromRecent(string path)
 		{
 			if (File.Exists(path))
@@ -2667,40 +2800,56 @@ namespace BizHawk.Client.EmuHawk
 			SetSpeedPercent(100);
 		}
 
-		private void IncreaseSpeed()
+		private void IncreaseSpeed(int steps = 1)
 		{
+			// TODO should this throw an error?
+			if (steps < 1)
+				return;
+
 			if (!CheckCanSetSpeed())
 				return;
 
-			var oldPercent = Config.SpeedPercent;
-			int newPercent;
+			int oldPercent = Config.SpeedPercent;
 
 			int i = 0;
-			do
+			int newPercent = oldPercent;
+			int stepsTaken = 0;
+			while ((stepsTaken < steps) && (i <  SpeedPercents.Length))
 			{
-				i++;
 				newPercent = SpeedPercents[i];
+				if (newPercent > oldPercent)
+				{
+					stepsTaken += 1;
+				}
+				i++;
 			}
-			while (newPercent <= oldPercent && i < SpeedPercents.Length - 1);
 
 			SetSpeedPercent(newPercent);
 		}
 
-		private void DecreaseSpeed()
+		private void DecreaseSpeed(int steps = 1)
 		{
+			// TODO should this throw an error?
+			if (steps < 1)
+				return;
+
 			if (!CheckCanSetSpeed())
 				return;
 
-			var oldPercent = Config.SpeedPercent;
-			int newPercent;
+			int oldPercent = Config.SpeedPercent;
 
 			int i = SpeedPercents.Length - 1;
-			do
+			int newPercent = oldPercent;
+			int stepsTaken = 0;
+			while ((stepsTaken < steps) && (i >= 0))
 			{
-				i--;
 				newPercent = SpeedPercents[i];
+				if (newPercent < oldPercent)
+				{
+					stepsTaken += 1;
+				}
+				i--;
 			}
-			while (newPercent >= oldPercent && i > 0);
 
 			SetSpeedPercent(newPercent);
 		}
