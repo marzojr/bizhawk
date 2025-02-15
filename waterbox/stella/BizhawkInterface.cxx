@@ -150,36 +150,45 @@ ECL_EXPORT void stella_get_audio(int *n, void **buffer)
 
 ECL_EXPORT void stella_get_video(int& w, int& h, int& pitch, uint8_t*& buffer)
 {
-	 w = _a2600->console().tia().width();
-		h = _a2600->console().tia().height();
-		buffer = _a2600->console().tia().frameBuffer();
-	 pitch =	_a2600->console().tia().width();
+	w = _a2600->console().tia().width();
+	h = _a2600->console().tia().height();
+	buffer = _a2600->console().tia().frameBuffer();
+	pitch =	_a2600->console().tia().width();
 }
 
-
-ECL_EXPORT void stella_frame_advance(uint8_t port1, uint8_t port2, bool reset, bool power, bool leftDiffToggled, bool rightDiffToggled)
+// Console Switches (switchPort)
+//  SWCHB.7    P1 Difficulty Switch  (0=Beginner (B), 1=Advanced (A))
+//  SWCHB.6    P0 Difficulty Switch  (0=Beginner (B), 1=Advanced (A))
+//  SWCHB.4-5  Not used
+//  SWCHB.3    Color Switch          (0=B/W, 1=Color) (Always 0 for SECAM)
+//  SWCHB.2    Not used
+//  SWCHB.1    Select Switch         (0=Pressed)
+//  SWCHB.0    Reset Switch          (0=Pressed)
+ECL_EXPORT void stella_frame_advance(uint8_t port1, uint8_t port2, uint8_t switchPort, bool power)
 {
-				_a2600->console().switches().setLeftDifficultyA(leftDiffToggled);
-    _a2600->console().switches().setRightDifficultyA(rightDiffToggled);
-				_a2600->console().switches().setReset(!reset);
-    if (power) _a2600->console().system().reset(true);
+	_a2600->console().switches().setRightDifficultyA(switchPort & 0b10000000);
+	_a2600->console().switches().setLeftDifficultyA( switchPort & 0b01000000);
+	_a2600->console().switches().setTvColor(         switchPort & 0b00001000);
+	_a2600->console().switches().setSelect(          switchPort & 0b00000010);
+	_a2600->console().switches().setReset(           switchPort & 0b00000001);
+	if (power) _a2600->console().system().reset(true);
 
-				_a2600->console().leftController().write(::Controller::DigitalPin::One,   port1 & 0b00010000);  // Up
-				_a2600->console().leftController().write(::Controller::DigitalPin::Two,   port1 & 0b00100000);  // Down
-				_a2600->console().leftController().write(::Controller::DigitalPin::Three, port1 & 0b01000000);  // Left
-				_a2600->console().leftController().write(::Controller::DigitalPin::Four,  port1 & 0b10000000);  // Right
-				_a2600->console().leftController().write(::Controller::DigitalPin::Six,   port1 & 0b00001000);  // Button
+	_a2600->console().leftController().write(::Controller::DigitalPin::One,   port1 & 0b00010000);  // Up
+	_a2600->console().leftController().write(::Controller::DigitalPin::Two,   port1 & 0b00100000);  // Down
+	_a2600->console().leftController().write(::Controller::DigitalPin::Three, port1 & 0b01000000);  // Left
+	_a2600->console().leftController().write(::Controller::DigitalPin::Four,  port1 & 0b10000000);  // Right
+	_a2600->console().leftController().write(::Controller::DigitalPin::Six,   port1 & 0b00001000);  // Button
 
-				_a2600->console().rightController().write(::Controller::DigitalPin::One,   port2 & 0b00010000);  // Up
-				_a2600->console().rightController().write(::Controller::DigitalPin::Two,   port2 & 0b00100000);  // Down
-				_a2600->console().rightController().write(::Controller::DigitalPin::Three, port2 & 0b01000000);  // Left
-				_a2600->console().rightController().write(::Controller::DigitalPin::Four,  port2 & 0b10000000);  // Right
-				_a2600->console().rightController().write(::Controller::DigitalPin::Six,   port2 & 0b00001000);  // Button
+	_a2600->console().rightController().write(::Controller::DigitalPin::One,   port2 & 0b00010000);  // Up
+	_a2600->console().rightController().write(::Controller::DigitalPin::Two,   port2 & 0b00100000);  // Down
+	_a2600->console().rightController().write(::Controller::DigitalPin::Three, port2 & 0b01000000);  // Left
+	_a2600->console().rightController().write(::Controller::DigitalPin::Four,  port2 & 0b10000000);  // Right
+	_a2600->console().rightController().write(::Controller::DigitalPin::Six,   port2 & 0b00001000);  // Button
 
-				nsamples = 0;
-    _a2600->dispatchEmulation();
-				//  printRAM();
-				// printFrameBuffer();
+	nsamples = 0;
+	_a2600->dispatchEmulation();
+	//  printRAM();
+	// printFrameBuffer();
 }
 
 ECL_ENTRY void (*input_callback_cb)(void);
