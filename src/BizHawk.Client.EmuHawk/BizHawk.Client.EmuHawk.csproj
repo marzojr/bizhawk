@@ -299,6 +299,7 @@
 		<Compile Update="RetroAchievements/RAIntegrationDownloaderForm.cs" SubType="Form" />
 		<Compile Update="RetroAchievements/RAIntegrationDownloaderForm.Designer.cs" DependentUpon="RAIntegrationDownloaderForm.cs" />
 		<EmbeddedResource Update="RetroAchievements/RAIntegrationDownloaderForm.resx" DependentUpon="RAIntegrationDownloaderForm.cs" />
+		<Compile Update="CoreDownloaderForm.Designer.cs" DependentUpon="CoreDownloaderForm.cs" />
 		<Compile Update="RetroAchievements/RCheevos.*.cs" DependentUpon="RCheevos.cs" />
 		<Compile Update="RetroAchievements/RetroAchievements.*.cs" DependentUpon="RetroAchievements.cs" />
 		<Compile Update="RomStatusPicker.cs" SubType="Form" />
