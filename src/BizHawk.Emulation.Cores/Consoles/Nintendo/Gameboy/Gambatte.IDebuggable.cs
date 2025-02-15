@@ -79,25 +79,25 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 		private LibGambatte.MemoryCallback CreateCallback(MemoryCallbackFlags flags, Func<bool> getHasCBOfType, string which = "")
 		{
 			var rawFlags = (uint)flags;
-			return (address, cycleOffset) =>
+			return (address, cycleOffset, data) =>
 			{
 				callbackCycleCount = _cycleCount + cycleOffset;
 				if (getHasCBOfType())
 				{
-					MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "System Bus");
+					MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "System Bus");
 					var bank = LibGambatte.gambatte_getaddrbank(GambatteState, (ushort)address);
 					switch (address)
 					{
 						// usually rom bank 0 for most mbcs, some mbcs might have this at a different rom bank
 						case < 0x4000u:
 							address += (uint)(bank * 0x4000);
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "ROM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "ROM");
 							break;
 						// rom bank x
 						case < 0x8000u:
 							address += (uint)(bank * 0x4000);
 							address -= 0x4000u;
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "ROM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "ROM");
 							break;
 						// vram (may be banked on CGB in CGB enhanced mode)
 						case < 0xA000u:
@@ -107,19 +107,19 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 								address += (uint)(bank * 0x2000);
 							}
 							address -= 0x8000u;
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "VRAM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "VRAM");
 							break;
 						}
 						// sram (may be banked)
 						case < 0xC000u:
 							address += (uint)(bank * 0x2000);
 							address -= 0xA000u;
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "SRAM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "SRAM");
 							break;
 						// wram bank 0
 						case < 0xD000u:
 							address -= 0xC000u;
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "WRAM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "WRAM");
 							break;
 						// wram bank x (always one for dmg/cgb in dmg mode)
 						case < 0xE000u:
@@ -129,7 +129,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 								address += (uint)(bank * 0x1000);
 							}
 							address -= 0xD000u;
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "WRAM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "WRAM");
 							break;
 						}
 						// echo ram
@@ -139,7 +139,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 						// oam
 						case < 0xFEA0u:
 							address -= 0xFE00u;
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "OAM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "OAM");
 							break;
 						// "extra" oam
 						case < 0xFF00u:
@@ -152,7 +152,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 						// hram
 						case < 0xFFFF:
 							address -= 0xFF80u;
-							MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, which + "HRAM");
+							MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, which + "HRAM");
 							break;
 						// ie reg
 						case 0xFFFF:

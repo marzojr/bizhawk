@@ -23,7 +23,7 @@ typedef uint64_t u64;
 typedef void (*input_callback_t)(void);
 typedef void (*rumble_callback_t)(u32);
 typedef void (*trace_callback_t)(u16);
-typedef void (*memory_callback_t)(u16);
+typedef void (*memory_callback_t)(u16, u8);
 typedef void (*printer_callback_t)(u32*, u8, u8, u8, u8);
 typedef void (*scanline_callback_t)(u32);
 
@@ -105,13 +105,13 @@ static void RumbleCallbackRelay(GB_gameboy_t* gb, double rumble_amplitude)
 
 static u8 ReadCallbackRelay(GB_gameboy_t* gb, u16 addr, u8 data)
 {
-	((biz_t*)gb)->read_cb(addr);
+	((biz_t*)gb)->read_cb(addr, 0);
 	return data;
 }
 
 static bool WriteCallbackRelay(GB_gameboy_t* gb, u16 addr, u8 data)
 {
-	((biz_t*)gb)->write_cb(addr);
+	((biz_t*)gb)->write_cb(addr, data);
 	return true;
 }
 
@@ -124,7 +124,7 @@ static void ExecCallbackRelay(GB_gameboy_t* gb, u16 addr, u8 opcode)
 	}
 	if (biz->exec_cb)
 	{
-		biz->exec_cb(addr);
+		biz->exec_cb(addr, 0);
 	}
 }
 
@@ -486,6 +486,22 @@ EXPORT void sameboy_setreg(biz_t* biz, u32 which, u32 value)
 			regs->sp = value & 0xFFFF;
 			break;
 	}
+}
+
+EXPORT void sameboy_getbankregs(biz_t* biz, u32* buf)
+{
+	size_t size;
+	uint16_t bank;
+	GB_get_direct_access(&biz->gb, GB_DIRECT_ACCESS_ROM0, &size, &bank);
+	buf[0] = bank;
+	GB_get_direct_access(&biz->gb, GB_DIRECT_ACCESS_ROM, &size, &bank);
+	buf[1] = bank;
+	GB_get_direct_access(&biz->gb, GB_DIRECT_ACCESS_RAM, &size, &bank);
+	buf[2] = bank;
+	GB_get_direct_access(&biz->gb, GB_DIRECT_ACCESS_CART_RAM, &size, &bank);
+	buf[3] = bank;
+	GB_get_direct_access(&biz->gb, GB_DIRECT_ACCESS_VRAM, &size, &bank);
+	buf[4] = bank;
 }
 
 EXPORT void sameboy_setmemorycallback(biz_t* biz, u32 which, memory_callback_t callback)

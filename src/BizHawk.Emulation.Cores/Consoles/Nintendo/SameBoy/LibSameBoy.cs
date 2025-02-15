@@ -131,8 +131,11 @@ namespace BizHawk.Emulation.Cores.Nintendo.Sameboy
 		[BizImport(cc)]
 		public abstract void sameboy_setreg(IntPtr core, int which, int value);
 
+		[BizImport(cc)]
+		public abstract void sameboy_getbankregs(IntPtr core, int[] buf);
+
 		[UnmanagedFunctionPointer(cc)]
-		public delegate void MemoryCallback(ushort address);
+		public delegate void MemoryCallback(ushort address, byte data);
 
 		[BizImport(cc)]
 		public abstract void sameboy_setmemorycallback(IntPtr core, int which, MemoryCallback callback);

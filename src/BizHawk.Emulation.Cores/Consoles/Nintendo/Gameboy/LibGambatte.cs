@@ -177,7 +177,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 		/// </summary>
 		/// <param name="address">the address which the cpu is read\writing</param>
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void MemoryCallback(uint address, ulong cycleOffset);
+		public delegate void MemoryCallback(uint address, ulong cycleOffset, uint data);
 
 		/// <summary>
 		/// type of the CDLogger callback

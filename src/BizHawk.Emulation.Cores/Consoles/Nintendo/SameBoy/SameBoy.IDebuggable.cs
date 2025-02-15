@@ -11,6 +11,9 @@ namespace BizHawk.Emulation.Cores.Nintendo.Sameboy
 			int[] data = new int[10];
 			LibSameboy.sameboy_getregs(SameboyState, data);
 
+			int[] banks = new int[5];
+			LibSameboy.sameboy_getbankregs(SameboyState, banks);
+
 			return new Dictionary<string, RegisterValue>
 			{
 				["PC"] = (ushort)(data[0] & 0xFFFF),
@@ -23,6 +26,12 @@ namespace BizHawk.Emulation.Cores.Nintendo.Sameboy
 				["H"] = (byte)(data[7] & 0xFF),
 				["L"] = (byte)(data[8] & 0xFF),
 				["SP"] = (ushort)(data[9] & 0xFFFF),
+				// banks
+				["ROM0 BANK"] = (ushort)(banks[0] & 0xFFFF),
+				["ROMX BANK"] = (ushort)(banks[1] & 0xFFFF),
+				["VRAM BANK"] = (ushort)(banks[4] & 0xFFFF),
+				["SRAM BANK"] = (ushort)(banks[3] & 0xFFFF),
+				["WRAM BANK"] = (ushort)(banks[2] & 0xFFFF),
 			};
 		}
 
@@ -67,11 +76,11 @@ namespace BizHawk.Emulation.Cores.Nintendo.Sameboy
 			LibSameboy.MemoryCallback CreateCallback(MemoryCallbackFlags flags, Func<bool> getHasCBOfType)
 			{
 				var rawFlags = (uint)flags;
-				return (address) =>
+				return (address, data) =>
 				{
 					if (getHasCBOfType())
 					{
-						MemoryCallbacks.CallMemoryCallbacks(address, 0, rawFlags, systemBusScope);
+						MemoryCallbacks.CallMemoryCallbacks(address, data, rawFlags, systemBusScope);
 					}
 				};
 			}
