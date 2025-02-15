@@ -46,32 +46,18 @@ namespace BizHawk.Client.EmuHawk
 			{
 				return new[]
 				{
-					new FormatPreset("AVI Lossless UT Video", "Lossless UT video and uncompressed audio in an AVI container. Compatible with AVISource(), if UT Video decoder is installed. Fast, but low compression.",
+					new FormatPreset("Social Media — MP4", "Optimized for quick and easy sharing. Produces small, highly compatible and streamable files. AVC video and Opus audio in a MP4 container.",
+						"-c:a libopus -c:v libx264 -pix_fmt yuv420p -movflags +faststart -f mp4", false, "mp4"),
+					new FormatPreset("[ Custom ]", "Write your own FFmpeg command. For advanced users only.",
+						customCommand, true, "foobar"),
+					new FormatPreset("Lossless AVC — MKV", "Lossless AVC video and lossless FLAC audio in a Matroska container. High speed and compression. Compatible with AVISource() if x264vfw or FFmpeg based decoder is installed. Seeking may be unstable.",
+						"-c:a flac -c:v libx264rgb -qp 0 -pix_fmt rgb24 -f matroska", false, "mkv"),
+					new FormatPreset("Lossless Ut Video — AVI", "Lossless Ut Video and uncompressed audio in an AVI container. Fast, but low compression. Compatible with AVISource(), if Ut Video decoder is installed.",
 						"-c:a pcm_s16le -c:v utvideo -pred median -pix_fmt gbrp -f avi", false, "avi"),
-					new FormatPreset("AVI Lossless FFV1", "Lossless FFV1 video and uncompressed audio in an AVI container. Compatible with AVISource(), if ffmpeg based decoder is installed. Slow, but high compression.",
+					new FormatPreset("Lossless FFV1 — AVI", "Lossless FFV1 video and uncompressed audio in an AVI container. Slow, but high compression. Compatible with AVISource(), if FFmpeg based decoder is installed.",
 						"-c:a pcm_s16le -c:v ffv1 -pix_fmt bgr0 -level 1 -g 1 -coder 1 -context 1 -f avi", false, "avi"),
-					new FormatPreset("AVI Lossless AVC", "Lossless AVC video and uncompressed audio in an AVI container. High speed and compression, compatible with AVISource() if x264vfw or ffmpeg based decoder is installed. Seeking may be unstable.",
-						"-c:a pcm_s16le -c:v libx264rgb -qp 0 -preset ultrafast -g 10 -pix_fmt rgb24 -f avi", false, "avi"),
-					new FormatPreset("AVI Uncompressed", "Uncompressed video and audio in an AVI container. Very large, don't use!",
-						"-c:a pcm_s16le -c:v rawvideo -f avi", false, "avi"),
-					new FormatPreset("Matroska Lossless", "Lossless AVC video and uncompressed audio in a Matroska container.",
-						"-c:a pcm_s16le -c:v libx264rgb -qp 0 -pix_fmt rgb24 -f matroska", false, "mkv"),
-					new FormatPreset("Matroska", "AVC video and Vorbis audio in a Matroska container.",
-						"-c:a libvorbis -c:v libx264 -f matroska", false, "mkv"),
-					new FormatPreset("MP4", "AVC video and AAC audio in an MP4 container.",
-						"-c:a aac -c:v libx264 -f mp4", false, "mp4"),
-					new FormatPreset("WebM", "VP8 video and Vorbis audio in a WebM container.",
-						"-c:a libvorbis -c:v libvpx -auto-alt-ref 0 -f webm", false, "webm"),
-					new FormatPreset("Ogg", "Theora video and Vorbis audio in an Ogg container.",
-						"-c:a libvorbis -c:v libtheora -f ogg", false, "ogg"),
-					new FormatPreset("Xvid", "Xvid video and MP3 audio in an AVI container.",
-						"-c:a libmp3lame -c:v libxvid -f avi", false, "avi"),
-					new FormatPreset("QuickTime", "AVC video and AAC audio in a QuickTime container.",
-						"-c:a aac -c:v libx264 -f mov", false, "mov"),
-					new FormatPreset("FLV", "AVC video and AAC audio in a Flash Video container.",
-						"-c:a aac -c:v libx264 -f flv", false, "flv"),
-					new FormatPreset("[Custom]", "Write your own ffmpeg command. For advanced users only.",
-						customCommand, true, "foobar")
+					new FormatPreset("Uncompressed — AVI", "Uncompressed video and audio in an AVI container. Extremely large files, don't use!",
+						"-c:a pcm_s16le -c:v rawvideo -f avi", false, "avi")
 				};
 			}
 
