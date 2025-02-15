@@ -20,6 +20,7 @@ namespace BizHawk.Client.EmuHawk
 			HexFreeze.BackColor = _hexEditor.Colors.Freeze;
 			HexFreezeHL.BackColor = _hexEditor.Colors.HighlightFreeze;
 			HexHighlight.BackColor = _hexEditor.Colors.Highlight;
+			Hex00.BackColor = _hexEditor.Colors.Foreground00;
 		}
 
 		private void HexBackground_Click(object sender, MouseEventArgs e)
@@ -30,6 +31,15 @@ namespace BizHawk.Client.EmuHawk
 				_hexEditor.Header.BackColor = colorDialog1.Color;
 				_hexEditor.MemoryViewerBox.BackColor = _hexEditor.Colors.Background;
 				HexBackgrnd.BackColor = colorDialog1.Color;
+			}
+		}
+
+		private void Hex00_Click(object sender, MouseEventArgs e)
+		{
+			if (colorDialog1.ShowDialog().IsOk())
+			{
+				_hexEditor.Colors.Foreground00 = colorDialog1.Color;
+				Hex00.BackColor = colorDialog1.Color;
 			}
 		}
 

@@ -41,7 +41,9 @@
             this.HexMenubar = new System.Windows.Forms.Panel();
             this.label2 = new BizHawk.WinForms.Controls.LocLabelEx();
             this.HexBackgrnd = new System.Windows.Forms.Panel();
-            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+			this.label7 = new BizHawk.WinForms.Controls.LocLabelEx();
+			this.Hex00 = new System.Windows.Forms.Panel();
+			this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,9 +61,11 @@
             this.groupBox1.Controls.Add(this.HexMenubar);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.HexBackgrnd);
-            this.groupBox1.Location = new System.Drawing.Point(3, 2);
+			this.groupBox1.Controls.Add(this.label7);
+			this.groupBox1.Controls.Add(this.Hex00);
+			this.groupBox1.Location = new System.Drawing.Point(3, 2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(144, 192);
+            this.groupBox1.Size = new System.Drawing.Size(144, 222);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
@@ -154,12 +158,27 @@
             this.HexBackgrnd.Size = new System.Drawing.Size(20, 20);
             this.HexBackgrnd.TabIndex = 6;
             this.HexBackgrnd.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HexBackground_Click);
-            // 
-            // HexColors_Form
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			// 
+			// label7
+			// 
+			this.label7.Location = new System.Drawing.Point(30, 200);
+			this.label7.Name = "label7";
+			this.label7.Text = "Zero Color";
+			// 
+			// Hex00
+			// 
+			this.Hex00.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.Hex00.Location = new System.Drawing.Point(5, 196);
+			this.Hex00.Name = "Hex00";
+			this.Hex00.Size = new System.Drawing.Size(20, 20);
+			this.Hex00.TabIndex = 18;
+			this.Hex00.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Hex00_Click);
+			// 
+			// HexColors_Form
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(149, 197);
+            this.ClientSize = new System.Drawing.Size(149, 230);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -190,6 +209,7 @@
 		private System.Windows.Forms.Panel HexFreeze;
 		private BizHawk.WinForms.Controls.LocLabelEx label4;
 		private System.Windows.Forms.Panel HexHighlight;
-
-    }
+		private BizHawk.WinForms.Controls.LocLabelEx label7;
+		private System.Windows.Forms.Panel Hex00;
+	}
 }

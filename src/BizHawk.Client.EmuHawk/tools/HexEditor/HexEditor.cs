@@ -141,6 +141,7 @@ namespace BizHawk.Client.EmuHawk
 			public Color Freeze { get; set;  }= Color.LightBlue;
 			public Color Highlight { get; set; } = Color.Pink;
 			public Color HighlightFreeze { get; set; } = Color.Violet;
+			public Color Foreground00 { get; set; } = Color.SlateGray;
 		}
 
 		[ConfigPersist]
@@ -227,11 +228,21 @@ namespace BizHawk.Client.EmuHawk
 
 		protected override void UpdateAfter()
 		{
+			if (AddressesLabel.ZeroColor != Colors.Foreground00)
+			{
+				AddressesLabel.ZeroColor = Colors.Foreground00;
+			}
+
 			AddressesLabel.Text = GenerateMemoryViewString(true);
 		}
 
 		protected override void GeneralUpdate()
 		{
+			if (AddressesLabel.ZeroColor != Colors.Foreground00)
+			{
+				AddressesLabel.ZeroColor = Colors.Foreground00;
+			}
+
 			AddressesLabel.Text = GenerateMemoryViewString(true);
 			AddressLabel.Text = GenerateAddressString();
 		}

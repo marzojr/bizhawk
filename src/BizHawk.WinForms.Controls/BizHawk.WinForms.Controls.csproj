@@ -10,4 +10,9 @@
 		<PackageReference Include="System.Drawing.Common" />
 		<ProjectReference Include="$(ProjectDir)../BizHawk.Common/BizHawk.Common.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="LabelEx\HexLabelEx.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	</ItemGroup>
 </Project>
