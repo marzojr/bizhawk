@@ -3,7 +3,9 @@ using BizHawk.Emulation.Cores.Nintendo.NES;
 
 namespace BizHawk.Emulation.Cores.Nintendo.SubNESHawk
 {
-	[Core(CoreNames.SubNesHawk, "")]
+	[Core(
+		name: CoreNames.SubNesHawk,
+		author: "zeromus, natt, alyosha, adelikat")]
 	public partial class SubNESHawk : IEmulator, IStatable, IInputPollable, ISettable<NES.NES.NESSettings, NES.NES.NESSyncSettings>
 	{
 		[CoreConstructor(VSystemID.Raw.NES, Priority = CorePriority.SuperLow)]

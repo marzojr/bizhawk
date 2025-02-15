@@ -4,7 +4,9 @@ using BizHawk.Emulation.Cores.Nintendo.GBHawk;
 
 namespace BizHawk.Emulation.Cores.Nintendo.GBHawkLink4x
 {
-	[Core(CoreNames.GBHawkLink4x, "")]
+	[Core(
+		name: CoreNames.GBHawkLink4x,
+		author: "alyosha and BizHawk contributors")]
 	public partial class GBHawkLink4x : IEmulator, ISaveRam, IDebuggable, IStatable, IInputPollable, IRegionable,
 		ISettable<GBHawkLink4x.GBLink4xSettings, GBHawkLink4x.GBLink4xSyncSettings>,
 		ILinkedGameBoyCommon

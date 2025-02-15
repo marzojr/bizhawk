@@ -13,7 +13,12 @@ using BizHawk.Emulation.Common;
 
 namespace BizHawk.Emulation.Cores.Consoles.Nintendo.N3DS
 {
-	[PortedCore(CoreNames.Encore, "", "nightly-2104", "https://github.com/CasualPokePlayer/encore", singleInstance: true)]
+	[PortedCore(
+		name: CoreNames.Encore,
+		author: "Tropic Haze and Citra contributors; port by CasualPokePlayer",
+		portedVersion: "nightly-2104",
+		portedUrl: "https://github.com/CasualPokePlayer/encore",
+		singleInstance: true)]
 	[ServiceNotApplicable(typeof(IRegionable))]
 	public partial class Encore : IRomInfo
 	{

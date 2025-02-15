@@ -6,7 +6,9 @@ using BizHawk.Emulation.Common;
 
 namespace BizHawk.Emulation.Cores.Computers.MSX
 {
-	[Core(CoreNames.MSXHawk, "", isReleased: true)]
+	[Core(
+		name: CoreNames.MSXHawk,
+		author: "alyosha")]
 	public partial class MSX : IEmulator, IVideoProvider, ISoundProvider, ISaveRam, IInputPollable, IRegionable, ISettable<MSX.MSXSettings, MSX.MSXSyncSettings>
 	{
 		[CoreConstructor(VSystemID.Raw.MSX)]

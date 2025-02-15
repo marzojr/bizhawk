@@ -5,7 +5,9 @@ using BizHawk.Common.NumberExtensions;
 
 namespace BizHawk.Emulation.Cores.Atari.A7800Hawk
 {
-	[Core(CoreNames.A7800Hawk, "")]
+	[Core(
+		name: CoreNames.A7800Hawk,
+		author: "alyosha and BizHawk contributors")]
 	[ServiceNotApplicable(typeof(ISettable<,>))]
 	public partial class A7800Hawk : IEmulator, ISaveRam, IDebuggable, IInputPollable,
 		IRegionable, IBoardInfo, ISettable<object, A7800Hawk.A7800SyncSettings>
