@@ -196,11 +196,18 @@ namespace BizHawk.Client.Common
 			return APIs.Comm.HTTP?.ExecGet(url);
 		}
 
-		[LuaMethod("httpPost", "makes a HTTP POST request")]
+		[LuaMethod("httpPost", "makes a HTTP POST request with the payload form encoded as the 'payload' field")]
 		public string HttpPost(string url, string payload)
 		{
 			CheckHttp();
 			return APIs.Comm.HTTP?.ExecPostAsForm(url: url, payload: payload);
+		}
+
+		[LuaMethod("httpPostRaw", "makes a HTTP POST request with the supplied payload sent directly as the body")]
+		public string HttpPostRaw(string url, string payload, string contentType)
+		{
+			CheckHttp();
+			return APIs.Comm.HTTP?.ExecPostRaw(url, payload, contentType);
 		}
 
 		[LuaMethod("httpPostScreenshot", "HTTP POST screenshot")]
