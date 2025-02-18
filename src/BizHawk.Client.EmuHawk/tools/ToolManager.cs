@@ -851,6 +851,8 @@ namespace BizHawk.Client.EmuHawk
 
 		public TAStudio TAStudio => GetTool<TAStudio>();
 
+		public TAStudioMPR TAStudioMPR => GetTool<TAStudioMPR>();
+
 		public void LoadRamWatch(bool loadDialog)
 		{
 			if (IsLoaded<RamWatch>() && !_config.DisplayRamWatch)

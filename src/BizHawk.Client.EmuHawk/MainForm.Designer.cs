@@ -196,6 +196,7 @@ namespace BizHawk.Client.EmuHawk
 			this.RamSearchMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.LuaConsoleMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.TAStudioMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
+			this.TAStudioMPRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.HexEditorMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.TraceLoggerMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
 			this.DebuggerMenuItem = new BizHawk.WinForms.Controls.ToolStripMenuItemEx();
@@ -1333,6 +1334,7 @@ namespace BizHawk.Client.EmuHawk
             this.RamSearchMenuItem,
             this.LuaConsoleMenuItem,
             this.TAStudioMenuItem,
+            this.TAStudioMPRToolStripMenuItem,
             this.HexEditorMenuItem,
             this.TraceLoggerMenuItem,
             this.DebuggerMenuItem,
@@ -1375,6 +1377,13 @@ namespace BizHawk.Client.EmuHawk
 			// 
 			this.TAStudioMenuItem.Text = "&TAStudio";
 			this.TAStudioMenuItem.Click += new System.EventHandler(this.TAStudioMenuItem_Click);
+			// 
+			// TAStudioMPRToolStripMenuItem
+			// 
+			this.TAStudioMPRToolStripMenuItem.Name = "TAStudioMPRToolStripMenuItem";
+			this.TAStudioMPRToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+			this.TAStudioMPRToolStripMenuItem.Text = "TAStudioMPR";
+			this.TAStudioMPRToolStripMenuItem.Click += new System.EventHandler(this.TAStudioMenuItem_Click);
 			// 
 			// HexEditorMenuItem
 			// 
@@ -2779,5 +2788,6 @@ namespace BizHawk.Client.EmuHawk
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator25;
 		private ToolStripMenuItemEx DisableResizeWithFramebufferMenuItem;
 		private ToolStripSeparatorEx toolStripSeparator26;
+		private System.Windows.Forms.ToolStripMenuItem TAStudioMPRToolStripMenuItem;
 	}
 }

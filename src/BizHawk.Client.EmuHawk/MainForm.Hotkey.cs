@@ -349,102 +349,198 @@ namespace BizHawk.Client.EmuHawk
 					break;
 
 				// TAStudio
-				case "Add Branch":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Add Branch" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.AddBranchExternal();
 					break;
-				case "Delete Branch":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Add Branch" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.AddBranchExternal();
+					break;
+				case "Add Branch":
+					return false;
+				case "Delete Branch" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.RemoveBranchExternal();
 					break;
-				case "Show Cursor":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Delete Branch" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.RemoveBranchExternal();
+					break;
+				case "Delete Branch":
+					return false;
+				case "Show Cursor" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.SetVisibleFrame();
 					Tools.TAStudio.RefreshDialog();
 					break;
-				case "Toggle Follow Cursor":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Show Cursor" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.SetVisibleFrame();
+					Tools.TAStudioMPR.RefreshDialog();
+					break;
+				case "Show Cursor":
+					return false;
+				case "Toggle Follow Cursor" when Tools.IsLoaded<TAStudio>():
 					var playbackBox = Tools.TAStudio.TasPlaybackBox;
 					playbackBox.FollowCursor = !playbackBox.FollowCursor;
 					break;
-				case "Toggle Auto-Restore":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Toggle Follow Cursor" when Tools.IsLoaded<TAStudioMPR>():
+					var playbackBox3 = Tools.TAStudioMPR.TasPlaybackBoxMPR;
+					playbackBox3.FollowCursor = !playbackBox3.FollowCursor;
+					break;
+				case "Toggle Follow Cursor":
+					return false;
+				case "Toggle Auto-Restore" when Tools.IsLoaded<TAStudio>():
 					var playbackBox1 = Tools.TAStudio.TasPlaybackBox;
 					playbackBox1.AutoRestore = !playbackBox1.AutoRestore;
 					break;
-				case "Toggle Turbo Seek":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Toggle Auto-Restore" when Tools.IsLoaded<TAStudioMPR>():
+					var playbackBox4 = Tools.TAStudioMPR.TasPlaybackBoxMPR;
+					playbackBox4.AutoRestore = !playbackBox4.AutoRestore;
+					break;
+				case "Toggle Auto-Restore":
+					return false;
+				case "Toggle Turbo Seek" when Tools.IsLoaded<TAStudio>():
 					var playbackBox2 = Tools.TAStudio.TasPlaybackBox;
 					playbackBox2.TurboSeek = !playbackBox2.TurboSeek;
 					break;
-				case "Undo":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Toggle Turbo Seek" when Tools.IsLoaded<TAStudioMPR>():
+					var playbackBox5 = Tools.TAStudioMPR.TasPlaybackBoxMPR;
+					playbackBox5.TurboSeek = !playbackBox5.TurboSeek;
+					break;
+				case "Toggle Turbo Seek":
+					return false;
+				case "Undo" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.UndoExternal();
 					break;
-				case "Redo":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Undo" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.UndoExternal();
+					break;
+				case "Undo":
+					return false;
+				case "Redo" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.RedoExternal();
 					break;
-				case "Sel. bet. Markers":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Redo" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.RedoExternal();
+					break;
+				case "Redo":
+					return false;
+				case "Sel. bet. Markers" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.SelectBetweenMarkersExternal();
 					break;
-				case "Select All":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Sel. bet. Markers" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.SelectBetweenMarkersExternal();
+					break;
+				case "Sel. bet. Markers":
+					return false;
+				case "Select All" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.SelectAllExternal();
 					break;
-				case "Reselect Clip.":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Select All" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.SelectAllExternal();
+					break;
+				case "Select All":
+					return false;
+				case "Reselect Clip." when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.ReselectClipboardExternal();
 					break;
-				case "Clear Frames":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Reselect Clip." when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.ReselectClipboardExternal();
+					break;
+				case "Reselect Clip.":
+					return false;
+				case "Clear Frames" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.ClearFramesExternal();
 					break;
-				case "Insert Frame":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Clear Frames" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.ClearFramesExternal();
+					break;
+				case "Clear Frames":
+					return false;
+				case "Insert Frame" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.InsertFrameExternal();
 					break;
-				case "Insert # Frames":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Insert Frame" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.InsertFrameExternal();
+					break;
+				case "Insert Frame":
+					return false;
+				case "Insert # Frames" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.InsertNumFramesExternal();
 					break;
-				case "Delete Frames":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Insert # Frames" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.InsertNumFramesExternal();
+					break;
+				case "Insert # Frames":
+					return false;
+				case "Delete Frames" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.DeleteFramesExternal();
 					break;
-				case "Clone Frames":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Delete Frames" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.DeleteFramesExternal();
+					break;
+				case "Delete Frames":
+					return false;
+				case "Clone Frames" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.CloneFramesExternal();
 					break;
-				case "Clone # Times":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Clone Frames" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.CloneFramesExternal();
+					break;
+				case "Clone Frames":
+					return false;
+				case "Clone # Times" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.CloneFramesXTimesExternal();
 					break;
-				case "Analog Increment":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Clone # Times" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.CloneFramesXTimesExternal();
+					break;
+				case "Clone # Times":
+					return false;
+				case "Analog Increment" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.AnalogIncrementByOne();
 					break;
-				case "Analog Decrement":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Analog Increment" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.AnalogIncrementByOne();
+					break;
+				case "Analog Increment":
+					return false;
+				case "Analog Decrement" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.AnalogDecrementByOne();
 					break;
-				case "Analog Incr. by 10":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Analog Decrement" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.AnalogDecrementByOne();
+					break;
+				case "Analog Decrement":
+					return false;
+				case "Analog Incr. by 10" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.AnalogIncrementByTen();
 					break;
-				case "Analog Decr. by 10":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Analog Incr. by 10" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.AnalogIncrementByTen();
+					break;
+				case "Analog Incr. by 10":
+					return false;
+				case "Analog Decr. by 10" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.AnalogDecrementByTen();
 					break;
-				case "Analog Maximum":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Analog Decr. by 10" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.AnalogDecrementByTen();
+					break;
+				case "Analog Decr. by 10":
+					return false;
+				case "Analog Maximum" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.AnalogMax();
 					break;
-				case "Analog Minimum":
-					if (!Tools.IsLoaded<TAStudio>()) return false;
+				case "Analog Maximum" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.AnalogMax();
+					break;
+				case "Analog Maximum":
+					return false;
+				case "Analog Minimum" when Tools.IsLoaded<TAStudio>():
 					Tools.TAStudio.AnalogMin();
 					break;
+				case "Analog Minimum" when Tools.IsLoaded<TAStudioMPR>():
+					Tools.TAStudioMPR.AnalogMin();
+					break;
+				case "Analog Minimum":
+					return false;
 
 				// SNES
 				case "Toggle BG 1":

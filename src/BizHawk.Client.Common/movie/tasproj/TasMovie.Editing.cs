@@ -61,6 +61,56 @@ namespace BizHawk.Client.Common
 			}
 		}
 
+		public void TruncateFramesMPR(int frame, int startOffset, int currentControlLength)
+		{
+			bool endBatch = ChangeLog.BeginNewBatch($"Truncate Movie: {frame}", true);
+			ChangeLog.AddGeneralUndo(frame, InputLogLength - 1);
+
+			char[] curFrame;
+
+			if (frame < Log.Count)
+			{
+				//clear inputs for that controller until end of movie.
+				for (int i = frame; i < Log.Count; i++)
+				{
+					curFrame = Log[i].ToCharArray();
+					for (int j = startOffset; j < startOffset + currentControlLength; j++)
+					{
+						curFrame[j] = '.';
+					}
+					SetFrameAt(i, new string(curFrame));
+				}
+
+				//Find last row with empty inputThen remove range then insert range
+				int lastEmptyFrame = Log.Count - 1;
+				string noInput = Bk2LogEntryGenerator.EmptyEntry(Session.MovieController);
+				for (int i = Log.Count - 1; i >= frame; i--)
+				{
+					if (noInput == Log[i])
+					{
+						lastEmptyFrame = i;
+					}
+				}
+				//truncate if there is empty input across all controllers past the frame selected for truncation
+				if (lastEmptyFrame >= frame)
+				{
+					Log.RemoveRange(lastEmptyFrame, Log.Count - lastEmptyFrame);
+				}
+				Changes = true;
+			}
+
+			LagLog.RemoveFrom(frame);
+			TasStateManager.InvalidateAfter(frame);
+			GreenzoneInvalidated(frame);
+			Markers.TruncateAt(frame);
+
+			ChangeLog.SetGeneralRedo();
+			if (endBatch)
+			{
+				ChangeLog.EndBatch();
+			}
+		}
+
 		public override void PokeFrame(int frame, IController source)
 		{
 			ChangeLog.AddGeneralUndo(frame, frame, $"Set Frame At: {frame}");
@@ -86,6 +136,23 @@ namespace BizHawk.Client.Common
 			ChangeLog.AddGeneralUndo(frame, frame, $"Clear Frame: {frame}");
 
 			SetFrameAt(frame, Bk2LogEntryGenerator.EmptyEntry(Session.MovieController));
+			Changes = true;
+
+			InvalidateAfter(frame);
+			ChangeLog.SetGeneralRedo();
+		}
+
+		public void ClearFrameMPR(int frame, int startOffset, int currentControlLength)
+		{
+			ChangeLog.AddGeneralUndo(frame, frame, $"Clear Frame: {frame}");
+
+			char[] curFrame = Log[frame].ToCharArray();
+			for (int j = startOffset; j < startOffset + currentControlLength; j++)
+			{
+				curFrame[j] = '.';
+			}
+
+			SetFrameAt(frame, new string(curFrame));
 			Changes = true;
 
 			InvalidateAfter(frame);
@@ -127,6 +194,123 @@ namespace BizHawk.Client.Common
 				}
 			}
 		}
+
+		public void RemoveFramesMPR(ICollection<int> frames, int startOffset, int currentControlLength)
+		{
+			if (frames.Count > 0)
+			{
+				// Separate the given frames into contiguous blocks
+				// and process each block independently
+				List<int> framesToDelete = frames
+					.Where(fr => fr >= 0 && fr < InputLogLength)
+					.Order().ToList();
+				// f is the current index for framesToDelete
+				int f = 0;
+				int numDeleted = 0;
+				while (numDeleted != framesToDelete.Count)
+				{
+					int startFrame;
+					var prevFrame = startFrame = framesToDelete[f];
+					f++;
+					for (; f < framesToDelete.Count; f++)
+					{
+						var frame = framesToDelete[f];
+						if (frame - 1 != prevFrame)
+						{
+							f--;
+							break;
+						}
+						prevFrame = frame;
+					}
+
+					// Each block is logged as an individual ChangeLog entry
+					RemoveFramesMPR(startFrame - numDeleted >= 0 ? startFrame - numDeleted : 0, prevFrame + 1 - numDeleted, startOffset, currentControlLength);
+					numDeleted += prevFrame + 1 - startFrame;
+				}
+			}
+		}
+
+
+
+		/// <summary>
+		/// Remove all frames between removeStart and removeUpTo (excluding removeUpTo).
+		/// </summary>
+		/// <param name="removeStart">The first frame to remove.</param>
+		/// <param name="removeUpTo">The frame after the last frame to remove.</param>
+		public void RemoveFramesMPR(int removeStart, int removeUpTo, int startOffset, int currentControlLength)
+		{
+			// Log.GetRange() might be preferrable, but Log's type complicates that.
+			string[] removedInputs = new string[removeUpTo - removeStart];
+
+			// Pre-process removed markers for the ChangeLog.
+			List<TasMovieMarker> removedMarkers = new List<TasMovieMarker>();
+			if (BindMarkersToInput)
+			{
+				bool wasRecording = ChangeLog.IsRecording;
+				ChangeLog.IsRecording = false;
+
+				// O(n^2) removal time, but removing many binded markers in a deleted section is probably rare.
+				removedMarkers = Markers.Where(m => m.Frame >= removeStart && m.Frame < removeUpTo).ToList();
+				foreach (var marker in removedMarkers)
+				{
+					Markers.Remove(marker);
+				}
+
+				ChangeLog.IsRecording = wasRecording;
+			}
+
+			List<string> lines = new List<string>();
+			char[] framePrevious = Log[removeStart].ToCharArray();
+			string frameNext = string.Empty;
+
+			int removeNum = removeUpTo - removeStart;
+
+			for (int i = removeStart; i < Log.Count; i++)
+			{
+				if (i + removeNum >= Log.Count)
+				{
+					//leave frames from other controllers but leave current one empty.
+					framePrevious = Log[i].ToCharArray();
+					for (int j = startOffset; j < startOffset + currentControlLength; j++)
+					{
+						framePrevious[j] = '.';
+					}
+					lines.Add(new string(framePrevious));
+				}
+				else
+				{
+					//takes characters from the controller and shifts then, leaving other controllers alone.
+					framePrevious = Log[i].ToCharArray();
+					frameNext = Log[i + removeNum];
+					for (int j = startOffset; j < startOffset + currentControlLength; j++)
+					{
+						framePrevious[j] = frameNext[j];
+					}
+					lines.Add(new string(framePrevious));
+				}
+			}
+
+			//replace from inital delete frame to end
+			Log.RemoveRange(removeStart, Log.Count - removeStart); //check -1
+			Log.InsertRange(removeStart, lines);
+
+			//og
+			//Log.RemoveRange(removeStart, removeUpTo - removeStart);
+
+			ShiftBindedMarkers(removeUpTo, removeStart - removeUpTo);
+
+			Changes = true;
+			InvalidateAfter(removeStart);
+
+			ChangeLog.AddRemoveFrames(
+				removeStart,
+				removeUpTo,
+				removedInputs.ToList(),
+				removedMarkers,
+				$"Remove frames {removeStart}-{removeUpTo - 1}"
+			);
+		}
+
 
 		/// <summary>
 		/// Remove all frames between removeStart and removeUpTo (excluding removeUpTo).
@@ -172,6 +356,7 @@ namespace BizHawk.Client.Common
 			);
 		}
 
+
 		public void InsertInput(int frame, string inputState)
 		{
 			var inputLog = new List<string> { inputState };
@@ -186,7 +371,58 @@ namespace BizHawk.Client.Common
 
 			Changes = true;
 			InvalidateAfter(frame);
-			
+
+			ChangeLog.AddInsertInput(frame, inputLog.ToList(), $"Insert {inputLog.Count()} frame(s) at {frame}");
+		}
+
+		public void InsertInputMPR(int frame, IEnumerable<string> inputLog, int startOffset, int currentControlLength)
+		{
+			//insert it at end since the inputs have to shift
+			Log.InsertRange(Log.Count, Enumerable.Repeat(Bk2LogEntryGenerator.EmptyEntry(Session.MovieController), inputLog.Count()));
+
+			List<string> lines = new List<string>();
+			string framePrevious = string.Empty;
+			char[] frameNext = Log[frame].ToCharArray();
+			int addNewCount = inputLog.Count();
+			int index = 0;
+
+			foreach (string newInputs in inputLog.ToList())
+			{
+				frameNext = Log[index + frame].ToCharArray();
+
+				for (int j = startOffset; j < startOffset + currentControlLength; j++)
+				{
+					frameNext[j] = newInputs[j];
+				}
+				lines.Add(new string(frameNext));
+				index++;
+			}
+
+			for (int i = frame; i < Log.Count; i++)
+			{
+				if (i + addNewCount >= Log.Count)
+				{
+					break;
+				}
+				//takes characters from the controller and shifts then, leaving other controllers alone.
+				framePrevious = Log[i];
+				frameNext = Log[i + addNewCount].ToCharArray();
+				for (int j = startOffset; j < startOffset + currentControlLength; j++)
+				{
+					frameNext[j] = framePrevious[j];
+				}
+				lines.Add(new string(frameNext));
+
+			}
+
+			Log.RemoveRange(frame, Log.Count - frame);
+			Log.InsertRange(frame, lines);
+
+			ShiftBindedMarkers(frame, inputLog.Count());
+
+			Changes = true;
+			InvalidateAfter(frame);
+
 			ChangeLog.AddInsertInput(frame, inputLog.ToList(), $"Insert {inputLog.Count()} frame(s) at {frame}");
 		}
 
@@ -207,7 +443,7 @@ namespace BizHawk.Client.Common
 		{
 			int firstChangedFrame = -1;
 			ChangeLog.BeginNewBatch($"Copy Over Input: {frame}");
-			
+
 			var states = inputStates.ToList();
 
 			if (Log.Count < states.Count + frame)
@@ -241,6 +477,106 @@ namespace BizHawk.Client.Common
 			return firstChangedFrame;
 		}
 
+		public int CopyOverInputMPR(int frame, IEnumerable<IController> inputStates, int startOffset, int currentControlLength)
+		{
+			int firstChangedFrame = -1;
+			ChangeLog.BeginNewBatch($"Copy Over Input: {frame}");
+
+			var states = inputStates.ToList();
+
+			if (Log.Count < states.Count + frame)
+			{
+				ExtendMovieForEdit(states.Count + frame - Log.Count);
+			}
+			int addNewCount = inputStates.Count();
+
+			ChangeLog.AddGeneralUndo(frame, frame + states.Count - 1, $"Copy Over Input: {frame}");
+
+
+			char[] inputFrame;
+			char[] logFrame;
+			List<string> lines = new List<string>();
+			for (int i = 0; i < states.Count; i++)
+			{
+				if (Log.Count <= frame + i)
+				{
+					break;
+				}
+
+				var entry = Bk2LogEntryGenerator.GenerateLogEntry(states[i]);
+				if (firstChangedFrame == -1 && Log[frame + i] != entry)
+				{
+					firstChangedFrame = frame + i;
+				}
+
+				logFrame = Log[frame + i].ToCharArray();
+				inputFrame = entry.ToCharArray();
+				for (int j = startOffset; j < startOffset + currentControlLength; j++)
+				{
+					logFrame[j] = inputFrame[j];
+				}
+				Log[frame + i] = new string(logFrame);
+			}
+
+			ChangeLog.EndBatch();
+			Changes = true;
+			InvalidateAfter(frame);
+
+			ChangeLog.SetGeneralRedo();
+			return firstChangedFrame;
+		}
+
+		public int CopyOverDestInputMPR(int frame, IEnumerable<string> inputStates, int startOffset, int currentControlLength, int destStartOffset)
+		{
+			int firstChangedFrame = -1;
+			ChangeLog.BeginNewBatch($"Copy Over Input: {frame}");
+
+			var states = inputStates.ToList();
+
+			if (Log.Count < states.Count + frame)
+			{
+				ExtendMovieForEdit(states.Count + frame - Log.Count);
+			}
+			int addNewCount = inputStates.Count();
+
+			ChangeLog.AddGeneralUndo(frame, frame + states.Count - 1, $"Copy Over Input: {frame}");
+
+			char[] inputFrame;
+			char[] logFrame;
+			List<string> lines = new List<string>();
+
+			int offsetDifference = destStartOffset - startOffset;
+			for (int i = 0; i < states.Count; i++)
+			{
+				if (Log.Count <= frame + i)
+				{
+					break;
+				}
+
+				var entry = states[i];
+				if (firstChangedFrame == -1 && Log[frame + i] != entry)
+				{
+					firstChangedFrame = frame + i;
+				}
+
+				logFrame = Log[frame + i].ToCharArray();
+				inputFrame = entry.ToCharArray();
+				for (int j = startOffset; j < startOffset + currentControlLength; j++)
+				{
+					logFrame[j] = inputFrame[j + offsetDifference];
+				}
+
+				Log[frame + i] = new string(logFrame);
+			}
+
+			ChangeLog.EndBatch();
+			Changes = true;
+			InvalidateAfter(frame);
+
+			ChangeLog.SetGeneralRedo();
+			return firstChangedFrame;
+		}
+
 		public void InsertEmptyFrame(int frame, int count = 1)
 		{
 			frame = Math.Min(frame, Log.Count);
@@ -254,6 +590,106 @@ namespace BizHawk.Client.Common
 
 			ChangeLog.AddInsertFrames(frame, count, $"Insert {count} empty frame(s) at {frame}");
 		}
+
+		public void InsertEmptyFrameMPR(int frame, int startOffset, int currentControlLength, int count = 1)
+		{
+			frame = Math.Min(frame, Log.Count);
+
+			//insert it at end since the inputs have to shift
+			Log.InsertRange(Log.Count, Enumerable.Repeat(Bk2LogEntryGenerator.EmptyEntry(Session.MovieController), count));
+
+			List<string> lines = new List<string>();
+			string framePrevious = string.Empty;
+			char[] frameNext = Log[frame].ToCharArray();
+
+			//inserted empty controller first
+			for (int j = startOffset; j < startOffset + currentControlLength; j++)
+			{
+				frameNext[j] = '.';
+			}
+
+			lines.Add(new string(frameNext));
+
+			for (int i = frame; i < Log.Count; i++)
+			{
+				{
+					if (i + 1 == Log.Count)
+					{
+						lines.Add(Log[i]);
+					}
+					else
+					{
+						//takes characters from the controller and shifts then, leaving other controllers alone.
+						framePrevious = Log[i];
+						frameNext = Log[i + 1].ToCharArray();
+						for (int j = startOffset; j < startOffset + currentControlLength; j++)
+						{
+							frameNext[j] = framePrevious[j];
+						}
+						lines.Add(new string(frameNext));
+					}
+				}
+			}
+			Log.RemoveRange(frame, Log.Count - frame - 1);
+			Log.InsertRange(frame, lines);
+
+			ShiftBindedMarkers(frame, count);
+
+			Changes = true;
+			InvalidateAfter(frame);
+
+			ChangeLog.AddInsertFrames(frame, count, $"Insert {count} empty frame(s) at {frame}");
+		}
+
+		//For multiple Frame Inputs. Complex enough to have a separate func and make it faster.
+		public void InsertEmptyFramesMPR(int frame, int startOffset, int currentControlLength, int addNewCount = 1)
+		{
+			frame = Math.Min(frame, Log.Count);
+
+			//insert it at end since the inputs have to shift
+			Log.InsertRange(Log.Count, Enumerable.Repeat(Bk2LogEntryGenerator.EmptyEntry(Session.MovieController), addNewCount));
+
+			List<string> lines = new List<string>();
+			string framePrevious = string.Empty;
+			char[] frameNext = Log[frame].ToCharArray();
+
+			for (int i = 0; i < addNewCount; i++)
+			{
+				frameNext = Log[i + frame].ToCharArray();
+				for (int j = startOffset; j < startOffset + currentControlLength; j++)
+				{
+					frameNext[j] = '.';
+				}
+				lines.Add(new string(frameNext));
+			}
+
+			for (int i = frame; i < Log.Count; i++)
+			{
+				if (i + addNewCount >= Log.Count)
+				{
+					break;
+				}
+				//takes characters from the controller and shifts then, leaving other controllers alone.
+				framePrevious = Log[i];
+				frameNext = Log[i + addNewCount].ToCharArray();
+				for (int j = startOffset; j < startOffset + currentControlLength; j++)
+				{
+					frameNext[j] = framePrevious[j];
+				}
+				lines.Add(new string(frameNext));
+
+			}
+			Log.RemoveRange(frame, Log.Count - frame);
+			Log.InsertRange(frame, lines);
+
+			ShiftBindedMarkers(frame, addNewCount);
+
+			Changes = true;
+			InvalidateAfter(frame);
+
+			ChangeLog.AddInsertFrames(frame, addNewCount, $"Insert {addNewCount} empty frame(s) at {frame}");
+		}
+
 
 		private void ExtendMovieForEdit(int numFrames)
 		{

@@ -1125,7 +1125,8 @@ namespace BizHawk.Client.EmuHawk
 			{
 				return;
 			}
-			Tools.Load<TAStudio>();
+			if (sender == TAStudioMPRToolStripMenuItem) Tools.Load<TAStudioMPR>();
+			else Tools.Load<TAStudio>();
 		}
 
 		private void HexEditorMenuItem_Click(object sender, EventArgs e)
