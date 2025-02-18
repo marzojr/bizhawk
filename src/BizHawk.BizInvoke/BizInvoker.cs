@@ -602,7 +602,7 @@ namespace BizHawk.BizInvoke
 				il.Emit(OpCodes.Brfalse, isNull);
 
 				var encoding = il.DeclareLocal(typeof(Encoding), false);
-				il.EmitCall(OpCodes.Call, typeof(Encoding).GetProperty("UTF8")!.GetGetMethod(), Type.EmptyTypes);
+				il.EmitCall(OpCodes.Call, typeof(Encoding).GetProperty("UTF8")!.GetGetMethod()!, Type.EmptyTypes);
 				il.Emit(OpCodes.Stloc, encoding);
 
 				var strlenbytes = il.DeclareLocal(typeof(int), false);
@@ -634,7 +634,7 @@ namespace BizHawk.BizInvoke
 				il.Emit(OpCodes.Add);
 				// charcount
 				il.Emit(OpCodes.Ldloc, strval);
-				il.Emit(OpCodes.Call, typeof(string).GetProperty("Length")!.GetGetMethod());
+				il.Emit(OpCodes.Call, typeof(string).GetProperty("Length")!.GetGetMethod()!);
 				// bytes
 				il.Emit(OpCodes.Ldloc, bytes);
 				// bytelength

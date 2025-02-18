@@ -78,7 +78,7 @@ namespace BizHawk.Emulation.Common
 
 		private static List<string> AllSysIDs
 			=> _allSysIDs ??= typeof(Raw).GetFields(BindingFlags.Public | BindingFlags.Static)
-				.Select(x => (string) x.GetRawConstantValue())
+				.Select(x => (string) x.GetRawConstantValue()!)
 				.Order().ToList();
 
 		/// <returns><paramref name="sysID"/> iff it's in <see cref="Raw">the valid list</see>, else <see langword="null"/></returns>

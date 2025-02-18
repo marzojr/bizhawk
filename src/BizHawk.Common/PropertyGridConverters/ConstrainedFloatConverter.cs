@@ -16,7 +16,7 @@ namespace BizHawk.Common
 			return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
 		}
 
-		public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value)
+		public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
 		{
 			var range = (RangeAttribute)context!.Instance
 				.GetType()

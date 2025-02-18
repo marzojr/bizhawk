@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net48</TargetFramework>
+		<TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
 	</PropertyGroup>
 	<Import Project="../MainSlnExecutable.props" />
 	<PropertyGroup>
@@ -11,10 +11,11 @@
 		<Nullable>disable</Nullable>
 		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 		<UseWindowsForms>true</UseWindowsForms>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Net.Http" />
-		<Reference Include="System.IO.Compression" />
+		<Reference Condition="$(IsTargetingNetFramework)" Include="System.IO.Compression" />
 	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="PcxFileTypePlugin.HawkQuantizer" HintPath="$(ProjectDir)../../References/PcxFileTypePlugin.HawkQuantizer.dll" Private="true" />

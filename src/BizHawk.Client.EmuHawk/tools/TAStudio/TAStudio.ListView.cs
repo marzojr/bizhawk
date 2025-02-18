@@ -8,7 +8,9 @@ using BizHawk.Common.NumberExtensions;
 using BizHawk.Client.Common;
 using BizHawk.Common;
 using BizHawk.Common.CollectionExtensions;
+#if !NET6_0_OR_GREATER
 using BizHawk.Common.StringExtensions;
+#endif
 
 namespace BizHawk.Client.EmuHawk
 {

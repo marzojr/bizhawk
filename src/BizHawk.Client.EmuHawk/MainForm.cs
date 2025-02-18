@@ -4693,7 +4693,11 @@ namespace BizHawk.Client.EmuHawk
 			}
 
 			// Create pipe and start the async connection wait
+#if NET6_0_OR_GREATER
+			_singleInstanceServer = NamedPipeServerStreamAcl.Create(
+#else
 			_singleInstanceServer = new NamedPipeServerStream(
+#endif
 					"pipe-{84125ACB-F570-4458-9748-321F887FE795}",
 					PipeDirection.In,
 					1,

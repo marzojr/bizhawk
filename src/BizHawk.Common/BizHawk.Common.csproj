@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
 	</PropertyGroup>
 	<Import Project="../MainSlnCommon.props" />
 	<PropertyGroup>
@@ -23,4 +23,7 @@
 		<Exec Command="pwsh $(MSBuildProjectDirectory)/../../Dist/install_git_hooks.ps1"
 			IgnoreExitCode="true" /> <!-- i.e. may fail... though it was actually using the exit code properly, but oh well -->
 	</Target>
+	<ItemGroup>
+		<Compile Remove="IsExternalInit.cs" Condition="$(TargetFramework) == 'net8.0'" />
+	</ItemGroup>
 </Project>

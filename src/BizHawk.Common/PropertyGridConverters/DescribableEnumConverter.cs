@@ -39,11 +39,11 @@ namespace BizHawk.Common
 				if (fieldInfo != null)
 				{
 					var found = fieldInfo.GetCustomAttribute(typeof(DisplayAttribute));
-					if (found is DisplayAttribute da) return da.Name;
+					if (found is DisplayAttribute da) return da.Name!;
 				}
 			}
 
-			return value.ToString();
+			return value.ToString()!;
 		}
 
 		public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext? context) => new(
