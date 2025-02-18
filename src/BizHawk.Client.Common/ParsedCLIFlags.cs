@@ -35,6 +35,8 @@ namespace BizHawk.Client.Common
 
 		public readonly bool luaConsole;
 
+		public readonly (string IP, ushort Port)? WebSocketServerAddress;
+
 		public readonly (string IP, ushort Port)? SocketAddress;
 
 		public readonly ProtocolType SocketProtocol;
@@ -67,6 +69,7 @@ namespace BizHawk.Client.Common
 			string? luaScript,
 			bool luaConsole,
 			(string IP, ushort Port)? socketAddress,
+			(string IP, ushort Port)? webSocketServerAddress,
 			string? mmfFilename,
 			(string? UrlGet, string? UrlPost)? httpAddresses,
 			bool? audiosync,
@@ -90,6 +93,7 @@ namespace BizHawk.Client.Common
 			this.luaScript = luaScript;
 			this.luaConsole = luaConsole;
 			SocketAddress = socketAddress;
+			WebSocketServerAddress = webSocketServerAddress;
 			MMFFilename = mmfFilename;
 			HTTPAddresses = httpAddresses;
 			this.audiosync = audiosync;
