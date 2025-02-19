@@ -47,6 +47,11 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 
 				var flags = LibGambatte.LoadFlags.READONLY_SAV;
 
+				if (game.System == VSystemID.Raw.SGB)
+				{
+					_syncSettings.ConsoleMode = GambatteSyncSettings.ConsoleModeType.SGB2;
+				}
+
 				switch (_syncSettings.ConsoleMode)
 				{
 					case GambatteSyncSettings.ConsoleModeType.GB:
@@ -57,19 +62,16 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 					case GambatteSyncSettings.ConsoleModeType.GBA:
 						flags |= LibGambatte.LoadFlags.CGB_MODE | LibGambatte.LoadFlags.GBA_FLAG;
 						break;
+					case GambatteSyncSettings.ConsoleModeType.SGB2:
+						flags |= LibGambatte.LoadFlags.SGB_MODE;
+						IsSgb = true;
+						break;
 					case GambatteSyncSettings.ConsoleModeType.Auto:
 						if (game.System == VSystemID.Raw.GBC)
 							flags |= LibGambatte.LoadFlags.CGB_MODE;
 						break;
 					default:
 						throw new InvalidOperationException();
-				}
-
-				if (game.System == VSystemID.Raw.SGB)
-				{
-					flags &= ~(LibGambatte.LoadFlags.CGB_MODE | LibGambatte.LoadFlags.GBA_FLAG);
-					flags |= LibGambatte.LoadFlags.SGB_MODE;
-					IsSgb = true;
 				}
 
 				IsCgb = (flags & LibGambatte.LoadFlags.CGB_MODE) == LibGambatte.LoadFlags.CGB_MODE;
@@ -647,7 +649,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 				Vram = _vram,
 				Oam = _oam,
 				Sppal = _sppal,
-				Bgpal = _bgpal,	
+				Bgpal = _bgpal,
 			};
 		}
 

@@ -1,3 +1,4 @@
+using BizHawk.Common.StringExtensions;
 using BizHawk.Emulation.Common;
 
 namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
@@ -17,16 +18,26 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 
 			foreach (var s in GBLinkController.BoolButtons)
 			{
-				if (controller.IsPressed(s))
+				if (!controller.IsPressed(s)) continue;
+				if (s[0] is not 'P') continue;
+				var iSpace = s.IndexOf(' ');
+				var playerNum = int.Parse(s.Substring(startIndex: 1, length: iSpace - 1));
+				var consoleNum = 0;
+				var isSGB = false;
+				while (consoleNum < _numCores)
 				{
-					for (int i = 0; i < _numCores; i++)
-					{
-						if (s.Contains($"P{i + 1} "))
-						{
-							_linkedConts[i].Set(s.Replace($"P{i + 1} ", ""));
-						}
-					}
+					isSGB = IsSgb(consoleNum);
+					var playersForConsole = isSGB ? 4 : 1;
+					if (playerNum <= playersForConsole) break;
+					playerNum -= playersForConsole;
+					consoleNum++;
 				}
+				//TODO rather than this string manipulation, could construct a lookup ahead of time
+				_linkedConts[consoleNum].Set(s.EndsWithOrdinal("Power")
+					? "Power"
+					: isSGB
+						? $"P{playerNum} {s.Substring(startIndex: iSpace + 1)}"
+						: s.Substring(startIndex: iSpace + 1));
 			}
 
 			bool linkDiscoSignalNew = controller.IsPressed("Toggle Link Connection");
@@ -66,10 +77,11 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 
 			unsafe
 			{
-				fixed (int* fbuff = &FrameBuffer[0])
+				fixed (int* fbuff = &FrameBuffer[0], svbuff = SgbVideoBuffer)
 				{
 					// use pitch to have both cores write to the same frame buffer, interleaved
 					int Pitch = 160 * _numCores;
+					int sgbPitch = 256 * _numCores;
 
 					fixed (short* sbuff = &SoundBuffer[0])
 					{
@@ -101,6 +113,27 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 										for (int j = 0; j < 144; j++)
 										{
 											Array.Copy(FrameBuffer, (i * 160) + (j * Pitch), VideoBuffer, (i * 160) + (j * Pitch), 160);
+										}
+										if (IsAnySgb)
+										{
+											// all SGB borders will be displayed when any of them has the option enabled
+											if (IsSgb(i))
+											{
+												if (LibGambatte.gambatte_updatescreenborder(
+													_linkedCores[i].GambatteState,
+													svbuff + (i * 256),
+													sgbPitch) is not 0)
+												{
+													throw new InvalidOperationException($"{nameof(LibGambatte.gambatte_updatescreenborder)}() returned non-zero (border error???)");
+												}
+											}
+											else
+											{
+												for (int j = 0; j < 144; j++)
+												{
+													Array.Copy(FrameBuffer, (i * 160) + (j * Pitch), SgbVideoBuffer, (i * 256 + 48) + (40 + j) * sgbPitch, 160);
+												}
+											}
 										}
 									}
 

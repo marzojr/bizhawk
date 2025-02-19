@@ -122,9 +122,15 @@ namespace BizHawk.Client.Common.movie.import
 				Result.Movie.HeaderEntries.Add("IsCGBMode", "1");
 			}
 
+			var finalCoreName = Config.PreferredCores[VSystemID.Raw.GB];
 			if (isSGB)
 			{
-				Result.Errors.Add("SGB imports are not currently supported");
+				platform = VSystemID.Raw.SGB;
+				if (finalCoreName is not CoreNames.Gambatte)
+				{
+					Result.Warnings.Add($"{finalCoreName} doesn't support SGB; will use {CoreNames.Gambatte}");
+					finalCoreName = CoreNames.Gambatte;
+				}
 			}
 
 			Result.Movie.HeaderEntries[HeaderKeys.Platform] = platform;
@@ -277,13 +283,15 @@ namespace BizHawk.Client.Common.movie.import
 			}
 			else
 			{
-				Result.Movie.HeaderEntries[HeaderKeys.Core] = Config.PreferredCores[VSystemID.Raw.GB];
-				switch (Config.PreferredCores[VSystemID.Raw.GB])
+				Result.Movie.HeaderEntries[HeaderKeys.Core] = finalCoreName;
+				switch (finalCoreName)
 				{
 					case CoreNames.Gambatte:
 						Result.Movie.SyncSettingsJson = ConfigService.SaveWithType(new Gameboy.GambatteSyncSettings
 						{
-							ConsoleMode = is_GBC ? Gameboy.GambatteSyncSettings.ConsoleModeType.GBC : Gameboy.GambatteSyncSettings.ConsoleModeType.GB,
+							ConsoleMode = isSGB
+								? Gameboy.GambatteSyncSettings.ConsoleModeType.SGB2
+								: is_GBC ? Gameboy.GambatteSyncSettings.ConsoleModeType.GBC : Gameboy.GambatteSyncSettings.ConsoleModeType.GB,
 						});
 						break;
 					case CoreNames.GbHawk:
