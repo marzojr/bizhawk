@@ -138,6 +138,33 @@ namespace BizHawk.Client.EmuHawk
 			EditSubMenu.DropDownItems.Insert(
 				EditSubMenu.DropDownItems.IndexOf(ReselectClipboardMenuItem) + 1,
 				goToFrameMenuItem);
+			void clearVisibleMenuItem_Click(object sender, EventArgs args)
+			{
+				//TODO batch for undo?
+				foreach (var col in TasView.VisibleColumns) switch (col.Type)
+				{
+					case ColumnType.Boolean:
+						foreach (var frame in TasView.SelectedRows) //TODO group contiguous?
+						{
+							CurrentTasMovie.SetBoolState(frame, col.Name, val: false);
+						}
+						break;
+					case ColumnType.Axis:
+						var neutralValue = ControllerType.Axes[col.Name].Neutral;
+						foreach (var frame in TasView.SelectedRows) //TODO group contiguous?
+						{
+							CurrentTasMovie.SetAxisState(frame: frame, buttonName: col.Name, val: neutralValue);
+						}
+						break;
+				}
+				RefreshDialog();
+			}
+			ToolStripMenuItemEx clearVisibleMenuItem = new() { Text = "Clear in Visible Columns" };
+			clearVisibleMenuItem.Click += clearVisibleMenuItem_Click;
+			EditSubMenu.DropDownItems.Insert(EditSubMenu.DropDownItems.IndexOf(ClearFramesMenuItem), clearVisibleMenuItem);
+			ToolStripMenuItemEx clearVisibleCtxMenuItem = new() { Text = "Clear in Visible Columns" };
+			clearVisibleCtxMenuItem.Click += clearVisibleMenuItem_Click;
+			RightClickMenu.Items.Insert(RightClickMenu.Items.IndexOf(ClearContextMenuItem), clearVisibleCtxMenuItem);
 
 			RecentSubMenu.Image = Resources.Recent;
 			recentMacrosToolStripMenuItem.Image = Resources.Recent;
