@@ -20,6 +20,7 @@ namespace BizHawk.Emulation.Cores
 		public const string ColecoHawk = "ColecoHawk";
 		public const string CPCHawk = "CPCHawk";
 		public const string Cygne = "Cygne/Mednafen";
+		public const string DOSBox = "DOSBox";
 		public const string DSDA = "DSDA-Doom";
 		public const string Emu83 = "Emu83";
 		public const string Encore = "Encore";

@@ -85,6 +85,9 @@
 [submodule "ExternalProjects/FlooohChips/chips"]
 	path = ExternalProjects/FlooohChips/chips
 	url = https://github.com/floooh/chips.git
+[submodule "waterbox/dosbox/dosbox-x"]
+	path = waterbox/dosbox/dosbox-x
+	url = https://github.com/TASEmulators/dosbox-x.git
 [submodule "waterbox/dsda/core"]
 	path = waterbox/dsda/core
 	url = https://github.com/TASEmulators/dsda-doom.git

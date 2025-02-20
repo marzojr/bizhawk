@@ -988,6 +988,8 @@ namespace BizHawk.Client.Common
 
 			public static readonly IReadOnlyCollection<string> Coleco = new[] { "col" };
 
+			public static readonly IReadOnlyCollection<string> DOS = new[] { "ima", "img" };
+
 			public static readonly IReadOnlyCollection<string> Doom = new[] { "wad" };
 
 			public static readonly IReadOnlyCollection<string> GB = new[] { "gb", "gbc", "sgb" };
@@ -1047,6 +1049,7 @@ namespace BizHawk.Client.Common
 				.Concat(AppleII)
 				.Concat(C64)
 				.Concat(Coleco)
+				.Concat(DOS)
 				.Concat(Doom)
 				.Concat(GB)
 				.Concat(GBA)
@@ -1089,6 +1092,7 @@ namespace BizHawk.Client.Common
 			new FilesystemFilter(/*VSystemID.Raw.Arcade*/"Arcade", RomFileExtensions.Arcade),
 			new FilesystemFilter(/*VSystemID.Raw.C64*/"Commodore 64", RomFileExtensions.C64, addArchiveExts: true),
 			new FilesystemFilter(/*VSystemID.Raw.C64*/"SID Commodore 64 Music File", Array.Empty<string>(), devBuildExtraExts: new[] { "sid" }, devBuildAddArchiveExts: true),
+			new FilesystemFilter(/*VSystemID.Raw.DOS*/"DOS", RomFileExtensions.DOS),
 			new FilesystemFilter(/*VSystemID.Raw.Coleco*/"ColecoVision", RomFileExtensions.Coleco, addArchiveExts: true),
 			new FilesystemFilter(/*VSystemID.Raw.Doom*/"Doom / Hexen / Heretic WAD File", RomFileExtensions.Doom),
 			new FilesystemFilter(/*VSystemID.Raw.GB*/"Gameboy", RomFileExtensions.GB.Concat(new[] { "gbs" }).ToList(), addArchiveExts: true),

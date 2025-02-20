@@ -3,5 +3,13 @@
 	"editor.tabSize": 4,
 	"search.exclude": {
 		"waterbox/**": true
+	},
+	"files.associations": {
+		"*.jaffar": "json",
+		"__config": "cpp",
+		"sdl_dbus.h": "c",
+		"sdl_internal.h": "c",
+		"sdl_config.h": "c",
+		"iosfwd": "cpp"
 	}
 }

@@ -19,6 +19,9 @@
 		<EmbeddedResource Include="Resources/**/*" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="Resources\dosbox-x.conf.zst" />
+	</ItemGroup>
+	<ItemGroup>
 		<Compile Update="Arcades/MAME/MAME.*.cs" DependentUpon="MAME.cs" />
 		<Compile Update="Calculators/Emu83/Emu83.*.cs" DependentUpon="Emu83.cs" />
 		<Compile Update="Calculators/TI83/TI83.*.cs" DependentUpon="TI83.cs" />
